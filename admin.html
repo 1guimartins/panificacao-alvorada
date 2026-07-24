@@ -183,21 +183,55 @@
     </div>
   </div>
 
-  <script>
-    const SENHA_CORRETA = "1234";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    function validarSenha() {
+    // Configuração com as suas chaves reais do Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyB-KGrSWvIAKW6ZT0SDGUH7LFLzvYsmcJk",
+      authDomain: "panificacao-alvorada.firebaseapp.com",
+      databaseURL: "https://panificacao-alvorada-default-rtdb.firebaseio.com",
+      projectId: "panificacao-alvorada",
+      storageBucket: "panificacao-alvorada.firebasestorage.app",
+      messagingSenderId: "537626588403",
+      appId: "1:537626588403:web:8bd808f903fe33b422f386"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const SENHA_CORRETA = "1234";
+    let produtosGlobais = [];
+
+    window.validarSenha = function() {
       const senhaDigitada = document.getElementById('senhaInput').value;
       if (senhaDigitada === SENHA_CORRETA) {
         document.getElementById('senhaModal').style.display = 'none';
         document.getElementById('conteudoAdmin').style.display = 'block';
-        carregarTabelas();
+        ouvirProdutosFirebase();
       } else {
         alert("Senha incorreta!");
       }
+    };
+
+    function ouvirProdutosFirebase() {
+      const produtosRef = ref(db, 'produtos');
+      onValue(produtosRef, (snapshot) => {
+        const data = snapshot.val();
+        produtosGlobais = [];
+
+        if (data) {
+          Object.keys(data).forEach(id => {
+            produtosGlobais.push({ id, ...data[id] });
+          });
+        }
+
+        carregarTabelas();
+      });
     }
 
-    function cadastrarProduto() {
+    window.cadastrarProduto = function() {
       const dia = document.getElementById('diaSemana').value;
       const lider = document.getElementById('liderDesignado').value;
       const qtd = document.getElementById('qtdInput').value;
@@ -209,20 +243,27 @@
         return;
       }
 
-      const novoItem = { dia, lider, qtd, unidade, nome, concluido: false, finalizadoSemFazer: false, obs: '' };
+      const novoItem = {
+        dia,
+        lider,
+        qtd,
+        unidade,
+        nome,
+        concluido: false,
+        finalizadoSemFazer: false,
+        obs: ''
+      };
 
-      let produtos = JSON.parse(localStorage.getItem('programacaoPanificacao')) || [];
-      produtos.push(novoItem);
-      localStorage.setItem('programacaoPanificacao', JSON.stringify(produtos));
-
-      document.getElementById('qtdInput').value = '';
-      document.getElementById('produtoInput').value = '';
-
-      carregarTabelas();
-    }
+      const produtosRef = ref(db, 'produtos');
+      push(produtosRef, novoItem)
+        .then(() => {
+          document.getElementById('qtdInput').value = '';
+          document.getElementById('produtoInput').value = '';
+        })
+        .catch(err => alert("Erro ao salvar produto: " + err.message));
+    };
 
     function carregarTabelas() {
-      const produtos = JSON.parse(localStorage.getItem('programacaoPanificacao')) || [];
       const tbodyGeral = document.getElementById('tabelaCorpo');
       const tbodyPendencias = document.getElementById('tabelaPendencias');
       
@@ -231,7 +272,7 @@
 
       let contadorAlertas = 0;
 
-      produtos.forEach((prod, index) => {
+      produtosGlobais.forEach((prod) => {
         let statusTexto = '⚪ Em Aberto';
         if (prod.concluido) statusTexto = '🟢 Feito';
         else if (prod.finalizadoSemFazer) statusTexto = '🔴 Não Feito';
@@ -241,9 +282,9 @@
           <td>${prod.dia}</td>
           <td><strong>${prod.lider}</strong></td>
           <td>${prod.qtd} ${prod.unidade}</td>
-          <td>${prod.nome.toUpperCase()}</td>
+          <td>${(prod.nome || '').toUpperCase()}</td>
           <td>${statusTexto}</td>
-          <td><button class="btn-delete" onclick="removerProduto(${index})">Excluir</button></td>
+          <td><button class="btn-delete" onclick="removerProduto('${prod.id}')">Excluir</button></td>
         `;
         tbodyGeral.appendChild(tr);
 
@@ -253,10 +294,10 @@
           trObs.innerHTML = `
             <td><strong>${prod.dia}</strong></td>
             <td>${prod.lider}</td>
-            <td>${prod.qtd} ${prod.unidade} - ${prod.nome.toUpperCase()}</td>
-            <td class="obs-destaque">"${prod.obs}"</td>
+            <td>${prod.qtd} ${prod.unidade} - ${(prod.nome || '').toUpperCase()}</td>
+            <td class="obs-destaque">"${prod.obs || ''}"</td>
             <td>
-              <button class="btn-reagendar" onclick="reagendarProduto(${index})">🔄 Reagendar Dia</button>
+              <button class="btn-reagendar" onclick="reagendarProduto('${prod.id}')">🔄 Reagendar Dia</button>
             </td>
           `;
           tbodyPendencias.appendChild(trObs);
@@ -266,25 +307,27 @@
       document.getElementById('contadorAlertas').textContent = `${contadorAlertas} Alerta(s)`;
     }
 
-    function reagendarProduto(index) {
-      let produtos = JSON.parse(localStorage.getItem('programacaoPanificacao')) || [];
+    window.reagendarProduto = function(id) {
       const novoDia = prompt("Para qual dia deseja mover este produto?", "Terça-feira");
 
       if (novoDia) {
-        produtos[index].dia = novoDia;
-        produtos[index].finalizadoSemFazer = false;
-        produtos[index].obs = ""; 
-        localStorage.setItem('programacaoPanificacao', JSON.stringify(produtos));
-        carregarTabelas();
-        alert(`Produto transferido para ${novoDia} com sucesso!`);
+        const itemRef = ref(db, `produtos/${id}`);
+        update(itemRef, {
+          dia: novoDia,
+          finalizadoSemFazer: false,
+          obs: ""
+        })
+        .then(() => alert(`Produto transferido para ${novoDia} com sucesso!`))
+        .catch(err => alert("Erro ao reagendar: " + err.message));
       }
-    }
+    };
 
-    function removerProduto(index) {
-      let produtos = JSON.parse(localStorage.getItem('programacaoPanificacao')) || [];
-      produtos.splice(index, 1);
-      localStorage.setItem('programacaoPanificacao', JSON.stringify(produtos));
-      carregarTabelas();
+    window.removerProduto = function(id) {
+      if (confirm("Tem certeza que deseja excluir este produto?")) {
+        const itemRef = ref(db, `produtos/${id}`);
+        remove(itemRef)
+          .catch(err => alert("Erro ao remover produto: " + err.message));
+      }
     }
   </script>
 
