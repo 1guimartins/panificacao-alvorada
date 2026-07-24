@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Admin - Panificação Alvorada</title>
+  <style>
+    :root {
+      --verde-alvorada: #007a33;
+      --verde-escuro: #005624;
+      --laranja-alvorada: #f39c12;
+      --amarelo-alvorada: #f1c40f;
+      --bg-fundo: #f4f6f8;
+    }
+
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-fundo); margin: 0; padding: 12px; }
+
+    /* Topo com Solzinho */
+    .brand-header {
+      background: linear-gradient(135deg, var(--verde-alvorada), var(--verde-escuro));
+      color: white;
+      padding: 15px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      margin-bottom: 20px;
+    }
+
+    .brand-logo { display: flex; align-items: center; gap: 12px; }
+    .brand-logo img { height: 50px; width: auto; }
+    .brand-title { font-size: 18px; font-weight: bold; text-transform: uppercase; }
+
+    /* Modal de Senha */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center;
+      z-index: 1000; padding: 15px;
+    }
+
+    .modal-box { background: white; padding: 25px; border-radius: 12px; width: 100%; max-width: 380px; text-align: center; }
+    .modal-box input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; text-align: center; }
+    .modal-box button { width: 100%; padding: 12px; background: var(--verde-alvorada); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+    .modal-box .btn-voltar { background: #6c757d; margin-top: 8px; }
+
+    .admin-content { display: none; max-width: 1000px; margin: 0 auto; }
+
+    /* Alerta Visual de Pendências */
+    .alerta-box {
+      background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404;
+      padding: 15px; border-radius: 10px; margin-bottom: 20px;
+      display: flex; justify-content: space-between; align-items: center; font-weight: bold;
+    }
+
+    .badge-alerta { background-color: #d32f2f; color: white; padding: 4px 10px; border-radius: 20px; font-size: 14px; }
+
+    .form-card {
+      background-color: #ffffff; padding: 20px; border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 25px; border-top: 4px solid var(--verde-alvorada);
+    }
+
+    .form-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+    @media (min-width: 768px) { .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 2fr; } }
+
+    select, input { padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; width: 100%; }
+
+    button.btn-add {
+      width: 100%; padding: 14px; background-color: var(--verde-alvorada); color: white;
+      border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px;
+    }
+
+    .secao-card { background: white; border-radius: 10px; padding: 15px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow-x: auto; }
+    
+    table { width: 100%; border-collapse: collapse; min-width: 500px; }
+    th, td { border-bottom: 1px solid #eee; padding: 10px; text-align: left; font-size: 14px; }
+    th { background-color: var(--verde-alvorada); color: white; }
+
+    .btn-delete { background-color: #d32f2f; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+    .btn-reagendar { background-color: var(--laranja-alvorada); color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; }
+
+    .obs-destaque { color: #c62828; font-style: italic; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <div class="modal-overlay" id="senhaModal">
+    <div class="modal-box">
+      <h2>🔒 Painel Admin</h2>
+      <input type="password" id="senhaInput" placeholder="Digite a senha...">
+      <button onclick="validarSenha()">Entrar no Sistema</button>
+      <button class="btn-voltar" onclick="window.location.href='index.html'">Voltar para Operação</button>
+    </div>
+  </div>
+
+  <div class="admin-content" id="conteudoAdmin">
+
+    <div class="brand-header">
+      <div class="brand-logo">
+        <img src="https://supermercadosalvorada.com/wp-content/uploads/2023/04/logo-alvorada.png" alt="Solzinho Alvorada">
+        <div class="brand-title">Gestão da Panificação</div>
+      </div>
+      <a href="index.html" style="color: var(--amarelo-alvorada); text-decoration: none; font-weight: bold; font-size: 13px;">← Operação</a>
+    </div>
+
+    <div class="alerta-box">
+      <span>⚠️ Relatório de Ocorrências e Pendências</span>
+      <span class="badge-alerta" id="contadorAlertas">0 Alertas</span>
+    </div>
+
+    <div class="secao-card" style="border-left: 5px solid #d32f2f;">
+      <h2 style="color: #d32f2f; margin-top: 0; font-size: 18px;">🚨 Produtos Não Feitos (Justificados pelos Líderes)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Dia Previsto</th>
+            <th>Líder</th>
+            <th>Produto</th>
+            <th>Justificativa / Motivo</th>
+            <th>Ação do Admin</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaPendencias"></tbody>
+      </table>
+    </div>
+
+    <div class="form-card">
+      <h2 style="margin-top:0; color: var(--verde-alvorada); font-size: 18px;">Cadastrar Tarefas aos Líderes</h2>
+      <div class="form-grid">
+        <select id="diaSemana">
+          <option value="">Selecione o Dia...</option>
+          <option value="Segunda-feira">Segunda-feira</option>
+          <option value="Terça-feira">Terça-feira</option>
+          <option value="Quarta-feira">Quarta-feira</option>
+          <option value="Quinta-feira">Quinta-feira</option>
+          <option value="Sexta-feira">Sexta-feira</option>
+          <option value="Sábado">Sábado</option>
+          <option value="Domingo">Domingo</option>
+        </select>
+
+        <select id="liderDesignado">
+          <option value="">Líder Responsável...</option>
+          <option value="Breno">Breno</option>
+          <option value="Raynara">Raynara</option>
+          <option value="Elisângela">Elisângela</option>
+          <option value="Jonathan">Jonathan</option>
+          <option value="Ana Cláudia">Ana Cláudia</option>
+          <option value="Jéssica">Jéssica</option>
+        </select>
+
+        <div style="display: flex; gap: 5px;">
+          <input type="number" id="qtdInput" placeholder="Qtd">
+          <select id="unidadeInput">
+            <option value="kg">kg</option>
+            <option value="rec">rec</option>
+            <option value="kit">kit</option>
+            <option value="un">un</option>
+          </select>
+        </div>
+
+        <input type="text" id="produtoInput" placeholder="Nome do Produto">
+      </div>
+
+      <button class="btn-add" onclick="cadastrarProduto()">+ Cadastrar na Programação</button>
+    </div>
+
+    <div class="secao-card">
+      <h3 style="margin-top:0; color: #333;">Toda a Programação Cadastrada</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Dia</th>
+            <th>Líder</th>
+            <th>Qtd</th>
+            <th>Produto</th>
+            <th>Status</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaCorpo"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const SENHA_CORRETA = "1234";
+
+    function validarSenha() {
+      const senhaDigitada = document.getElementById('senhaInput').value;
+      if (senhaDigitada === SENHA_CORRETA) {
+        document.getElementById('senhaModal').style.display = 'none';
+        document.getElementById('conteudoAdmin').style.display = 'block';
+        carregarTabelas();
+      } else {
+        alert("Senha incorreta!");
+      }
+    }
+
+    function cadastrarProduto() {
+      const dia = document.getElementById('diaSemana').value;
+      const lider = document.getElementById('liderDesignado').value;
+      const qtd = document.getElementById('qtdInput').value;
+      const unidade = document.getElementById('unidadeInput').value;
+      const nome = document.getElementById('produtoInput').value.trim();
+
+      if (!dia || !lider || !qtd || !nome) {
+        alert("Preencha todos os campos do formulário!");
+        return;
+      }
+
+      const novoItem = { dia, lider, qtd, unidade, nome, concluido: false, finalizadoSemFazer: false, obs: '' };
+
+      let produtos = JSON.parse(localStorage.getItem('programacaoPanificacao')) || [];
+      produtos.push(novoItem);
+      localStorage.setItem('programacaoPanificacao', JSON.stringify(produtos));
+
+      document.getElementById('qtdInput').value = '';
+      document.getElementById('produtoInput').value = '';
+
+      carregarTabelas();
+    }
+
+    function carregarTabelas() {
+      const produtos = JSON.parse(localStorage.getItem('programacaoPanificacao')) || [];
+      const tbodyGeral = document.getElementById('tabelaCorpo');
+      const tbodyPendencias = document.getElementById('tabelaPendencias');
+      
+      tbodyGeral.innerHTML = '';
+      tbodyPendencias.innerHTML = '';
+
+      let contadorAlertas = 0;
+
+      produtos.forEach((prod, index) => {
+        let statusTexto = '⚪ Em Aberto';
+        if (prod.concluido) statusTexto = '🟢 Feito';
+        else if (prod.finalizadoSemFazer) statusTexto = '🔴 Não Feito';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${prod.dia}</td>
+          <td><strong>${prod.lider}</strong></td>
+          <td>${prod.qtd} ${prod.unidade}</td>
+          <td>${prod.nome.toUpperCase()}</td>
+          <td>${statusTexto}</td>
+          <td><button class="btn-delete" onclick="removerProduto(${index})">Excluir</button></td>
+        `;
+        tbodyGeral.appendChild(tr);
+
+        if (prod.finalizadoSemFazer && !prod.concluido) {
+          contadorAlertas++;
+          const trObs = document.createElement('tr');
+          trObs.innerHTML = `
+            <td><strong>${prod.dia}</strong></td>
+            <td>${prod.lider}</td>
+            <td>${prod.qtd} ${prod.unidade} - ${prod.nome.toUpperCase()}</td>
+            <td class="obs-destaque">"${prod.obs}"</td>
+            <td>
+              <button class="btn-reagendar" onclick="reagendarProduto(${index})">🔄 Reagendar Dia</button>
+            </td>
+          `;
+          tbodyPendencias.appendChild(trObs);
+        }
+      });
+
+      document.getElementById('contadorAlertas').textContent = `${contadorAlertas} Alerta(s)`;
+    }
+
+    function reagendarProduto(index) {
+      let produtos = JSON.parse(localStorage.getItem('programacaoPanificacao')) || [];
+      const novoDia = prompt("Para qual dia deseja mover este produto?", "Terça-feira");
+
+      if (novoDia) {
+        produtos[index].dia = novoDia;
+        produtos[index].finalizadoSemFazer = false;
+        produtos[index].obs = ""; 
+        localStorage.setItem('programacaoPanificacao', JSON.stringify(produtos));
+        carregarTabelas();
+        alert(`Produto transferido para ${novoDia} com sucesso!`);
+      }
+    }
+
+    function removerProduto(index) {
+      let produtos = JSON.parse(localStorage.getItem('programacaoPanificacao')) || [];
+      produtos.splice(index, 1);
+      localStorage.setItem('programacaoPanificacao', JSON.stringify(produtos));
+      carregarTabelas();
+    }
+  </script>
+
+</body>
+</html>

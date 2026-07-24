@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Panificação Alvorada - Operação</title>
+  <style>
+    :root {
+      --verde-alvorada: #007a33;
+      --verde-escuro: #005624;
+      --laranja-alvorada: #f39c12;
+      --amarelo-alvorada: #f1c40f;
+      --bg-fundo: #f4f6f8;
+    }
+
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-fundo); margin: 0; padding: 12px; }
+
+    /* Topo com Logo e Solzinho */
+    .brand-header {
+      background: linear-gradient(135deg, var(--verde-alvorada), var(--verde-escuro));
+      color: white;
+      padding: 15px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      margin-bottom: 15px;
+    }
+
+    .brand-logo { display: flex; align-items: center; gap: 12px; }
+    .brand-logo img { height: 50px; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
+    .brand-title { font-size: 18px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Barra do Usuário */
+    .user-bar {
+      background: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-left: 5px solid var(--laranja-alvorada);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .btn-logout { background: #6c757d; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; }
+
+    /* Grid dos Dias */
+    .dias-grid { display: grid; grid-template-columns: 1fr; gap: 15px; max-width: 1300px; margin: 0 auto; }
+    @media (min-width: 768px) { .dias-grid { grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); } }
+
+    .dia-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 3px 8px rgba(0,0,0,0.08); display: flex; flex-direction: column; border: 1px solid #e0e0e0; }
+    .dia-header { background: var(--verde-alvorada); color: white; padding: 12px; text-align: center; font-weight: bold; font-size: 15px; text-transform: uppercase; border-bottom: 3px solid var(--amarelo-alvorada); }
+    
+    .lista-produtos { list-style: none; padding: 12px; margin: 0; flex: 1; }
+
+    .produto-item { background: #fdfdfd; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+    .produto-item.concluido { background-color: #e8f5e9; border-color: #a5d6a7; }
+    .produto-item.nao-produzido { background-color: #ffebee; border-color: #ffcdd2; }
+
+    .produto-main { display: flex; align-items: center; gap: 12px; }
+    .produto-checkbox { width: 26px; height: 26px; cursor: pointer; accent-color: var(--verde-alvorada); }
+    .produto-info { flex: 1; font-weight: bold; color: #333; font-size: 15px; }
+    .concluido .produto-info { text-decoration: line-through; color: #757575; }
+
+    .meta-info { font-size: 12px; margin-top: 6px; font-weight: bold; }
+    .meta-info.sucesso { color: var(--verde-alvorada); }
+    .meta-info.erro { color: #c62828; }
+
+    .btn-encerrar-dia {
+      margin: 12px; padding: 12px; background: var(--laranja-alvorada); color: white;
+      border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; text-transform: uppercase;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .btn-encerrar-dia:active { background: #d35400; }
+
+    /* Modais */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.75); display: flex; justify-content: center; align-items: center;
+      z-index: 1000; padding: 15px;
+    }
+
+    .modal-box {
+      background: white; padding: 25px; border-radius: 12px;
+      width: 100%; max-width: 420px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      max-height: 90vh; overflow-y: auto;
+    }
+
+    .modal-box h2 { margin-top: 0; color: var(--verde-alvorada); text-align: center; font-size: 20px; }
+    .modal-box select, .modal-box textarea { width: 100%; padding: 12px; margin: 8px 0 15px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; font-family: inherit; }
+    .modal-box button { width: 100%; padding: 14px; background: var(--verde-alvorada); color: white; border: none; border-radius: 8px; font-size: 15px; cursor: pointer; font-weight: bold; }
+
+    .item-pendente-box { background: #fff8e1; border: 1px solid #ffe082; padding: 10px; border-radius: 6px; margin-bottom: 12px; }
+    .item-pendente-box label { font-weight: bold; color: #f57f17; display: block; margin-bottom: 5px; font-size: 13px; }
+  </style>
+</head>
+<body>
+
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal-box">
+      <h2>☀️ Acesso do Líder</h2>
+      <label for="liderSelect"><strong>Selecione seu nome:</strong></label>
+      <select id="liderSelect">
+        <option value="">-- Clique para Selecionar --</option>
+        <option value="Breno">Breno</option>
+        <option value="Raynara">Raynara</option>
+        <option value="Elisângela">Elisângela</option>
+        <option value="Jonathan">Jonathan</option>
+        <option value="Ana Cláudia">Ana Cláudia</option>
+        <option value="Jéssica">Jéssica</option>
+      </select>
+      <button onclick="salvarLider()">Entrar na Programação</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="motivoModal" style="display: none;">
+    <div class="modal-box">
+      <h2>⚠️ Motivo dos Itens Não Produzidos</h2>
+      <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Informe o motivo pelo qual os itens abaixo não foram feitos para notificar a gestão:</p>
+      
+      <div id="containerCamposMotivo"></div>
+
+      <button onclick="salvarEncerramentoDia()">Confirmar e Enviar ao Admin</button>
+    </div>
+  </div>
+
+  <div class="brand-header">
+    <div class="brand-logo">
+      <img src="https://supermercadosalvorada.com/wp-content/uploads/2023/04/logo-alvorada.png" alt="Solzinho Alvorada">
+      <div class="brand-title">Panificação</div>
+    </div>
+    <a href="admin.html" style="color: var(--amarelo-alvorada); text-decoration: none; font-weight: bold; font-size: 13px;">⚙️ Admin</a>
+  </div>
+
+  <div class="user-bar">
+    <div>Líder Ativo: <strong id="nomeLiderExibicao" style="color: var(--verde-alvorada);">-</strong></div>
+    <button class="btn-logout" onclick="trocarLider()">Sair</button>
+  </div>
+
+  <div class="dias-grid">
+    <div class="dia-card"><div class="dia-header">Segunda-feira</div><ul class="lista-produtos" id="lista-Segunda-feira"></ul><button class="btn-encerrar-dia" onclick="iniciarEncerramento('Segunda-feira')">🔒 Concluir Segunda-feira</button></div>
+    <div class="dia-card"><div class="dia-header">Terça-feira</div><ul class="lista-produtos" id="lista-Terça-feira"></ul><button class="btn-encerrar-dia" onclick="iniciarEncerramento('Terça-feira')">🔒 Concluir Terça-feira</button></div>
+    <div class="dia-card"><div class="dia-header">Quarta-feira</div><ul class="lista-produtos" id="lista-Quarta-feira"></ul><button class="btn-encerrar-dia" onclick="iniciarEncerramento('Quarta-feira')">🔒 Concluir Quarta-feira</button></div>
+    <div class="dia-card"><div class="dia-header">Quinta-feira</div><ul class="lista-produtos" id="lista-Quinta-feira"></ul><button class="btn-encerrar-dia" onclick="iniciarEncerramento('Quinta-feira')">🔒 Concluir Quinta-feira</button></div>
+    <div class="dia-card"><div class="dia-header">Sexta-feira</div><ul class="lista-produtos" id="lista-Sexta-feira"></ul><button class="btn-encerrar-dia" onclick="iniciarEncerramento('Sexta-feira')">🔒 Concluir Sexta-feira</button></div>
+    <div class="dia-card"><div class="dia-header">Sábado</div><ul class="lista-produtos" id="lista-Sábado"></ul><button class="btn-encerrar-dia" onclick="iniciarEncerramento('Sábado')">🔒 Concluir Sábado</button></div>
+    <div class="dia-card"><div class="dia-header">Domingo</div><ul class="lista-produtos" id="lista-Domingo"></ul><button class="btn-encerrar-dia" onclick="iniciarEncerramento('Domingo')">🔒 Concluir Domingo</button></div>
+  </div>
+
+  <script>
+    let liderAtual = localStorage.getItem('liderAtivo') || '';
+    let diaEmEncerramento = '';
+
+    function verificarLogin() {
+      const modal = document.getElementById('loginModal');
+      const nomeSpan = document.getElementById('nomeLiderExibicao');
+
+      if (!liderAtual) {
+        modal.style.display = 'flex';
+      } else {
+        modal.style.display = 'none';
+        nomeSpan.textContent = liderAtual;
+        carregarProdutos();
+      }
+    }
+
+    function salvarLider() {
+      const select = document.getElementById('liderSelect');
+      const nome = select.value;
+      if (!nome) { alert("Por favor, selecione seu nome!"); return; }
+      liderAtual = nome;
+      localStorage.setItem('liderAtivo', nome);
+      verificarLogin();
+    }
+
+    function trocarLider() {
+      localStorage.removeItem('liderAtivo');
+      liderAtual = '';
+      document.getElementById('liderSelect').value = '';
+      verificarLogin();
+    }
+
+    function carregarProdutos() {
+      const produtos = JSON.parse(localStorage.getItem('programacaoPanificacao')) || [];
+      document.querySelectorAll('.lista-produtos').forEach(ul => ul.innerHTML = '');
+
+      produtos.forEach((prod, index) => {
+        if (prod.lider === liderAtual) {
+          const listaAlvo = document.getElementById(`lista-${prod.dia}`);
+          if (listaAlvo) {
+            const novoLi = document.createElement('li');
+            
+            let classeItem = 'produto-item';
+            let historico = '';
+
+            if (prod.concluido) {
+              classeItem += ' concluido';
+              historico = `<div class="meta-info sucesso">✓ Concluído por: ${prod.responsavel || liderAtual}</div>`;
+            } else if (prod.finalizadoSemFazer) {
+              classeItem += ' nao-produzido';
+              historico = `<div class="meta-info erro">❌ Não Feito: "${prod.obs}"</div>`;
+            }
+
+            novoLi.className = classeItem;
+            novoLi.innerHTML = `
+              <div class="produto-main">
+                <input type="checkbox" class="produto-checkbox" ${prod.concluido ? 'checked' : ''} onchange="alternarConcluido(${index})">
+                <span class="produto-info">${prod.qtd} ${prod.unidade} - ${prod.nome.toUpperCase()}</span>
+              </div>
+              ${historico}
+            `;
+
+            listaAlvo.appendChild(novoLi);
+          }
+        }
+      });
+    }
+
+    function alternarConcluido(index) {
+      let produtos = JSON.parse(localStorage.getItem('programacaoPanificacao')) || [];
+      const statusAtual = !produtos[index].concluido;
+      
+      produtos[index].concluido = statusAtual;
+      produtos[index].responsavel = statusAtual ? liderAtual : '';
+      if(statusAtual) {
+        produtos[index].finalizadoSemFazer = false;
+      }
+
+      localStorage.setItem('programacaoPanificacao', JSON.stringify(produtos));
+      carregarProdutos();
+    }
+
+    function iniciarEncerramento(dia) {
+      diaEmEncerramento = dia;
+      const produtos = JSON.parse(localStorage.getItem('programacaoPanificacao')) || [];
+      
+      const naoFeitos = produtos.map((p, index) => ({...p, originalIndex: index}))
+                                .filter(p => p.lider === liderAtual && p.dia === dia && !p.concluido);
+
+      if (naoFeitos.length === 0) {
+        alert(`Tudo certo! Todos os produtos de ${dia} foram concluídos com sucesso.`);
+        return;
+      }
+
+      const container = document.getElementById('containerCamposMotivo');
+      container.innerHTML = '';
+
+      naoFeitos.forEach(prod => {
+        const div = document.createElement('div');
+        div.className = 'item-pendente-box';
+        div.innerHTML = `
+          <label>📦 ${prod.qtd} ${prod.unidade} - ${prod.nome.toUpperCase()}</label>
+          <textarea data-index="${prod.originalIndex}" class="campo-motivo" rows="2" placeholder="Por qual motivo este produto não foi produzido?"></textarea>
+        `;
+        container.appendChild(div);
+      });
+
+      document.getElementById('motivoModal').style.display = 'flex';
+    }
+
+    function salvarEncerramentoDia() {
+      let produtos = JSON.parse(localStorage.getItem('programacaoPanificacao')) || [];
+      const campos = document.querySelectorAll('.campo-motivo');
+
+      let todosPreenchidos = true;
+      campos.forEach(campo => {
+        if (!campo.value.trim()) todosPreenchidos = false;
+      });
+
+      if (!todosPreenchidos) {
+        alert("Atenção: É obrigatório preencher o motivo de TODOS os produtos não produzidos!");
+        return;
+      }
+
+      campos.forEach(campo => {
+        const index = campo.getAttribute('data-index');
+        produtos[index].obs = campo.value.trim();
+        produtos[index].finalizadoSemFazer = true;
+      });
+
+      localStorage.setItem('programacaoPanificacao', JSON.stringify(produtos));
+      document.getElementById('motivoModal').style.display = 'none';
+      carregarProdutos();
+      alert(`Dia encerrado! As justificativas foram enviadas para o painel do Administrador.`);
+    }
+
+    verificarLogin();
+  </script>
+
+</body>
+</html>
