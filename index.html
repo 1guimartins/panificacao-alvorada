@@ -82,14 +82,24 @@
 
     .item-row {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 15px; border-bottom: 1px solid #eee; gap: 10px;
+      padding: 14px 15px; border-bottom: 1px solid #eee; gap: 10px; flex-wrap: wrap;
     }
 
-    .item-info { display: flex; align-items: center; gap: 12px; flex: 1; }
+    .item-info { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 200px; }
     .item-qtd { font-weight: bold; color: var(--verde-escuro); min-width: 65px; font-size: 15px; }
     .item-nome { font-size: 15px; text-transform: uppercase; }
 
     .checkbox-custom { width: 26px; height: 26px; cursor: pointer; accent-color: var(--verde-alvorada); }
+
+    .input-baixa-parcial {
+      width: 70px; padding: 6px; border: 1px solid #ccc; border-radius: 6px;
+      text-align: center; font-weight: bold; font-size: 14px;
+    }
+
+    .btn-baixa-parcial {
+      background-color: var(--verde-alvorada); color: white; border: none;
+      padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer;
+    }
 
     .btn-concluir-dia {
       width: 100%; margin-top: 10px; padding: 14px;
@@ -293,15 +303,33 @@
           const setorCard = document.createElement('div');
           setorCard.className = 'setor-card';
 
-          let htmlItens = prodsSetor.map(prod => `
-            <div class="item-row">
-              <div class="item-info">
-                <input type="checkbox" class="checkbox-custom" ${prod.concluido ? 'checked' : ''} onchange="toggleItem('${prod.id}', this.checked)">
-                <span class="item-qtd">${prod.qtd} ${prod.unidade}</span>
-                <span class="item-nome" style="${prod.concluido ? 'text-decoration: line-through; color: #888;' : ''}">${prod.nome}</span>
+          let htmlItens = prodsSetor.map(prod => {
+            const isJessica = normalizarString(liderAtual) === 'jéssica';
+
+            let acaoVisual = `
+              <input type="checkbox" class="checkbox-custom" ${prod.concluido ? 'checked' : ''} onchange="toggleItem('${prod.id}', this.checked)">
+            `;
+
+            // Se for a Jéssica, permite dar baixa parcial digitando a quantidade que embalou
+            if (isJessica && !prod.concluido) {
+              acaoVisual = `
+                <div style="display: flex; gap: 5px; align-items: center;">
+                  <input type="number" id="inputQtd_${prod.id}" class="input-baixa-parcial" placeholder="Qtd" max="${prod.qtd}">
+                  <button class="btn-baixa-parcial" onclick="darBaixaEmbalagem('${prod.id}')">Dar Baixa</button>
+                </div>
+              `;
+            }
+
+            return `
+              <div class="item-row">
+                <div class="item-info">
+                  ${acaoVisual}
+                  <span class="item-qtd">${prod.qtd} ${prod.unidade}</span>
+                  <span class="item-nome" style="${prod.concluido ? 'text-decoration: line-through; color: #888;' : ''}">${prod.nome}</span>
+                </div>
               </div>
-            </div>
-          `).join('');
+            `;
+          }).join('');
 
           setorCard.innerHTML = `
             <div class="setor-header">
@@ -325,44 +353,62 @@
       }
     }
 
-    // LÓGICA DE AUTOMAÇÃO ENTRE JÉSSICA E ELISÂNGELA
     window.toggleItem = function(id, concluido) {
       const itemRef = ref(db, `produtos/${id}`);
       update(itemRef, { concluido: concluido });
-
-      // Se Jéssica concluiu um item de embalagem de bolo, atualiza automaticamente a produção da Elisângela
-      const produtoAtual = produtosGlobais.find(p => p.id === id);
-      if (produtoAtual && normalizarString(produtoAtual.lider) === 'jéssica' && concluido) {
-        processarDescontoElisangela(produtoAtual);
-      }
     };
 
-    function processarDescontoElisangela(prodJessica) {
-      // Normaliza o nome do produto removendo a palavra EMB se existir
+    // AÇÃO EXCLUSIVA PARA A JÉSSICA DAR BAIXA PARCIAL
+    window.darBaixaEmbalagem = function(id) {
+      const input = document.getElementById(`inputQtd_${id}`);
+      const qtdDigitada = parseFloat(input.value);
+      const prodJessica = produtosGlobais.find(p => p.id === id);
+
+      if (!prodJessica || !qtdDigitada || qtdDigitada <= 0) {
+        alert("Por favor, digite a quantidade válida que foi embalada!");
+        return;
+      }
+
+      const qtdAtualJessica = parseFloat(prodJessica.qtd) || 0;
+      if (qtdDigitada > qtdAtualJessica) {
+        alert(`A quantidade digitada (${qtdDigitada}) não pode ser maior que o total cadastrado (${qtdAtualJessica})!`);
+        return;
+      }
+
+      const novaQtdJessica = qtdAtualJessica - qtdDigitada;
+      const jessicaConcluido = novaQtdJessica === 0;
+
+      // Atualiza o item da Jéssica no Firebase
+      const itemRef = ref(db, `produtos/${id}`);
+      update(itemRef, {
+        qtd: novaQtdJessica,
+        concluido: jessicaConcluido
+      }).then(() => {
+        // Desconta automaticamente o valor idêntico do produto da Elisângela
+        processarDescontoElisangela(prodJessica, qtdDigitada);
+        alert(`Baixa de ${qtdDigitada} ${prodJessica.unidade} confirmada e descontada da Elisângela!`);
+      });
+    };
+
+    function processarDescontoElisangela(prodJessica, qtdEmbalada) {
       const nomeBase = normalizarString(prodJessica.nome).replace(/\bemb\b/g, '').trim();
-      const qtdEmbalada = parseFloat(prodJessica.qtd) || 0;
 
-      if (qtdEmbalada <= 0) return;
-
-      // Procura o item da Elisângela correspondente no mesmo dia (ou aberto)
+      // Busca a tarefa da Elisângela no mesmo dia (ou aberta)
       const prodElisangela = produtosGlobais.find(p => 
         normalizarString(p.lider) === 'elisângela' &&
-        normalizarString(p.dia) === normalizarString(prodJessica.dia) &&
         normalizarString(p.nome).includes(nomeBase) &&
         !p.concluido
       );
 
       if (prodElisangela) {
         const qtdAtualElis = parseFloat(prodElisangela.qtd) || 0;
-        const novaQtd = Math.max(0, qtdAtualElis - qtdEmbalada);
-        const estaConcluido = novaQtd === 0;
+        const novaQtdElis = Math.max(0, qtdAtualElis - qtdEmbalada);
+        const elisConcluido = novaQtdElis === 0;
 
         const elisRef = ref(db, `produtos/${prodElisangela.id}`);
         update(elisRef, {
-          qtd: novaQtd,
-          concluido: estaConcluido
-        }).then(() => {
-          console.log(`Desconto aplicado! Elisângela agora precisa de: ${novaQtd}`);
+          qtd: novaQtdElis,
+          concluido: elisConcluido
         });
       }
     }
