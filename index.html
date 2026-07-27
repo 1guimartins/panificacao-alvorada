@@ -325,10 +325,47 @@
       }
     }
 
+    // LÓGICA DE AUTOMAÇÃO ENTRE JÉSSICA E ELISÂNGELA
     window.toggleItem = function(id, concluido) {
       const itemRef = ref(db, `produtos/${id}`);
       update(itemRef, { concluido: concluido });
+
+      // Se Jéssica concluiu um item de embalagem de bolo, atualiza automaticamente a produção da Elisângela
+      const produtoAtual = produtosGlobais.find(p => p.id === id);
+      if (produtoAtual && normalizarString(produtoAtual.lider) === 'jéssica' && concluido) {
+        processarDescontoElisangela(produtoAtual);
+      }
     };
+
+    function processarDescontoElisangela(prodJessica) {
+      // Normaliza o nome do produto removendo a palavra EMB se existir
+      const nomeBase = normalizarString(prodJessica.nome).replace(/\bemb\b/g, '').trim();
+      const qtdEmbalada = parseFloat(prodJessica.qtd) || 0;
+
+      if (qtdEmbalada <= 0) return;
+
+      // Procura o item da Elisângela correspondente no mesmo dia (ou aberto)
+      const prodElisangela = produtosGlobais.find(p => 
+        normalizarString(p.lider) === 'elisângela' &&
+        normalizarString(p.dia) === normalizarString(prodJessica.dia) &&
+        normalizarString(p.nome).includes(nomeBase) &&
+        !p.concluido
+      );
+
+      if (prodElisangela) {
+        const qtdAtualElis = parseFloat(prodElisangela.qtd) || 0;
+        const novaQtd = Math.max(0, qtdAtualElis - qtdEmbalada);
+        const estaConcluido = novaQtd === 0;
+
+        const elisRef = ref(db, `produtos/${prodElisangela.id}`);
+        update(elisRef, {
+          qtd: novaQtd,
+          concluido: estaConcluido
+        }).then(() => {
+          console.log(`Desconto aplicado! Elisângela agora precisa de: ${novaQtd}`);
+        });
+      }
+    }
 
     window.abrirModalConcluir = function(dia) {
       diaEmFinalizacao = dia;
