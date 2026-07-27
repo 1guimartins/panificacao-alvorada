@@ -83,6 +83,13 @@
     .item-row {
       display: flex; align-items: center; justify-content: space-between;
       padding: 14px 15px; border-bottom: 1px solid #eee; gap: 10px; flex-wrap: wrap;
+      transition: background-color 0.3s ease;
+    }
+
+    /* ESTILO PARA ITENS JÁ CONCLUÍDOS / BAIXADOS */
+    .item-row.concluido {
+      background-color: #f1f5f9;
+      opacity: 0.6;
     }
 
     .item-info { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 200px; }
@@ -294,10 +301,17 @@
       const idxDia = diasSemana.indexOf(diaSelecionado);
       const dataFormatada = calcularDataDoDia(idxDia);
 
-      const prodsDia = produtosGlobais.filter(p => 
+      const isJessica = normalizarString(liderAtual) === 'jéssica';
+
+      let prodsDia = produtosGlobais.filter(p => 
         normalizarString(p.lider) === normalizarString(liderAtual) && 
         normalizarString(p.dia) === normalizarString(diaSelecionado)
       );
+
+      // FILTRO PARA A JÉSSICA: Exibe apenas o lote vindo diretamente da Elisângela
+      if (isJessica) {
+        prodsDia = prodsDia.filter(p => p.idOrigemElisangela || p.concluido);
+      }
 
       if (prodsDia.length > 0) {
         const setores = [...new Set(prodsDia.map(p => p.setor || 'Geral'))];
@@ -310,37 +324,40 @@
 
           let htmlItens = prodsSetor.map(prod => {
             const isElisangela = normalizarString(liderAtual) === 'elisângela';
-            const isJessica = normalizarString(liderAtual) === 'jéssica';
 
-            let acaoVisual = `
-              <input type="checkbox" class="checkbox-custom" ${prod.concluido ? 'checked' : ''} onchange="toggleItem('${prod.id}', this.checked)">
-            `;
+            let acaoVisual = '';
 
-            // 1. ELISÂNGELA: Digita quanto produziu para enviar para a Jéssica
-            if (isElisangela && !prod.concluido) {
+            if (prod.concluido) {
+              // Quando concluído, exibe um ícone de "OK" em verde
+              acaoVisual = `<span style="font-size: 20px; color: var(--verde-alvorada); font-weight: bold;">✓</span>`;
+            } else if (isElisangela) {
+              // ELISÂNGELA: Campo para enviar o lote produzido para a Jéssica
               acaoVisual = `
                 <div class="box-acao-rapida">
                   <input type="number" id="inputQtdElis_${prod.id}" class="input-qtd-acao" placeholder="Fiz Qtd" max="${prod.qtd}">
                   <button class="btn-acao" onclick="enviarParaEmbalagem('${prod.id}')">Enviar Emb.</button>
                 </div>
               `;
-            }
-
-            // 2. JÉSSICA: Digita o valor real embalado (dá baixa e rebate na Elisângela)
-            if (isJessica && !prod.concluido) {
+            } else if (isJessica) {
+              // JÉSSICA: Campo para dar a baixa real
               acaoVisual = `
                 <div class="box-acao-rapida">
                   <input type="number" id="inputQtdJess_${prod.id}" class="input-qtd-acao" placeholder="Qtd Real" max="${prod.qtd}">
                   <button class="btn-acao" onclick="darBaixaEmbalagem('${prod.id}')">Dar Baixa</button>
                 </div>
               `;
+            } else {
+              // DEMAIS LÍDERES: Checkbox tradicional
+              acaoVisual = `
+                <input type="checkbox" class="checkbox-custom" ${prod.concluido ? 'checked' : ''} onchange="toggleItem('${prod.id}', this.checked)">
+              `;
             }
 
             return `
-              <div class="item-row">
+              <div class="item-row ${prod.concluido ? 'concluido' : ''}">
                 <div class="item-info">
                   ${acaoVisual}
-                  <span class="item-qtd">${prod.qtd} ${prod.unidade}</span>
+                  <span class="item-qtd" style="${prod.concluido ? 'color: #777;' : ''}">${prod.qtd} ${prod.unidade}</span>
                   <span class="item-nome" style="${prod.concluido ? 'text-decoration: line-through; color: #888;' : ''}">${prod.nome}</span>
                 </div>
               </div>
@@ -374,7 +391,7 @@
       update(itemRef, { concluido: concluido });
     };
 
-    // 1. ELISÂNGELA INFORMA O QUANTO PRODUZIU -> CRIA A TAREFA AUTOMÁTICA PARA A JÉSSICA
+    // ELISÂNGELA INFORMA O QUANTO PRODUZIU -> CRIA O LOTE PARA A JÉSSICA
     window.enviarParaEmbalagem = function(id) {
       const input = document.getElementById(`inputQtdElis_${id}`);
       const qtdProduzida = parseFloat(input.value);
@@ -392,7 +409,6 @@
 
       const nomeProdJessica = prodElis.nome.toUpperCase().includes('EMB') ? prodElis.nome : `${prodElis.nome} EMB`;
 
-      // Cria a tarefa no painel da Jéssica
       const novoItemJessica = {
         dia: prodElis.dia,
         lider: "Jéssica",
@@ -402,7 +418,7 @@
         nome: nomeProdJessica,
         concluido: false,
         finalizadoSemFazer: false,
-        idOrigemElisangela: prodElis.id // Vínculo direto
+        idOrigemElisangela: prodElis.id
       };
 
       push(ref(db, 'produtos'), novoItemJessica).then(() => {
@@ -411,7 +427,7 @@
       });
     };
 
-    // 2. JÉSSICA DA BAIXA NO EMBALADO -> REBATE NO TOTAL DA ELISÂNGELA
+    // JÉSSICA DAR BAIXA -> CONCLUI (FICA CINZA) E REBATE NA ELISÂNGELA
     window.darBaixaEmbalagem = function(id) {
       const input = document.getElementById(`inputQtdJess_${id}`);
       const qtdEmbalada = parseFloat(input.value);
@@ -428,29 +444,24 @@
         return;
       }
 
-      const novaQtdJessica = Math.max(0, qtdPendenteJessica - qtdEmbalada);
-      const jessicaConcluido = novaQtdJessica === 0;
-
-      // Finaliza / Atualiza a tarefa da Jéssica
+      // Marca o lote da Jéssica como Concluído para que a linha fique cinza/riscada
       update(ref(db, `produtos/${id}`), {
-        qtd: novaQtdJessica,
-        concluido: jessicaConcluido
+        qtd: qtdEmbalada,
+        concluido: true
       }).then(() => {
         // Desconta o valor embalado do saldo total da Elisângela
         rebaterSaldoElisangela(prodJessica, qtdEmbalada);
-        alert(`Baixa de ${qtdEmbalada} registrada! O saldo da Elisângela foi atualizado.`);
+        alert(`Baixa de ${qtdEmbalada} confirmada! Saldo da Elisângela atualizado.`);
       });
     };
 
     function rebaterSaldoElisangela(prodJessica, qtdEmbalada) {
       let prodElis = null;
 
-      // Tenta achar pelo vínculo direto
       if (prodJessica.idOrigemElisangela) {
         prodElis = produtosGlobais.find(p => p.id === prodJessica.idOrigemElisangela);
       }
 
-      // Se não achar, procura pelo nome parecido
       if (!prodElis) {
         const nomeBase = normalizarString(prodJessica.nome).replace(/\bemb\b/g, '').trim();
         prodElis = produtosGlobais.find(p => 
