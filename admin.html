@@ -29,9 +29,7 @@
     .form-group { display: flex; flex-direction: column; gap: 6px; }
     .form-group label { font-size: 13px; font-weight: bold; color: #475569; }
     .form-group select, .form-group input { padding: 11px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; }
-    .form-group select:focus, .form-group input:focus { border-color: var(--verde-alvorada); }
 
-    /* TABELA DE PRODUTOS PARA LANÇAMENTO */
     .tabela-produtos { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
     .tabela-produtos th { background-color: var(--cinza-escuro); color: white; padding: 10px; text-align: left; }
     .tabela-produtos td { padding: 10px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
@@ -49,8 +47,8 @@
     .btn-salvar-lote:hover { background-color: var(--verde-escuro); }
 
     .btn-del { background: #e11d48; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; }
-    
     .badge-qtd { background-color: #e2e8f0; color: #0f172a; padding: 3px 8px; border-radius: 6px; font-weight: bold; }
+    .badge-pendente { background-color: #fef3c7; color: #92400e; padding: 3px 8px; border-radius: 6px; font-weight: bold; font-size: 12px; }
   </style>
 </head>
 <body>
@@ -110,8 +108,7 @@
               <th style="width: 100px;">Medida</th>
             </tr>
           </thead>
-          <tbody id="tbodyListaProdutos">
-            </tbody>
+          <tbody id="tbodyListaProdutos"></tbody>
         </table>
       </div>
 
@@ -120,7 +117,7 @@
   </div>
 
   <div class="card">
-    <h2>📋 Programação Cadastrada no Sistema</h2>
+    <h2>📋 Programação e Saldos Pendentes</h2>
     <div style="overflow-x:auto;">
       <table class="tabela-produtos">
         <thead>
@@ -129,19 +126,20 @@
             <th>Líder</th>
             <th>Setor</th>
             <th>Produto</th>
-            <th>Quantidade</th>
+            <th>Qtd Pedida</th>
+            <th>Qtd Realizada</th>
+            <th>Status</th>
             <th>Ação</th>
           </tr>
         </thead>
-        <tbody id="tabelaAgendamentos">
-          </tbody>
+        <tbody id="tabelaAgendamentos"></tbody>
       </table>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyB-KGrSWvIAKW6ZT0SDGUH7LFLzvYsmcJk",
@@ -156,7 +154,8 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // DADOS MESTRES DOS PRODUTOS ORGANIZADOS POR LÍDER E SETOR
+    const DIAS_SEMANA = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"];
+
     const CATALOGO = {
       "Breno": {
         "Panificação": [
@@ -316,7 +315,6 @@
       }
     };
 
-    // EXPOR FUNÇÕES PARA O HTML
     window.carregarSetoresDoLider = function() {
       const lider = document.getElementById('selectLider').value;
       const selectSetor = document.getElementById('selectSetor');
@@ -407,9 +405,10 @@
             setor: setor,
             nome: prod,
             qtd: parseFloat(qtdInput.value),
+            qtdRealizada: 0,
             unidade: unSelect.value,
-            concluido: false,
-            finalizadoSemFazer: false
+            status: 'Pendente',
+            concluido: false
           };
 
           push(ref(db, 'produtos'), novoAgendamento);
@@ -420,12 +419,50 @@
       if (totalLancados === 0) {
         alert("Selecione pelo menos um produto e digite uma quantidade válida!");
       } else {
-        alert(`${totalLancados} produto(s) lançado(s) com sucesso na produção!`);
-        carregarListaDeProdutos(); // Recarrega para limpar
+        alert(`${totalLancados} produto(s) lançado(s) com sucesso!`);
+        carregarListaDeProdutos();
       }
     };
 
-    // ESCUTAR BANCO DE DADOS EM TEMPO REAL
+    // FUNÇÃO QUE CALCULA E TRANSFERE O SALDO RESTANTE PARA O PRÓXIMO DIA
+    function obterProximoDia(diaAtual) {
+      const idx = DIAS_SEMANA.indexOf(diaAtual);
+      return DIAS_SEMANA[(idx + 1) % 7];
+    }
+
+    window.verificarETransferirSaldo = function(id, produto) {
+      const saldoPendente = produto.qtd - (produto.qtdRealizada || 0);
+
+      if (saldoPendente > 0) {
+        const proximoDia = obterProximoDia(produto.dia);
+        
+        // Cria a nova ordem para o próximo dia com o saldo restante
+        const novaOrdemSaldo = {
+          dia: proximoDia,
+          lider: produto.lider,
+          setor: produto.setor,
+          nome: produto.nome,
+          qtd: saldoPendente,
+          qtdRealizada: 0,
+          unidade: produto.unidade,
+          status: 'Pendente',
+          concluido: false
+        };
+
+        push(ref(db, 'produtos'), novaOrdemSaldo);
+
+        // Atualiza a ordem atual para fechada com o que foi feito
+        update(ref(db, `produtos/${id}`), {
+          qtd: produto.qtdRealizada || 0,
+          status: 'Concluído Parcial',
+          concluido: true
+        });
+
+        alert(`Saldo de ${saldoPendente} ${produto.unidade} transferido automaticamente para ${proximoDia}!`);
+      }
+    };
+
+    // ESCUTAR O FIREBASE E MONTAR A TABELA
     onValue(ref(db, 'produtos'), (snapshot) => {
       const data = snapshot.val();
       const tabela = document.getElementById('tabelaAgendamentos');
@@ -434,6 +471,9 @@
       if (data) {
         Object.keys(data).forEach(id => {
           const p = data[id];
+          const realizada = p.qtdRealizada || 0;
+          const restante = p.qtd - realizada;
+
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td>${p.dia}</td>
@@ -441,7 +481,13 @@
             <td>${p.setor || '-'}</td>
             <td>${p.nome}</td>
             <td><span class="badge-qtd">${p.qtd} ${p.unidade}</span></td>
-            <td><button class="btn-del" onclick="deletarItem('${id}')">🗑️ Excluir</button></td>
+            <td><span class="badge-qtd" style="background:#dcfce7; color:#166534;">${realizada} ${p.unidade}</span></td>
+            <td>
+              ${restante > 0 ? `<span class="badge-pendente">Falta ${restante} ${p.unidade}</span>` : `<span style="color:#16a34a; font-weight:bold;">Zeradão ✓</span>`}
+            </td>
+            <td>
+              <button class="btn-del" onclick="deletarItem('${id}')">🗑️ Excluir</button>
+            </td>
           `;
           tabela.appendChild(tr);
         });
