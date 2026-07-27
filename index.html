@@ -17,17 +17,11 @@
 
     .brand-header {
       background: linear-gradient(135deg, var(--verde-alvorada), var(--verde-escuro));
-      color: white;
-      padding: 15px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-      margin-bottom: 12px;
+      color: white; padding: 15px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15); margin-bottom: 12px;
     }
 
-    .brand-logo { display: flex; align-items: center; gap: 10px; }
     .brand-title { font-size: 18px; font-weight: bold; letter-spacing: 1px; }
 
     .modal-overlay {
@@ -48,43 +42,33 @@
     }
 
     .dias-bar {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 8px;
-      margin-bottom: 15px;
+      display: flex; gap: 8px; overflow-x: auto;
+      padding-bottom: 8px; margin-bottom: 15px;
       -webkit-overflow-scrolling: touch;
     }
 
     .btn-dia {
-      background-color: white;
-      color: #333;
-      border: 1px solid #ddd;
-      padding: 10px 14px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: bold;
-      white-space: nowrap;
-      cursor: pointer;
-      transition: all 0.2s;
+      background-color: white; color: #333; border: 1px solid #ddd;
+      padding: 10px 14px; border-radius: 20px; font-size: 13px; font-weight: bold;
+      white-space: nowrap; cursor: pointer; transition: all 0.2s;
     }
 
     .btn-dia.ativo {
-      background-color: var(--verde-alvorada);
-      color: white;
-      border-color: var(--verde-alvorada);
+      background-color: var(--verde-alvorada); color: white; border-color: var(--verde-alvorada);
       box-shadow: 0 2px 6px rgba(0,122,51,0.3);
     }
 
-    .dia-card {
-      background: white; border-radius: 10px; margin-bottom: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden;
+    /* BLOCO NOVO SEPARADO POR SETOR */
+    .setor-card {
+      background: white; border-radius: 12px; margin-bottom: 16px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08); overflow: hidden;
+      border: 1px solid #e2e8f0;
     }
 
     .setor-header {
-      background-color: #333; color: white;
-      padding: 8px 15px; font-weight: bold; font-size: 13px; text-transform: uppercase;
-      letter-spacing: 0.5px;
+      background-color: #1e293b; color: white;
+      padding: 12px 15px; font-weight: bold; font-size: 14px; text-transform: uppercase;
+      letter-spacing: 0.5px; display: flex; align-items: center; justify-content: space-between;
     }
 
     .item-row {
@@ -93,16 +77,16 @@
     }
 
     .item-info { display: flex; align-items: center; gap: 12px; flex: 1; }
-    .item-qtd { font-weight: bold; color: var(--verde-escuro); min-width: 60px; font-size: 15px; }
+    .item-qtd { font-weight: bold; color: var(--verde-escuro); min-width: 65px; font-size: 15px; }
     .item-nome { font-size: 15px; text-transform: uppercase; }
 
     .checkbox-custom { width: 26px; height: 26px; cursor: pointer; accent-color: var(--verde-alvorada); }
 
     .btn-concluir-dia {
-      width: calc(100% - 30px); margin: 15px; padding: 12px;
+      width: 100%; margin-top: 10px; padding: 14px;
       background-color: var(--laranja-alvorada); color: white; border: none;
-      border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer;
-      text-transform: uppercase;
+      border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer;
+      text-transform: uppercase; box-shadow: 0 3px 8px rgba(0,0,0,0.1);
     }
 
     .modal-obs {
@@ -134,9 +118,7 @@
 
   <div id="conteudoPrincipal" style="display: none;">
     <div class="brand-header">
-      <div class="brand-logo">
-        <div class="brand-title">PANIFICAÇÃO</div>
-      </div>
+      <div class="brand-title">PANIFICAÇÃO</div>
       <a href="admin.html" style="color: white; text-decoration: none; font-size: 12px; opacity: 0.8;">⚙️ Admin</a>
     </div>
 
@@ -147,6 +129,7 @@
 
     <div class="dias-bar" id="barDias"></div>
     <div id="containerDias"></div>
+    <div id="containerBotaoFinalizar"></div>
   </div>
 
   <div class="modal-obs" id="modalObs">
@@ -245,7 +228,9 @@
 
     function renderizarProdutosDoDia() {
       const container = document.getElementById('containerDias');
+      const containerBtn = document.getElementById('containerBotaoFinalizar');
       container.innerHTML = '';
+      containerBtn.innerHTML = '';
 
       const prodsDia = produtosGlobais.filter(p => 
         normalizarString(p.lider) === normalizarString(liderAtual) && 
@@ -253,18 +238,16 @@
       );
 
       if (prodsDia.length > 0) {
-        const diaCard = document.createElement('div');
-        diaCard.className = 'dia-card';
-
-        // Agrupar produtos por setor
+        // Obter setores únicos para criar blocos visuais separados
         const setores = [...new Set(prodsDia.map(p => p.setor || 'Geral'))];
-        
-        let htmlConteudo = '';
+
         setores.forEach(setor => {
           const prodsSetor = prodsDia.filter(p => (p.setor || 'Geral') === setor);
 
-          htmlConteudo += `<div class="setor-header">📍 Setor: ${setor}</div>`;
-          htmlConteudo += prodsSetor.map(prod => `
+          const setorCard = document.createElement('div');
+          setorCard.className = 'setor-card';
+
+          let htmlItens = prodsSetor.map(prod => `
             <div class="item-row">
               <div class="item-info">
                 <input type="checkbox" class="checkbox-custom" ${prod.concluido ? 'checked' : ''} onchange="toggleItem('${prod.id}', this.checked)">
@@ -273,14 +256,23 @@
               </div>
             </div>
           `).join('');
+
+          setorCard.innerHTML = `
+            <div class="setor-header">
+              <span>📍 SETOR: ${setor.toUpperCase()}</span>
+              <span style="font-size: 11px; opacity: 0.8;">${prodsSetor.length} item(ns)</span>
+            </div>
+            ${htmlItens}
+          `;
+
+          container.appendChild(setorCard);
         });
 
-        diaCard.innerHTML = `
-          ${htmlConteudo}
-          <button class="btn-concluir-dia" onclick="abrirModalConcluir('${diaSelecionado}')">🔒 Concluir ${diaSelecionado}</button>
+        // Botão para encerrar a produção do dia no final da tela
+        containerBtn.innerHTML = `
+          <button class="btn-concluir-dia" onclick="abrirModalConcluir('${diaSelecionado}')">🔒 Finalizar Programação de ${diaSelecionado}</button>
         `;
 
-        container.appendChild(diaCard);
       } else {
         container.innerHTML = `<div style="text-align:center; padding:35px 15px; color:#777; background:white; border-radius:10px; margin-top:10px;">
           Nenhum produto agendado para <strong>${diaSelecionado}</strong>.
