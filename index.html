@@ -201,7 +201,6 @@
     const diasSemana = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"];
     let diaSelecionado = diasSemana[0];
 
-    // MATRIZ ATUALIZADA DO CRONOGRAMA DA ELISÂNGELA
     const cronogramaProducao = {
       "placa": ["Segunda-feira", "Quarta-feira"],
       "caseiro": ["Segunda-feira", "Quinta-feira"],
@@ -318,7 +317,6 @@
         normalizarString(p.dia) === normalizarString(diaSelecionado)
       );
 
-      // JÉSSICA: Exibe lotes enviados para embalagem
       if (isJessica) {
         prodsDia = prodsDia.filter(p => p.idOrigemElisangela || p.concluido);
       }
@@ -397,7 +395,7 @@
       update(itemRef, { concluido: concluido });
     };
 
-    // ELISÂNGELA: ENVIA A QUANTIDADE FEITA E ATUALIZA O SALDO PENDENTE DO DIA
+    // ELISÂNGELA: ENVIA A QUANTIDADE PRODUZIDA E MARCA O ITEM COMO CONCLUÍDO/RISCADO
     window.enviarParaEmbalagem = function(id) {
       const input = document.getElementById(`inputQtdElis_${id}`);
       const qtdProduzida = parseFloat(input.value);
@@ -408,15 +406,7 @@
         return;
       }
 
-      const qtdAtualElis = parseFloat(prodElis.qtd) || 0;
-      if (qtdProduzida > qtdAtualElis) {
-        alert(`A quantidade enviada (${qtdProduzida}) não pode ser maior do que a pendente (${qtdAtualElis})!`);
-        return;
-      }
-
-      const novaQtdElis = qtdAtualElis - qtdProduzida;
-      const elisEstaConcluido = novaQtdElis === 0;
-
+      const qtdOriginalElis = parseFloat(prodElis.qtd) || 0;
       const nomeProdJessica = prodElis.nome.toUpperCase().includes('EMB') ? prodElis.nome : `${prodElis.nome} EMB`;
 
       // 1. Cria o lote para a Jéssica no dia atual
@@ -429,21 +419,22 @@
         nome: nomeProdJessica,
         concluido: false,
         finalizadoSemFazer: false,
-        idOrigemElisangela: prodElis.id
+        idOrigemElisangela: prodElis.id,
+        qtdOriginalPlanejada: qtdOriginalElis
       };
 
       push(ref(db, 'produtos'), novoItemJessica).then(() => {
-        // 2. Atualiza saldo da Elisângela. Se sobrar algo, mantém pendente; se zerou, marca como concluído
+        // 2. Marca o item da Elisângela como Concluído e Riscado no dia atual
         update(ref(db, `produtos/${id}`), {
-          qtd: novaQtdElis,
-          concluido: elisEstaConcluido
+          qtd: qtdProduzida,
+          concluido: true
         });
 
-        alert(`Lote de ${qtdProduzida} ${prodElis.unidade} liberado para a Jéssica! Saldo restante atualizado.`);
+        alert(`Lote de ${qtdProduzida} ${prodElis.unidade} enviado para a Jéssica! O item foi marcado como concluído.`);
       });
     };
 
-    // JÉSSICA: DÁ BAIXA E REBATA NO PRÓXIMO DIA DO CRONOGRAMA DA ELISÂNGELA
+    // JÉSSICA: DÁ BAIXA E SOMA A DIFERENÇA/PENDÊNCIA AO PRÓXIMO DIA DE PRODUÇÃO DA ELISÂNGELA
     window.darBaixaEmbalagem = function(id) {
       const input = document.getElementById(`inputQtdJess_${id}`);
       const qtdEmbalada = parseFloat(input.value);
@@ -454,19 +445,13 @@
         return;
       }
 
-      const qtdPendenteJessica = parseFloat(prodJessica.qtd) || 0;
-      if (qtdEmbalada > qtdPendenteJessica) {
-        alert(`A quantidade digitada (${qtdEmbalada}) não pode ser maior do que a pendente (${qtdPendenteJessica})!`);
-        return;
-      }
-
       // Marcar item da Jéssica como concluído
       update(ref(db, `produtos/${id}`), {
         qtd: qtdEmbalada,
         concluido: true
       }).then(() => {
         rebaterProximoDiaCronograma(prodJessica, qtdEmbalada);
-        alert(`Baixa de ${qtdEmbalada} confirmada! Próximo dia da Elisângela atualizado.`);
+        alert(`Baixa de ${qtdEmbalada} confirmada! Próximo dia da Elisângela foi atualizado com a soma das quantidades.`);
       });
     };
 
@@ -474,6 +459,10 @@
       const nomeProdNorm = normalizarString(prodJessica.nome);
       const diaOrigem = prodJessica.dia;
       const idxDiaOrigem = diasSemana.indexOf(diaOrigem);
+
+      // Calcula quanto faltou produzir em relação ao planejamento original
+      const qtdPlanejadaOriginal = parseFloat(prodJessica.qtdOriginalPlanejada) || parseFloat(prodJessica.qtd);
+      const quantidadeFaltante = Math.max(0, qtdPlanejadaOriginal - qtdEmbalada);
 
       // Identifica o tipo do bolo
       let tipoBoloEncontrado = null;
@@ -485,7 +474,7 @@
 
       let diasProducao = tipoBoloEncontrado ? cronogramaProducao[tipoBoloEncontrado] : diasSemana;
 
-      // Descobre o PRÓXIMO dia do cronograma (Ex: Segunda -> Quarta para Bolo Placa)
+      // Descobre o PRÓXIMO dia do cronograma (Ex: Segunda -> Quarta)
       let proximoDiaAlvo = null;
       for (let i = 1; i <= 7; i++) {
         let proxIdx = (idxDiaOrigem + i) % 7;
@@ -504,25 +493,25 @@
       const prodElisProximoDia = produtosGlobais.find(p => 
         normalizarString(p.lider) === 'elisângela' &&
         normalizarString(p.nome).includes(normalizarString(nomeBase)) &&
-        p.dia === proximoDiaAlvo &&
-        !p.concluido
+        p.dia === proximoDiaAlvo
       );
 
       if (prodElisProximoDia) {
-        // Se já existe, abate o saldo
-        const qtdAtual = parseFloat(prodElisProximoDia.qtd) || 0;
-        const novaQtd = Math.max(0, qtdAtual - qtdEmbalada);
+        // SOMAR a quantidade faltante/excedente com o valor existente do próximo dia
+        const qtdAtualProximoDia = parseFloat(prodElisProximoDia.qtd) || 0;
+        const novaQtdSomada = qtdAtualProximoDia + quantidadeFaltante;
+
         update(ref(db, `produtos/${prodElisProximoDia.id}`), {
-          qtd: novaQtd,
-          concluido: novaQtd === 0
+          qtd: novaQtdSomada,
+          concluido: false
         });
       } else {
-        // Se não existe agendamento na Quarta-feira, cria automaticamente para a Elisângela
+        // Se ainda não existir agendamento no próximo dia, cria com a quantidade faltante
         const novoAgendamentoProximoDia = {
           dia: proximoDiaAlvo,
           lider: "Elisângela",
           setor: prodJessica.setor ? prodJessica.setor.replace(/\bEMB\b/g, '').trim() : "BOLO PLACA",
-          qtd: qtdEmbalada,
+          qtd: quantidadeFaltante > 0 ? quantidadeFaltante : qtdEmbalada,
           unidade: prodJessica.unidade || "un",
           nome: nomeBase,
           concluido: false,
