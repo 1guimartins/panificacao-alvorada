@@ -91,14 +91,19 @@
 
     .checkbox-custom { width: 26px; height: 26px; cursor: pointer; accent-color: var(--verde-alvorada); }
 
+    .box-baixa-jessica {
+      display: flex; gap: 6px; align-items: center; background: #f8fafc;
+      padding: 6px 10px; border-radius: 8px; border: 1px solid #cbd5e1;
+    }
+
     .input-baixa-parcial {
-      width: 70px; padding: 6px; border: 1px solid #ccc; border-radius: 6px;
+      width: 75px; padding: 6px; border: 1px solid #94a3b8; border-radius: 6px;
       text-align: center; font-weight: bold; font-size: 14px;
     }
 
     .btn-baixa-parcial {
       background-color: var(--verde-alvorada); color: white; border: none;
-      padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer;
+      padding: 8px 12px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer;
     }
 
     .btn-concluir-dia {
@@ -310,11 +315,11 @@
               <input type="checkbox" class="checkbox-custom" ${prod.concluido ? 'checked' : ''} onchange="toggleItem('${prod.id}', this.checked)">
             `;
 
-            // Se for a Jéssica, permite dar baixa parcial digitando a quantidade que embalou
+            // Se for a Jéssica, ela digita a quantidade embalada (considerando as perdas)
             if (isJessica && !prod.concluido) {
               acaoVisual = `
-                <div style="display: flex; gap: 5px; align-items: center;">
-                  <input type="number" id="inputQtd_${prod.id}" class="input-baixa-parcial" placeholder="Qtd" max="${prod.qtd}">
+                <div class="box-baixa-jessica">
+                  <input type="number" id="inputQtd_${prod.id}" class="input-baixa-parcial" placeholder="Qtd Real" max="${prod.qtd}">
                   <button class="btn-baixa-parcial" onclick="darBaixaEmbalagem('${prod.id}')">Dar Baixa</button>
                 </div>
               `;
@@ -358,42 +363,43 @@
       update(itemRef, { concluido: concluido });
     };
 
-    // AÇÃO EXCLUSIVA PARA A JÉSSICA DAR BAIXA PARCIAL
+    // REGISTRO REAL DA JÉSSICA QUE REBATE NO TOTAL DA ELISÂNGELA
     window.darBaixaEmbalagem = function(id) {
       const input = document.getElementById(`inputQtd_${id}`);
-      const qtdDigitada = parseFloat(input.value);
+      const qtdEmbalada = parseFloat(input.value);
       const prodJessica = produtosGlobais.find(p => p.id === id);
 
-      if (!prodJessica || !qtdDigitada || qtdDigitada <= 0) {
-        alert("Por favor, digite a quantidade válida que foi embalada!");
+      if (!prodJessica || isNaN(qtdEmbalada) || qtdEmbalada <= 0) {
+        alert("Digite a quantidade exata (líquida/sem perdas) que foi embalada!");
         return;
       }
 
       const qtdAtualJessica = parseFloat(prodJessica.qtd) || 0;
-      if (qtdDigitada > qtdAtualJessica) {
-        alert(`A quantidade digitada (${qtdDigitada}) não pode ser maior que o total cadastrado (${qtdAtualJessica})!`);
+      if (qtdEmbalada > qtdAtualJessica) {
+        alert(`A quantidade digitada (${qtdEmbalada}) não pode ser maior do que o total pendente (${qtdAtualJessica})!`);
         return;
       }
 
-      const novaQtdJessica = qtdAtualJessica - qtdDigitada;
+      const novaQtdJessica = Math.max(0, qtdAtualJessica - qtdEmbalada);
       const jessicaConcluido = novaQtdJessica === 0;
 
-      // Atualiza o item da Jéssica no Firebase
+      // Atualiza a tarefa da Jéssica
       const itemRef = ref(db, `produtos/${id}`);
       update(itemRef, {
         qtd: novaQtdJessica,
         concluido: jessicaConcluido
       }).then(() => {
-        // Desconta automaticamente o valor idêntico do produto da Elisângela
-        processarDescontoElisangela(prodJessica, qtdDigitada);
-        alert(`Baixa de ${qtdDigitada} ${prodJessica.unidade} confirmada e descontada da Elisângela!`);
+        // Rebate automaticamente no total da Elisângela
+        processarDescontoElisangela(prodJessica, qtdEmbalada);
+        alert(`Baixa de ${qtdEmbalada} ${prodJessica.unidade} registrada! O saldo restante da Elisângela foi atualizado.`);
       });
     };
 
     function processarDescontoElisangela(prodJessica, qtdEmbalada) {
+      // Extrai o nome base removendo a palavra "EMB"
       const nomeBase = normalizarString(prodJessica.nome).replace(/\bemb\b/g, '').trim();
 
-      // Busca a tarefa da Elisângela no mesmo dia (ou aberta)
+      // Encontra a tarefa da Elisângela correspondente que está em aberto
       const prodElisangela = produtosGlobais.find(p => 
         normalizarString(p.lider) === 'elisângela' &&
         normalizarString(p.nome).includes(nomeBase) &&
