@@ -8,8 +8,8 @@
     :root {
       --verde-alvorada: #007a33;
       --verde-escuro: #005624;
-      --laranja-alvorada: #f39c12;
       --bg-fundo: #f4f6f8;
+      --cinza-escuro: #1e293b;
     }
 
     * { box-sizing: border-box; }
@@ -23,33 +23,34 @@
     }
 
     .card { background: white; padding: 22px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); margin-bottom: 20px; border: 1px solid #e2e8f0; }
-    .card h2 { margin-top: 0; color: #1e293b; font-size: 18px; border-bottom: 2px solid var(--verde-alvorada); padding-bottom: 8px; }
+    .card h2 { margin-top: 0; color: var(--cinza-escuro); font-size: 18px; border-bottom: 2px solid var(--verde-alvorada); padding-bottom: 8px; }
 
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 15px; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 15px; }
     .form-group { display: flex; flex-direction: column; gap: 6px; }
     .form-group label { font-size: 13px; font-weight: bold; color: #475569; }
     .form-group select, .form-group input { padding: 11px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; }
     .form-group select:focus, .form-group input:focus { border-color: var(--verde-alvorada); }
 
-    /* UNIDADES DE MEDIDA */
-    .unidades-container { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
-    .btn-unit {
-      flex: 1; min-width: 55px; padding: 8px 4px; border: 1px solid #cbd5e1; background: #f8fafc;
-      border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; text-align: center; transition: all 0.2s;
+    /* TABELA DE PRODUTOS PARA LANÇAMENTO */
+    .tabela-produtos { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
+    .tabela-produtos th { background-color: var(--cinza-escuro); color: white; padding: 10px; text-align: left; }
+    .tabela-produtos td { padding: 10px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+    .tabela-produtos tr:hover { background-color: #f8fafc; }
+
+    .chk-prod { width: 20px; height: 20px; cursor: pointer; accent-color: var(--verde-alvorada); }
+    .input-qtd-tabela { width: 90px; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; text-align: center; font-weight: bold; }
+    .select-un-tabela { padding: 6px; border: 1px solid #cbd5e1; border-radius: 6px; }
+
+    .btn-salvar-lote {
+      background-color: var(--verde-alvorada); color: white; border: none; padding: 14px 20px;
+      border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; width: 100%;
+      margin-top: 20px; box-shadow: 0 3px 8px rgba(0,122,51,0.2);
     }
-    .btn-unit.ativo { background-color: var(--verde-alvorada); color: white; border-color: var(--verde-alvorada); }
+    .btn-salvar-lote:hover { background-color: var(--verde-escuro); }
 
-    .btn-add { background-color: var(--verde-alvorada); color: white; border: none; padding: 14px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; width: 100%; box-shadow: 0 3px 8px rgba(0,122,51,0.2); }
-    .btn-add:hover { background-color: var(--verde-escuro); }
-
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
-    th, td { padding: 11px 12px; border-bottom: 1px solid #e2e8f0; text-align: left; }
-    th { background-color: #1e293b; color: white; font-weight: bold; }
     .btn-del { background: #e11d48; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; }
-
-    .tabs { display: flex; gap: 10px; margin-bottom: 15px; }
-    .tab-btn { padding: 12px 20px; border: none; background: #e2e8f0; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
-    .tab-btn.ativo { background: var(--verde-alvorada); color: white; }
+    
+    .badge-qtd { background-color: #e2e8f0; color: #0f172a; padding: 3px 8px; border-radius: 6px; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -59,13 +60,9 @@
     <a href="index.html" style="color:white; text-decoration:none; font-weight:bold; background: rgba(255,255,255,0.2); padding: 8px 14px; border-radius: 6px;">← Ir para Tela Produção</a>
   </div>
 
-  <div class="tabs">
-    <button class="tab-btn ativo" id="btnTab1" onclick="mudarAba('agendar')">📅 Lançar Ordem de Produção</button>
-    <button class="tab-btn" id="btnTab2" onclick="mudarAba('catalogo')">📦 Gerenciar Catálogo Completo</button>
-  </div>
-
-  <div id="abaAgendar" class="card">
-    <h2>⚡ Lançar Ordem de Produção</h2>
+  <div class="card">
+    <h2>⚡ Lançar Programação de Produção</h2>
+    
     <div class="form-grid">
       <div class="form-group">
         <label>1. Dia da Semana:</label>
@@ -89,46 +86,43 @@
           <option value="Jéssica">Jéssica</option>
           <option value="Raynara">Raynara</option>
           <option value="Jonathan">Jonathan</option>
-          <option value="Ana Cláudia">Ana Cláudia</option>
         </select>
       </div>
 
       <div class="form-group">
         <label>3. Setor:</label>
-        <select id="selectSetor" onchange="carregarProdutosDoSetor()">
+        <select id="selectSetor" onchange="carregarListaDeProdutos()">
           <option value="">Aguardando Líder...</option>
         </select>
       </div>
-
-      <div class="form-group">
-        <label>4. Produto:</label>
-        <select id="selectProduto">
-          <option value="">Aguardando Setor...</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>5. Quantidade:</label>
-        <input type="number" id="inputQtd" placeholder="Ex: 10" min="0.1" step="any">
-      </div>
-
-      <div class="form-group">
-        <label>6. Medida do Pedido:</label>
-        <div class="unidades-container">
-          <button class="btn-unit ativo" type="button" onclick="selecionarUnidade('un', this)">un</button>
-          <button class="btn-unit" type="button" onclick="selecionarUnidade('kg', this)">kg</button>
-          <button class="btn-unit" type="button" onclick="selecionarUnidade('rec', this)">receita</button>
-          <button class="btn-unit" type="button" onclick="selecionarUnidade('kit', this)">kit</button>
-          <button class="btn-unit" type="button" onclick="selecionarUnidade('cx', this)">cx</button>
-        </div>
-      </div>
     </div>
 
-    <button class="btn-add" onclick="agendarProduto()">➕ Lançar Ordem de Produção</button>
+    <div id="areaProdutosSetor" style="display:none; margin-top:20px;">
+      <h3 style="font-size:15px; color:#334155; margin-bottom:10px;">📋 Marque os produtos e digite as quantidades:</h3>
+      
+      <div style="overflow-x:auto;">
+        <table class="tabela-produtos">
+          <thead>
+            <tr>
+              <th style="width: 40px; text-align:center;">✓</th>
+              <th>Nome do Produto</th>
+              <th style="width: 110px;">Quantidade</th>
+              <th style="width: 100px;">Medida</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyListaProdutos">
+            </tbody>
+        </table>
+      </div>
 
-    <h3 style="margin-top:30px; font-size:16px; color:#1e293b;">📋 Ordens de Produção Agendadas</h3>
+      <button class="btn-salvar-lote" onclick="lançarProdutosSelecionados()">➕ Confirmar e Lançar Produção</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📋 Programação Cadastrada no Sistema</h2>
     <div style="overflow-x:auto;">
-      <table>
+      <table class="tabela-produtos">
         <thead>
           <tr>
             <th>Dia</th>
@@ -139,57 +133,15 @@
             <th>Ação</th>
           </tr>
         </thead>
-        <tbody id="tabelaAgendamentos"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div id="abaCatalogo" class="card" style="display:none;">
-    <h2>📦 Gerenciar Catálogo de Produtos</h2>
-    <p style="font-size:13px; color:#666;">Cadastre novos produtos no catálogo para automatizar o lançamento do Admin.</p>
-    
-    <div class="form-grid">
-      <div class="form-group">
-        <label>Líder:</label>
-        <select id="catLider">
-          <option value="Breno">Breno</option>
-          <option value="Elisângela">Elisângela</option>
-          <option value="Jéssica">Jéssica</option>
-          <option value="Raynara">Raynara</option>
-          <option value="Jonathan">Jonathan</option>
-          <option value="Ana Cláudia">Ana Cláudia</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Setor:</label>
-        <input type="text" id="catSetor" placeholder="Ex: Bolos Redondos/Brownie">
-      </div>
-      <div class="form-group">
-        <label>Nome do Produto:</label>
-        <input type="text" id="catNome" placeholder="Ex: BOLO REDONDO DE CENOURA">
-      </div>
-    </div>
-    <button class="btn-add" onclick="salvarProdutoCatalogo()">💾 Salvar no Catálogo</button>
-
-    <h3 style="margin-top:30px; font-size:16px;">📑 Produtos Cadastrados no Catálogo</h3>
-    <div style="overflow-x:auto;">
-      <table>
-        <thead>
-          <tr>
-            <th>Líder</th>
-            <th>Setor</th>
-            <th>Produto</th>
-            <th>Ação</th>
-          </tr>
-        </thead>
-        <tbody id="tabelaCatalogo"></tbody>
+        <tbody id="tabelaAgendamentos">
+          </tbody>
       </table>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, onValue, push, remove, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyB-KGrSWvIAKW6ZT0SDGUH7LFLzvYsmcJk",
@@ -204,307 +156,276 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    let catalogoProdutos = [];
-    let unidadeSelecionada = 'un';
-
-    // BASE DE DADOS COMPLETA FORNECIDA PELO CLIENTE
-    const baseCompletaInicial = [
-      // BRENO - PANIFICAÇÃO
-      { lider: "Breno", setor: "Panificação", nome: "Brioche" },
-      { lider: "Breno", setor: "Panificação", nome: "Pão de Batata" },
-      { lider: "Breno", setor: "Panificação", nome: "Pão de Cebola" },
-      { lider: "Breno", setor: "Panificação", nome: "Pão de Forma Integral" },
-      { lider: "Breno", setor: "Panificação", nome: "Pão de Forma Tradicional" },
-      { lider: "Breno", setor: "Panificação", nome: "Pão de Hamburguer c/ Gergelim" },
-      { lider: "Breno", setor: "Panificação", nome: "Pão de Hamburguer Tradicional" },
-      { lider: "Breno", setor: "Panificação", nome: "Pão de Hot Dog" },
-      { lider: "Breno", setor: "Panificação", nome: "Pão de Milho" },
-      { lider: "Breno", setor: "Panificação", nome: "Pão Sovado" },
-      { lider: "Breno", setor: "Panificação", nome: "Rosca Fazenda c/ Açúcar" },
-      { lider: "Breno", setor: "Panificação", nome: "Rosca Fazenda Tradicional" },
-      { lider: "Breno", setor: "Panificação", nome: "Rosca de Leite Condensado" },
-      { lider: "Breno", setor: "Panificação", nome: "Rosca Lisa" },
-      { lider: "Breno", setor: "Panificação", nome: "Rosca Rainha Tradicional" },
-      { lider: "Breno", setor: "Panificação", nome: "Rosca Rainha c/ Creme" },
-      { lider: "Breno", setor: "Panificação", nome: "Rosquinha c/ Açúcar" },
-      { lider: "Breno", setor: "Panificação", nome: "Rosquinha c/ Creme" },
-      { lider: "Breno", setor: "Panificação", nome: "Panettone c/ Frutas" },
-      { lider: "Breno", setor: "Panificação", nome: "Chocottone" },
-      { lider: "Breno", setor: "Panificação", nome: "Colomba Pascal c/ Frutas" },
-      { lider: "Breno", setor: "Panificação", nome: "Colomba Pascal c/ Gotas de Chocolate" },
-
-      // ELISÂNGELA - BOLOS REDONDOS/BROWNIE
-      { lider: "Elisângela", setor: "Bolos Redondos/Brownie", nome: "Bolo Redondo de Abacaxi" },
-      { lider: "Elisângela", setor: "Bolos Redondos/Brownie", nome: "Bolo Redondo de Cenoura" },
-      { lider: "Elisângela", setor: "Bolos Redondos/Brownie", nome: "Bolo Redondo de Chocolate" },
-      { lider: "Elisângela", setor: "Bolos Redondos/Brownie", nome: "Bolo Redondo de Coco" },
-      { lider: "Elisângela", setor: "Bolos Redondos/Brownie", nome: "Bolo Redondo de Formigueiro" },
-      { lider: "Elisângela", setor: "Bolos Redondos/Brownie", nome: "Bolo Redondo de Fubá" },
-      { lider: "Elisângela", setor: "Bolos Redondos/Brownie", nome: "Bolo Redondo de Laranja" },
-      { lider: "Elisângela", setor: "Bolos Redondos/Brownie", nome: "Bolo Redondo de Leite Condensado" },
-      { lider: "Elisângela", setor: "Bolos Redondos/Brownie", nome: "Bolo Redondo de Limão" },
-      { lider: "Elisângela", setor: "Bolos Redondos/Brownie", nome: "Bolo Redondo de Milho" },
-      { lider: "Elisângela", setor: "Bolos Redondos/Brownie", nome: "Bolo Redondo Neutro" },
-      { lider: "Elisângela", setor: "Bolos Redondos/Brownie", nome: "Brownie de Chocolate c/ Cobertura" },
-      { lider: "Elisângela", setor: "Bolos Redondos/Brownie", nome: "Brownie de Chocolate Tradicional" },
-
-      // ELISÂNGELA - BOLO CREMOSO/COBERTURA
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Cremoso de Abacaxi" },
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Cremoso de Abóbora c/ Coco" },
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Cremoso de Aipim" },
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Cremoso de Banana c/ Granola" },
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Cremoso de Caçarola" },
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Cremoso de Cenoura" },
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Cremoso de Chocolate" },
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Cremoso de Churros" },
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Cremoso de Coco" },
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Cremoso de Laranja" },
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Cremoso de Leite Condensado" },
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Cremoso de Maracujá" },
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Cremoso de Milho" },
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Cremoso de Quebra Queixo" },
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Cremoso de Pamonha" },
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Cremoso de Red Velvet c/ Cobertura" },
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Redondo de Cenoura c/ Cobertura" },
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Redondo de Chocolate c/ Cobertura" },
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Redondo de Churros c/ Cobertura" },
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Redondo de Coco c/ Cobertura" },
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Redondo de Limão c/ Cobertura" },
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Redondo de Café c/ Cobertura" },
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Redondo de Cappuccino c/ Cobertura" },
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Redondo de Nozes c/ Cobertura" },
-      { lider: "Elisângela", setor: "Bolo Cremoso/Cobertura", nome: "Bolo Redondo de Paçoca c/ Cobertura" },
-
-      // ELISÂNGELA - BOLO CASEIRO/INGLÊS
-      { lider: "Elisângela", setor: "Bolo Caseiro/Inglês", nome: "Bolo Caseiro de Laranja" },
-      { lider: "Elisângela", setor: "Bolo Caseiro/Inglês", nome: "Bolo Caseiro de Tangerina" },
-      { lider: "Elisângela", setor: "Bolo Caseiro/Inglês", nome: "Bolo Inglês de Chocolate" },
-      { lider: "Elisângela", setor: "Bolo Caseiro/Inglês", nome: "Bolo Inglês de Formigueiro" },
-      { lider: "Elisângela", setor: "Bolo Caseiro/Inglês", nome: "Bolo Inglês de Laranja" },
-      { lider: "Elisângela", setor: "Bolo Caseiro/Inglês", nome: "Bolo Inglês de Mesclado" },
-      { lider: "Elisângela", setor: "Bolo Caseiro/Inglês", nome: "Bolo Inglês de Milho" },
-
-      // ELISÂNGELA - BOLO PLACA
-      { lider: "Elisângela", setor: "Bolo Placa", nome: "Bolo Placa de Abacaxi" },
-      { lider: "Elisângela", setor: "Bolo Placa", nome: "Bolo Placa de Cenoura c/ Cobertura" },
-      { lider: "Elisângela", setor: "Bolo Placa", nome: "Bolo Placa de Cenoura" },
-      { lider: "Elisângela", setor: "Bolo Placa", nome: "Bolo Placa de Chocolate c/ Cobertura" },
-      { lider: "Elisângela", setor: "Bolo Placa", nome: "Bolo Placa de Chocolate" },
-      { lider: "Elisângela", setor: "Bolo Placa", nome: "Bolo Placa de Coco c/ Cobertura" },
-      { lider: "Elisângela", setor: "Bolo Placa", nome: "Bolo Placa de Coco" },
-      { lider: "Elisângela", setor: "Bolo Placa", nome: "Bolo Placa de Fubá" },
-      { lider: "Elisângela", setor: "Bolo Placa", nome: "Bolo Placa de Laranja" },
-      { lider: "Elisângela", setor: "Bolo Placa", nome: "Bolo Placa de Leite Condensado" },
-      { lider: "Elisângela", setor: "Bolo Placa", nome: "Bolo Placa de Limão c/ Cobertura" },
-      { lider: "Elisângela", setor: "Bolo Placa", nome: "Bolo Placa de Limão" },
-      { lider: "Elisângela", setor: "Bolo Placa", nome: "Bolo Placa de Milho" },
-      { lider: "Elisângela", setor: "Bolo Placa", nome: "Bolo Placa de Formigueiro" },
-      { lider: "Elisângela", setor: "Bolo Placa", nome: "Bolo Placa Neutro" },
-
-      // ELISÂNGELA - CONFEITADOS/PREMIUM/GOURMET
-      { lider: "Elisângela", setor: "Bolos Confeitados/Premium/Gourmet/Tortas", nome: "Bolo Confeitado de Avelã" },
-      { lider: "Elisângela", setor: "Bolos Confeitados/Premium/Gourmet/Tortas", nome: "Bolo Confeitado de Doce de Leite" },
-      { lider: "Elisângela", setor: "Bolos Confeitados/Premium/Gourmet/Tortas", nome: "Bolo Confeitado de Flocos" },
-      { lider: "Elisângela", setor: "Bolos Confeitados/Premium/Gourmet/Tortas", nome: "Bolo Confeitado de Maracujá" },
-      { lider: "Elisângela", setor: "Bolos Confeitados/Premium/Gourmet/Tortas", nome: "Bolo Confeitado de Pistache" },
-      { lider: "Elisângela", setor: "Bolos Confeitados/Premium/Gourmet/Tortas", nome: "Bolo Gourmet de Creme de Avelã" },
-      { lider: "Elisângela", setor: "Bolos Confeitados/Premium/Gourmet/Tortas", nome: "Bolo Gourmet de Leitinho" },
-      { lider: "Elisângela", setor: "Bolos Confeitados/Premium/Gourmet/Tortas", nome: "Bolo Premium de 4 Leites" },
-      { lider: "Elisângela", setor: "Bolos Confeitados/Premium/Gourmet/Tortas", nome: "Bolo Premium de Chocolate" },
-      { lider: "Elisângela", setor: "Bolos Confeitados/Premium/Gourmet/Tortas", nome: "Bolo Premium de Coco" },
-      { lider: "Elisângela", setor: "Bolos Confeitados/Premium/Gourmet/Tortas", nome: "Bolo Premium de Nozes" },
-      { lider: "Elisângela", setor: "Bolos Confeitados/Premium/Gourmet/Tortas", nome: "Torta Gourmet de Bueno" },
-      { lider: "Elisângela", setor: "Bolos Confeitados/Premium/Gourmet/Tortas", nome: "Torta Gourmet de Creme de Pistache" },
-      { lider: "Elisângela", setor: "Bolos Confeitados/Premium/Gourmet/Tortas", nome: "Torta Gourmet de Creme de Morango" },
-      { lider: "Elisângela", setor: "Bolos Confeitados/Premium/Gourmet/Tortas", nome: "Torta Gourmet de Leitinho" },
-      { lider: "Elisângela", setor: "Bolos Confeitados/Premium/Gourmet/Tortas", nome: "Torta Gourmet de Limão" },
-      { lider: "Elisângela", setor: "Bolos Confeitados/Premium/Gourmet/Tortas", nome: "Torta Gourmet de Pistache" },
-      { lider: "Elisângela", setor: "Bolos Confeitados/Premium/Gourmet/Tortas", nome: "Torta Holandesa" },
-
-      // ELISÂNGELA - SOBREMESA
-      { lider: "Elisângela", setor: "Sobremesas", nome: "Bolo Artesanal de Brigadeiro" },
-      { lider: "Elisângela", setor: "Sobremesas", nome: "Bolo Gelado de Coco" },
-      { lider: "Elisângela", setor: "Sobremesas", nome: "Bolo Indiano" },
-      { lider: "Elisângela", setor: "Sobremesas", nome: "Brigadeirão" },
-      { lider: "Elisângela", setor: "Sobremesas", nome: "Caçarola Italiana" },
-      { lider: "Elisângela", setor: "Sobremesas", nome: "Cake de Cenoura Trufado c/ Avelã" },
-      { lider: "Elisângela", setor: "Sobremesas", nome: "Cake de Pão de Mel" },
-      { lider: "Elisângela", setor: "Sobremesas", nome: "Creme Holandês" },
-      { lider: "Elisângela", setor: "Sobremesas", nome: "Manjar de Coco - 150g (PEQUENO)" },
-      { lider: "Elisângela", setor: "Sobremesas", nome: "Manjar de Coco - 600g (GRANDE)" },
-      { lider: "Elisângela", setor: "Sobremesas", nome: "Mousse de Chocolate - 150g (PEQUENO)" },
-      { lider: "Elisângela", setor: "Sobremesas", nome: "Mousse de Chocolate - 600g (GRANDE)" },
-      { lider: "Elisângela", setor: "Sobremesas", nome: "Mousse de Maracujá - 200g (PEQUENO)" },
-      { lider: "Elisângela", setor: "Sobremesas", nome: "Mousse de Maracujá - 600g (GRANDE)" },
-      { lider: "Elisângela", setor: "Sobremesas", nome: "Pudim Grande - 750g" },
-      { lider: "Elisângela", setor: "Sobremesas", nome: "Pudim Pequeno - 95g" },
-      { lider: "Elisângela", setor: "Sobremesas", nome: "Quindim" },
-      { lider: "Elisângela", setor: "Sobremesas", nome: "Rocambole de Prestígio (FATIADO)" },
-      { lider: "Elisângela", setor: "Sobremesas", nome: "Rocambole de Prestígio (INTEIRO)" },
-      { lider: "Elisângela", setor: "Sobremesas", nome: "Rocambole de Doce de Leite (FATIADO)" },
-      { lider: "Elisângela", setor: "Sobremesas", nome: "Rocambole de Doce de Leite (INTEIRO)" },
-
-      // RAYNARA - PRATOS PRONTOS
-      { lider: "Raynara", setor: "Pratos Prontos", nome: "Almondega de Carne" },
-      { lider: "Raynara", setor: "Pratos Prontos", nome: "Caldo de Ervilha" },
-      { lider: "Raynara", setor: "Pratos Prontos", nome: "Caldo de Feijão" },
-      { lider: "Raynara", setor: "Pratos Prontos", nome: "Caldo de Milho" },
-      { lider: "Raynara", setor: "Pratos Prontos", nome: "Caldo Verde" },
-      { lider: "Raynara", setor: "Pratos Prontos", nome: "Coxa e Sobrecoxa c/ Purê" },
-      { lider: "Raynara", setor: "Pratos Prontos", nome: "Escondidinho de Carne" },
-      { lider: "Raynara", setor: "Pratos Prontos", nome: "Escondidinho de Frango" },
-      { lider: "Raynara", setor: "Pratos Prontos", nome: "Feijão Tropeiro" },
-      { lider: "Raynara", setor: "Pratos Prontos", nome: "Feijoada" },
-      { lider: "Raynara", setor: "Pratos Prontos", nome: "Fricassê de Frango" },
-      { lider: "Raynara", setor: "Pratos Prontos", nome: "Lasanha Bolonhesa" },
-      { lider: "Raynara", setor: "Pratos Prontos", nome: "Lasanha de Frango" },
-      { lider: "Raynara", setor: "Pratos Prontos", nome: "Lasanha de 4 Queijos" },
-      { lider: "Raynara", setor: "Pratos Prontos", nome: "Medalhão de Frango" },
-      { lider: "Raynara", setor: "Pratos Prontos", nome: "Pappardelle c/ Almondegas" },
-      { lider: "Raynara", setor: "Pratos Prontos", nome: "Parmegiana de Frango" },
-      { lider: "Raynara", setor: "Pratos Prontos", nome: "Strogonoff de Carne" },
-      { lider: "Raynara", setor: "Pratos Prontos", nome: "Strogonoff de Carne c/ Arroz" },
-      { lider: "Raynara", setor: "Pratos Prontos", nome: "Strogonoff de Frango" },
-      { lider: "Raynara", setor: "Pratos Prontos", nome: "Strogonoff de Frango c/ Arroz" },
-
-      // RAYNARA - PÃO DE QUEIJO/BROA
-      { lider: "Raynara", setor: "Pão de Queijo/Broa", nome: "Pão de Queijo 3 Queijos" },
-      { lider: "Raynara", setor: "Pão de Queijo/Broa", nome: "Pão de Queijo c/ Frango" },
-      { lider: "Raynara", setor: "Pão de Queijo/Broa", nome: "Pão de Queijo Coquetel" },
-      { lider: "Raynara", setor: "Pão de Queijo/Broa", nome: "Pão de Queijo Lanche" },
-      { lider: "Raynara", setor: "Pão de Queijo/Broa", nome: "Pão de Queijo Tradicional" },
-      { lider: "Raynara", setor: "Pão de Queijo/Broa", nome: "Broa Aerosa" },
-
-      // RAYNARA - SALGADOS FRITOS
-      { lider: "Raynara", setor: "Salgados Fritos", nome: "Bolinha de Milho" },
-      { lider: "Raynara", setor: "Salgados Fritos", nome: "Bolinha de Pizza" },
-      { lider: "Raynara", setor: "Salgados Fritos", nome: "Bolinha de Queijo" },
-      { lider: "Raynara", setor: "Salgados Fritos", nome: "Bolinho de Bacalhau" },
-      { lider: "Raynara", setor: "Salgados Fritos", nome: "Coxinha de Frango Grande" },
-      { lider: "Raynara", setor: "Salgados Fritos", nome: "Coxinha de Frango c/ Requeijão Grande" },
-      { lider: "Raynara", setor: "Salgados Fritos", nome: "Dadinho de Tapioca" },
-      { lider: "Raynara", setor: "Salgados Fritos", nome: "Empada de Carne Seca" },
-      { lider: "Raynara", setor: "Salgados Fritos", nome: "Empada de Frango" },
-      { lider: "Raynara", setor: "Salgados Fritos", nome: "Empada de Palmito" },
-      { lider: "Raynara", setor: "Salgados Fritos", nome: "Mini Empada de Frango c/ 6 und" },
-      { lider: "Raynara", setor: "Salgados Fritos", nome: "Mini Empada Festa" },
-      { lider: "Raynara", setor: "Salgados Fritos", nome: "Mini Coxinha de Frango" },
-      { lider: "Raynara", setor: "Salgados Fritos", nome: "Mini Quibe de Carne" },
-      { lider: "Raynara", setor: "Salgados Fritos", nome: "Mini Quibe de Carne c/ Requeijão" },
-      { lider: "Raynara", setor: "Salgados Fritos", nome: "Quibe de Carne Grande" },
-      { lider: "Raynara", setor: "Salgados Fritos", nome: "Cookies Tradicional" },
-      { lider: "Raynara", setor: "Salgados Fritos", nome: "Cookies Chocolate" },
-
-      // JONATHAN - BISCOITOS
-      { lider: "Jonathan", setor: "Biscoitos", nome: "Biscoitão" },
-      { lider: "Jonathan", setor: "Biscoitos", nome: "Biscoito de Polvilho Argola" },
-      { lider: "Jonathan", setor: "Biscoitos", nome: "Biscoito de Polvilho Bolinha de Queijo" },
-      { lider: "Jonathan", setor: "Biscoitos", nome: "Biscoito de Polvilho Palito" },
-
-      // JONATHAN - SALGADOS ASSADOS
-      { lider: "Jonathan", setor: "Salgados Assados", nome: "Assado de Salsicha" },
-      { lider: "Jonathan", setor: "Salgados Assados", nome: "Cigarrete" },
-      { lider: "Jonathan", setor: "Salgados Assados", nome: "Doguinho" },
-      { lider: "Jonathan", setor: "Salgados Assados", nome: "Esfiha Aberta de 4 Queijos" },
-      { lider: "Jonathan", setor: "Salgados Assados", nome: "Esfiha Aberta de Carne" },
-      { lider: "Jonathan", setor: "Salgados Assados", nome: "Esfiha Aberta de Frango c/ Requeijão" },
-      { lider: "Jonathan", setor: "Salgados Assados", nome: "Esfiha Fechada de Carne" },
-      { lider: "Jonathan", setor: "Salgados Assados", nome: "Esfiha Fechada de Frango c/ Requeijão" },
-      { lider: "Jonathan", setor: "Salgados Assados", nome: "Misto de Presunto e Queijo" },
-      { lider: "Jonathan", setor: "Salgados Assados", nome: "Pastel Assado de Frango" },
-      { lider: "Jonathan", setor: "Salgados Assados", nome: "Torta de Frango c/ Catupiry" },
-
-      // JONATHAN - LEVAIN
-      { lider: "Jonathan", setor: "Levain", nome: "Baguete Italiana UND" },
-      { lider: "Jonathan", setor: "Levain", nome: "Baguete Levain Calabresa KG" },
-      { lider: "Jonathan", setor: "Levain", nome: "Baguete Levain Calabresa UND" },
-      { lider: "Jonathan", setor: "Levain", nome: "Baguete Levain Gergelim UND" },
-      { lider: "Jonathan", setor: "Levain", nome: "Baguete Levain Tradicional UND" },
-      { lider: "Jonathan", setor: "Levain", nome: "Ciabatta c/ Azeitona KG" },
-      { lider: "Jonathan", setor: "Levain", nome: "Ciabatta c/ Azeitona UND" },
-      { lider: "Jonathan", setor: "Levain", nome: "Ciabatta c/ Calabresa UND" },
-      { lider: "Jonathan", setor: "Levain", nome: "Ciabatta c/ Tomate Seco KG" },
-      { lider: "Jonathan", setor: "Levain", nome: "Ciabatta c/ Tomate Seco UND" },
-      { lider: "Jonathan", setor: "Levain", nome: "Croissant Tradicional" },
-      { lider: "Jonathan", setor: "Levain", nome: "Croissant de Frango" },
-      { lider: "Jonathan", setor: "Levain", nome: "Croissant de Presunto e Queijo" },
-      { lider: "Jonathan", setor: "Levain", nome: "Pão de Grãos Levain UND" },
-      { lider: "Jonathan", setor: "Levain", nome: "Pão Italiano Levain UND" },
-      { lider: "Jonathan", setor: "Levain", nome: "Pão Levain Açafrão UND" },
-      { lider: "Jonathan", setor: "Levain", nome: "Pão Levain Braga UND" },
-      { lider: "Jonathan", setor: "Levain", nome: "Pão Levain Cacau c/ Laranja UND" },
-      { lider: "Jonathan", setor: "Levain", nome: "Pão Levain Ciabatta c/ 2 UND" },
-      { lider: "Jonathan", setor: "Levain", nome: "Pão Levain Cupiac UND" },
-      { lider: "Jonathan", setor: "Levain", nome: "Pão Levain Focaccia KG" },
-      { lider: "Jonathan", setor: "Levain", nome: "Pão Levain Focaccia UND" },
-      { lider: "Jonathan", setor: "Levain", nome: "Pão Levain Italiano Bola c/ 2 UND" },
-      { lider: "Jonathan", setor: "Levain", nome: "Pão Levain Italiano KG" },
-      { lider: "Jonathan", setor: "Levain", nome: "Pão Levain Italiano UND" },
-      { lider: "Jonathan", setor: "Levain", nome: "Pão Levain Mineiroca KG" },
-      { lider: "Jonathan", setor: "Levain", nome: "Pão Levain Mini Baguete c/ 2 UND" },
-      { lider: "Jonathan", setor: "Levain", nome: "Pão Levain Nozes c/ Mel KG" },
-      { lider: "Jonathan", setor: "Levain", nome: "Pão Levain Vinho c/ Uva Passas UND" },
-      { lider: "Jonathan", setor: "Levain", nome: "Pão Levain Campanha UND" },
-      { lider: "Jonathan", setor: "Levain", nome: "Pão Levain Nozes c/ Mel UND" },
-
-      // JÉSSICA - EMBALAGENS
-      { lider: "Jéssica", setor: "Embalagem (Pães)", nome: "Brioche c/ Coco" },
-      { lider: "Jéssica", setor: "Embalagem (Pães)", nome: "Brioche Tradicional" },
-      { lider: "Jéssica", setor: "Embalagem (Pães)", nome: "Pão de Batata" },
-      { lider: "Jéssica", setor: "Embalagem (Pães)", nome: "Pão de Cebola" },
-      { lider: "Jéssica", setor: "Embalagem (Pães)", nome: "Pão de Forma Integral" },
-      { lider: "Jéssica", setor: "Embalagem (Pães)", nome: "Pão de Forma p/ Torta" },
-      { lider: "Jéssica", setor: "Embalagem (Pães)", nome: "Pão de Forma Tradicional" },
-      { lider: "Jéssica", setor: "Embalagem (Pães)", nome: "Pão de Hamburguer c/ Gergelim" },
-      { lider: "Jéssica", setor: "Embalagem (Pães)", nome: "Pão de Hamburguer Tradicional" },
-      { lider: "Jéssica", setor: "Embalagem (Pães)", nome: "Pão de Hot Dog" },
-      { lider: "Jéssica", setor: "Embalagem (Pães)", nome: "Pão de Milho" },
-      { lider: "Jéssica", setor: "Embalagem (Pães)", nome: "Pão Sovado" },
-      { lider: "Jéssica", setor: "Embalagem (Biscoitos)", nome: "Biscoito Amanteigado Beijinho de Freira" },
-      { lider: "Jéssica", setor: "Embalagem (Biscoitos)", nome: "Biscoito Amanteigado Beliscão" },
-      { lider: "Jéssica", setor: "Embalagem (Biscoitos)", nome: "Biscoito Amanteigado Chocofesta" },
-      { lider: "Jéssica", setor: "Embalagem (Biscoitos)", nome: "Biscoito Amanteigado Goiabinha c/ Queijo" },
-      { lider: "Jéssica", setor: "Embalagem (Biscoitos)", nome: "Massa p/ Pizza Alvorada c/ 2 und" }
-    ];
-
-    window.mudarAba = function(aba) {
-      document.getElementById('btnTab1').classList.remove('ativo');
-      document.getElementById('btnTab2').classList.remove('ativo');
-
-      if (aba === 'agendar') {
-        document.getElementById('abaAgendar').style.display = 'block';
-        document.getElementById('abaCatalogo').style.display = 'none';
-        document.getElementById('btnTab1').classList.add('ativo');
-      } else {
-        document.getElementById('abaAgendar').style.display = 'none';
-        document.getElementById('abaCatalogo').style.display = 'block';
-        document.getElementById('btnTab2').classList.add('ativo');
+    // DADOS MESTRES DOS PRODUTOS ORGANIZADOS POR LÍDER E SETOR
+    const CATALOGO = {
+      "Breno": {
+        "Panificação": [
+          "Brioche", "Pão de Batata", "Pão de Cebola", "Pão de Forma Integral",
+          "Pão de Forma Tradicional", "Pão de Hamburguer c/ Gergelim", "Pão de Hamburguer Tradicional",
+          "Pão de Hot Dog", "Pão de Milho", "Pão Sovado", "Rosca Fazenda c/ Açúcar",
+          "Rosca Fazenda Tradicional", "Rosca de Leite Condensado", "Rosca Lisa",
+          "Rosca Rainha Tradicional", "Rosca Rainha c/ Creme", "Rosquinha c/ Açúcar",
+          "Rosquinha c/ Creme", "Panettone c/ Frutas", "Chocottone", "Colomba Pascal c/ Frutas",
+          "Colomba Pascal c/ Gotas de Chocolate"
+        ]
+      },
+      "Elisângela": {
+        "Bolos Redondos/Brownie": [
+          "Bolo Redondo de Abacaxi", "Bolo Redondo de Cenoura", "Bolo Redondo de Chocolate",
+          "Bolo Redondo de Coco", "Bolo Redondo de Formigueiro", "Bolo Redondo de Fubá",
+          "Bolo Redondo de Laranja", "Bolo Redondo de Leite Condensado", "Bolo Redondo de Limão",
+          "Bolo Redondo de Milho", "Bolo Redondo de Neutro", "Brownie de Chocolate c/ Cobertura",
+          "Brownie de Chocolate Tradicional"
+        ],
+        "Bolo Cremoso/Cobertura": [
+          "Bolo Cremoso de Abacaxi", "Bolo Cremoso de Abóbora c/ Coco", "Bolo Cremoso de Aipim",
+          "Bolo Cremoso de Banana c/ Granola", "Bolo Cremoso de Caçarola", "Bolo Cremoso de Cenoura",
+          "Bolo Cremoso de Chocolate", "Bolo Cremoso de Churros", "Bolo Cremoso de Coco",
+          "Bolo Cremoso de Laranja", "Bolo Cremoso de Leite Condensado", "Bolo Cremoso de Maracujá",
+          "Bolo Cremoso de Milho", "Bolo Cremoso de Quebra Queixo", "Bolo Cremoso de Pamonha",
+          "Bolo Cremoso de Red Velvet c/ Cobertura", "Bolo Redondo de Cenoura c/ Cobertura",
+          "Bolo Redondo de Chocolate c/ Cobertura", "Bolo Redondo de Churros c/ Cobertura",
+          "Bolo Redondo de Coco c/ Cobertura", "Bolo Redondo de Limão c/ Cobertura",
+          "Bolo Redondo de Café c/ Cobertura", "Bolo Redondo de Cappuccino c/ Cobertura",
+          "Bolo Redondo de Nozes c/ Cobertura", "Bolo Redondo de Paçoca c/ Cobertura"
+        ],
+        "Bolo Caseiro/Inglês": [
+          "Bolo Caseiro de Laranja", "Bolo Caseiro de Tangerina", "Bolo Inglês de Chocolate",
+          "Bolo Inglês de Formigueiro", "Bolo Inglês de Laranja", "Bolo Inglês de Mesclado",
+          "Bolo Inglês de Milho"
+        ],
+        "Bolo Placa": [
+          "Bolo Placa de Abacaxi", "Bolo Placa de Cenoura c/ Cobertura", "Bolo Placa de Cenoura",
+          "Bolo Placa de Chocolate c/ Cobertura", "Bolo Placa de Chocolate", "Bolo Placa de Coco c/ Cobertura",
+          "Bolo Placa de Coco", "Bolo Placa de Fubá", "Bolo Placa de Laranja", "Bolo Placa de Leite Condensado",
+          "Bolo Placa de Limão c/ Cobertura", "Bolo Placa de Limão", "Bolo Placa de Milho",
+          "Bolo Placa de Formigueiro", "Bolo Placa de Neutro"
+        ],
+        "Bolos Confeitados/Premium/Gourmet/Tortas": [
+          "Bolo Confeitado de Avelã", "Bolo Confeitado de Doce de Leite", "Bolo Confeitado de Flocos",
+          "Bolo Confeitado de Maracujá", "Bolo Confeitado de Pistache", "Bolo Gourmet de Creme de Avelã",
+          "Bolo Gourmet de Leitinho", "Bolo Premium de 4 Leites", "Bolo Premium de Chocolate",
+          "Bolo Premium de Coco", "Bolo Premium de Nozes", "Torta Gourmet de Bueno",
+          "Torta Gourmet de Creme de Pistache", "Torta Gourmet de Creme de Morango",
+          "Torta Gourmet de Leitinho", "Torta Gourmet de Limão", "Torta Gourmet de Pistache", "Torta Holandesa"
+        ],
+        "Sobremesas": [
+          "Bolo Artesanal de Brigadeiro", "Bolo Gelado de Coco", "Bolo Indiano", "Brigadeirão",
+          "Caçarola Italiana", "Cake de Cenoura Trufado c/ Avelã", "Cake de Pão de Mel",
+          "Creme Holandês", "Manjar de Coco - 150g (PEQUENO)", "Manjar de Coco - 600g (GRANDE)",
+          "Mousse de Chocolate - 150g (PEQUENO)", "Mousse de Chocolate - 600g (GRANDE)",
+          "Mousse de Maracujá - 200g (PEQUENO)", "Mousse de Maracujá - 600g (GRANDE)",
+          "Pudim Grande - 750g", "Pudim Pequeno - 95g", "Quindim", "Rocambole de Prestígio (FATIADO)",
+          "Rocambole de Prestígio (INTEIRO)", "Rocambole de Doce de Leite (FATIADO)", "Rocambole de Doce de Leite (INTEIRO)"
+        ]
+      },
+      "Jéssica": {
+        "Embalagem (Pães)": [
+          "Brioche c/ Coco", "Brioche Tadicional", "Pão de Batata", "Pão de Cebola",
+          "Pão de Forma Integral", "Pão de Forma p/ Torta", "Pão de Forma Tradicional",
+          "Pão de Hamburguer c/ Gergelim", "Pão de Hamburguer Tradicional", "Pão de Hot Dog",
+          "Pão de Milho", "Pão Sovado", "Rosca Fazenda c/ Açúcar", "Rosca Fazenda Tradicional",
+          "Rosca de Leite Condensado", "Rosca Lisa", "Rosca Rainha Tradicional", "Rosca Rainha c/ Creme",
+          "Rosquinha c/ Açúcar", "Rosquinha c/ Creme", "Panettone c/ Frutas", "Chocottone",
+          "Colomba Pascal c/ Frutas", "Colomba Pascal c/ Gotas de Chocolate"
+        ],
+        "Embalagem (Bolos Redondos/Brownie)": [
+          "Bolo Redondo de Abacaxi", "Bolo Redondo de Cenoura", "Bolo Redondo de Chocolate",
+          "Bolo Redondo de Coco", "Bolo Redondo de Formigueiro", "Bolo Redondo de Fubá",
+          "Bolo Redondo de Laranja", "Bolo Redondo de Leite Condensado", "Bolo Redondo de Limão",
+          "Bolo Redondo de Milho", "Bolo Redondo de Neutro", "Brownie de Chocolate c/ Cobertura",
+          "Brownie de Chocolate Tradicional"
+        ],
+        "Embalagem (Bolo Cremoso/Cobertura)": [
+          "Bolo Cremoso de Abacaxi", "Bolo Cremoso de Abóbora c/ Coco", "Bolo Cremoso de Aipim",
+          "Bolo Cremoso de Banana c/ Granola", "Bolo Cremoso de Caçarola", "Bolo Cremoso de Cenoura",
+          "Bolo Cremoso de Chocolate", "Bolo Cremoso de Churros", "Bolo Cremoso de Coco",
+          "Bolo Cremoso de Laranja", "Bolo Cremoso de Leite Condensado", "Bolo Cremoso de Maracujá",
+          "Bolo Cremoso de Milho", "Bolo Cremoso de Quebra Queixo", "Bolo Cremoso de Pamonha",
+          "Bolo Cremoso de Red Velvet c/ Cobertura", "Bolo Redondo de Cenoura c/ Cobertura",
+          "Bolo Redondo de Chocolate c/ Cobertura", "Bolo Redondo de Churros c/ Cobertura",
+          "Bolo Redondo de Coco c/ Cobertura", "Bolo Redondo de Limão c/ Cobertura",
+          "Bolo Redondo de Café c/ Cobertura", "Bolo Redondo de Cappuccino c/ Cobertura",
+          "Bolo Redondo de Nozes c/ Cobertura", "Bolo Redondo de Paçoca c/ Cobertura"
+        ],
+        "Embalagem (Bolo Caseiro/Inglês)": [
+          "Bolo Caseiro de Laranja", "Bolo Caseiro de Tangerina", "Bolo Inglês de Chocolate",
+          "Bolo Inglês de Formigueiro", "Bolo Inglês de Laranja", "Bolo Inglês de Mesclado",
+          "Bolo Inglês de Milho"
+        ],
+        "Embalagem (Bolo Placa)": [
+          "Bolo Placa de Abacaxi", "Bolo Placa de Cenoura c/ Cobertura", "Bolo Placa de Cenoura",
+          "Bolo Placa de Chocolate c/ Cobertura", "Bolo Placa de Chocolate", "Bolo Placa de Coco c/ Cobertura",
+          "Bolo Placa de Coco", "Bolo Placa de Fubá", "Bolo Placa de Laranja", "Bolo Placa de Leite Condensado",
+          "Bolo Placa de Limão c/ Cobertura", "Bolo Placa de Limão", "Bolo Placa de Milho",
+          "Bolo Placa de Formigueiro", "Bolo Placa de Neutro"
+        ],
+        "Embalagem (Biscoitos)": [
+          "Biscoito Amanteigado Beijinho de Freira", "Biscoito Amanteigado Beliscão",
+          "Biscoito Amanteigado Chocofesta", "Biscoito Amanteigado Goiabinha c/ Queijo",
+          "Biscoito Amanteigado Palito de Chocolate", "Biscoito Amanteigado Romeu e Julieta",
+          "Biscoito Amanteigado Sequilho Leite Condensado", "Biscoito de Polvilho Argola",
+          "Biscoito de Polvilho Bolinha de Queijo", "Biscoito de Polvilho KG",
+          "Biscoito de Polvilho Palito", "Massa p/ Pizza Alvorada c/ 2 und"
+        ]
+      },
+      "Raynara": {
+        "Pratos Prontos": [
+          "Almondega de Carne", "Caldo de Ervilha", "Caldo de Feijão", "Caldo de Milho",
+          "Caldo Verde", "Coxa e Sobrecoxa c/ Purê", "Escondidinho de Carne", "Escondidinho de Frango",
+          "Feijão Tropeiro", "Feijoada", "Fricassê de Frango", "Lasanha Bolonhesa",
+          "Lasanha de Frango", "Lasanha de 4 Queijos", "Medalhão de Frango", "Pappardelle c/ Almondegas",
+          "Parmegiana de Frango", "Strogonoff de Carne", "Strogonoff de Carne c/ Arroz",
+          "Strogonoff de Frango", "Strogonoff de Frango c/ Arroz"
+        ],
+        "Pão de Queijo/Broa": [
+          "Pão de Queijo 3 Queijos", "Pão de Queijo c/ Frango", "Pão de Queijo Coquetel",
+          "Pão de Queijo Lanche", "Pão de Queijo Tradicional", "Broa Aerosa"
+        ],
+        "Salgados Fritos": [
+          "Bolinha de Milho", "Bolinha de Pizza", "Bolinha de Queijo", "Bolinho de Bacalhau",
+          "Coxinha de Frango Grande", "Coxinha de Frango c/ Requeijão Grande", "Dadinho de Tapioca",
+          "Empada de Carne Seca", "Empada de Frango", "Empada de Palmito", "Mini Empada de Frango c/ 6 und",
+          "Mini Empada Festa", "Mini Coxinha de Frango", "Mini Quibe de Carne",
+          "Mini Quibe de Carne c/ Requeijão", "Quibe de Carne Grande", "Cookies Tradicional", "Cookies Chocolate"
+        ]
+      },
+      "Jonathan": {
+        "Biscoitos": [
+          "Biscoitão", "Biscoito de Polvilho Argola", "Biscoito de Polvilho Bolinha de Queijo", "Biscoito de Polvilho Palito"
+        ],
+        "Salgados Assados": [
+          "Assado de Salsicha", "Cigarrete", "Doguinho", "Esfiha Aberta de 4 Queijos",
+          "Esfiha Aberta de Carne", "Esfiha Aberta de Frango c/ Requeijão", "Esfiha Fechada de Carne",
+          "Esfiha Fechada de Frango c/ Requeijão", "Misto de Presunto e Queijo",
+          "Pastel Assado de Frango", "Torta de Frango c/ Catupiry"
+        ],
+        "Levain": [
+          "Baguete Italiana UND", "Baguete Levain Calabresa KG", "Baguete Levain Calabresa UND",
+          "Baguete Levain Gergelim UND", "Baguete Levain Tradicional UND", "Ciabatta c/ Azeitona KG",
+          "Ciabatta c/ Azeitona UND", "Ciabatta c/ Calabresa UND", "Ciabatta c/ Tomate Seco KG",
+          "Ciabatta c/ Tomate Seco UND", "Croissant Tradicional", "Croissant de Frango",
+          "Croissant de Presunto e Queijo", "Pão de Grãos Levain UND", "Pão Italiano Levain UND",
+          "Pão Levain Açafrão UND", "Pão Levain Braga UND", "Pão Levain Cacau c/ Laranja UND",
+          "Pão Levain Ciabatta c/ 2 UND", "Pão Levain Cupiac UND", "Pão Levain Focaccia KG",
+          "Pão Levain Focaccia UND", "Pão Levain Italiano Bola c/ 2 UND", "Pão Levain Italiano KG",
+          "Pão Levain Italiano UND", "Pão Levain Mineiroca KG", "Pão Levain Mini Baguete c/ 2 UND",
+          "Pão Levain Nozes c/ Mel KG", "Pão Levain Vinho c/ Uva Passas UND", "Pão Levain Campanha UND",
+          "Pão Levain Nozes c/ Mel UND"
+        ]
       }
     };
 
-    window.selecionarUnidade = function(unit, btn) {
-      unidadeSelecionada = unit;
-      document.querySelectorAll('.btn-unit').forEach(b => b.classList.remove('ativo'));
-      btn.classList.add('ativo');
+    // EXPOR FUNÇÕES PARA O HTML
+    window.carregarSetoresDoLider = function() {
+      const lider = document.getElementById('selectLider').value;
+      const selectSetor = document.getElementById('selectSetor');
+      selectSetor.innerHTML = '<option value="">-- Escolha o Setor --</option>';
+      document.getElementById('areaProdutosSetor').style.display = 'none';
+
+      if (!lider || !CATALOGO[lider]) return;
+
+      const setores = Object.keys(CATALOGO[lider]);
+      setores.forEach(s => {
+        selectSetor.innerHTML += `<option value="${s}">${s}</option>`;
+      });
     };
 
-    // SINCRONIZAR CATÁLOGO COM O FIREBASE
-    onValue(ref(db, 'catalogo'), (snapshot) => {
-      const data = snapshot.val();
-      catalogoProdutos = [];
+    window.carregarListaDeProdutos = function() {
+      const lider = document.getElementById('selectLider').value;
+      const setor = document.getElementById('selectSetor').value;
+      const area = document.getElementById('areaProdutosSetor');
+      const tbody = document.getElementById('tbodyListaProdutos');
 
-      if (data) {
-        Object.keys(data).forEach(id => {
-          catalogoProdutos.push({ id, ...data[id] });
-        });
-      } else {
-        // Se estiver totalmente vazio, insere toda a lista enviada
-        baseCompletaInicial.forEach(item => push(ref(db, 'catalogo'), item));
+      tbody.innerHTML = '';
+
+      if (!lider || !setor || !CATALOGO[lider][setor]) {
+        area.style.display = 'none';
+        return;
       }
-      renderizarTabelaCatalogo();
-    });
 
-    // LISTAR AGENDAMENTOS CADASTRADOS
+      const produtos = CATALOGO[lider][setor];
+
+      produtos.forEach((prod, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="text-align:center;">
+            <input type="checkbox" id="chk_${index}" class="chk-prod" onchange="toggleQtdInput(${index})">
+          </td>
+          <td><strong>${prod}</strong></td>
+          <td>
+            <input type="number" id="qtd_${index}" class="input-qtd-tabela" placeholder="0" min="0.1" step="any" disabled>
+          </td>
+          <td>
+            <select id="un_${index}" class="select-un-tabela" disabled>
+              <option value="un">un</option>
+              <option value="kg">kg</option>
+              <option value="rec">receita</option>
+              <option value="kit">kit</option>
+              <option value="cx">cx</option>
+            </select>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      area.style.display = 'block';
+    };
+
+    window.toggleQtdInput = function(index) {
+      const chk = document.getElementById(`chk_${index}`);
+      const inputQtd = document.getElementById(`qtd_${index}`);
+      const selectUn = document.getElementById(`un_${index}`);
+
+      inputQtd.disabled = !chk.checked;
+      selectUn.disabled = !chk.checked;
+
+      if (chk.checked) {
+        inputQtd.focus();
+      } else {
+        inputQtd.value = '';
+      }
+    };
+
+    window.lançarProdutosSelecionados = function() {
+      const dia = document.getElementById('selectDia').value;
+      const lider = document.getElementById('selectLider').value;
+      const setor = document.getElementById('selectSetor').value;
+      const produtos = CATALOGO[lider][setor];
+
+      let totalLancados = 0;
+
+      produtos.forEach((prod, index) => {
+        const chk = document.getElementById(`chk_${index}`);
+        const qtdInput = document.getElementById(`qtd_${index}`);
+        const unSelect = document.getElementById(`un_${index}`);
+
+        if (chk.checked && qtdInput.value && parseFloat(qtdInput.value) > 0) {
+          const novoAgendamento = {
+            dia: dia,
+            lider: lider,
+            setor: setor,
+            nome: prod,
+            qtd: parseFloat(qtdInput.value),
+            unidade: unSelect.value,
+            concluido: false,
+            finalizadoSemFazer: false
+          };
+
+          push(ref(db, 'produtos'), novoAgendamento);
+          totalLancados++;
+        }
+      });
+
+      if (totalLancados === 0) {
+        alert("Selecione pelo menos um produto e digite uma quantidade válida!");
+      } else {
+        alert(`${totalLancados} produto(s) lançado(s) com sucesso na produção!`);
+        carregarListaDeProdutos(); // Recarrega para limpar
+      }
+    };
+
+    // ESCUTAR BANCO DE DADOS EM TEMPO REAL
     onValue(ref(db, 'produtos'), (snapshot) => {
       const data = snapshot.val();
       const tabela = document.getElementById('tabelaAgendamentos');
@@ -519,115 +440,17 @@
             <td><strong>${p.lider}</strong></td>
             <td>${p.setor || '-'}</td>
             <td>${p.nome}</td>
-            <td><strong style="color:var(--verde-escuro);">${p.qtd} ${p.unidade}</strong></td>
-            <td><button class="btn-del" onclick="deletarAgendamento('${id}')">🗑️ Excluir</button></td>
+            <td><span class="badge-qtd">${p.qtd} ${p.unidade}</span></td>
+            <td><button class="btn-del" onclick="deletarItem('${id}')">🗑️ Excluir</button></td>
           `;
           tabela.appendChild(tr);
         });
       }
     });
 
-    window.carregarSetoresDoLider = function() {
-      const lider = document.getElementById('selectLider').value;
-      const selectSetor = document.getElementById('selectSetor');
-      selectSetor.innerHTML = '<option value="">Selecione o Setor...</option>';
-      document.getElementById('selectProduto').innerHTML = '<option value="">Aguardando Setor...</option>';
-
-      if (!lider) return;
-
-      const setores = [...new Set(catalogoProdutos.filter(c => c.lider === lider).map(c => c.setor))];
-      
-      if (setores.length === 0) {
-        selectSetor.innerHTML = '<option value="Geral">Geral</option>';
-      } else {
-        setores.forEach(s => {
-          selectSetor.innerHTML += `<option value="${s}">${s}</option>`;
-        });
-      }
-    };
-
-    window.carregarProdutosDoSetor = function() {
-      const lider = document.getElementById('selectLider').value;
-      const setor = document.getElementById('selectSetor').value;
-      const selectProduto = document.getElementById('selectProduto');
-      selectProduto.innerHTML = '<option value="">Selecione o Produto...</option>';
-
-      if (!lider || !setor) return;
-
-      const prods = catalogoProdutos.filter(c => c.lider === lider && c.setor === setor);
-      prods.forEach(p => {
-        selectProduto.innerHTML += `<option value="${p.nome}">${p.nome}</option>`;
-      });
-    };
-
-    window.agendarProduto = function() {
-      const dia = document.getElementById('selectDia').value;
-      const lider = document.getElementById('selectLider').value;
-      const setor = document.getElementById('selectSetor').value || 'Geral';
-      const nome = document.getElementById('selectProduto').value;
-      const qtd = parseFloat(document.getElementById('inputQtd').value);
-
-      if (!lider || !nome || isNaN(qtd) || qtd <= 0) {
-        return alert("Por favor, preencha o líder, produto e a quantidade corretamente!");
-      }
-
-      const novoAgendamento = {
-        dia,
-        lider,
-        setor,
-        nome,
-        qtd,
-        unidade: unidadeSelecionada,
-        concluido: false,
-        finalizadoSemFazer: false
-      };
-
-      push(ref(db, 'produtos'), novoAgendamento).then(() => {
-        document.getElementById('inputQtd').value = '';
-        alert("Ordem de Produção criada com sucesso!");
-      });
-    };
-
-    window.salvarProdutoCatalogo = function() {
-      const lider = document.getElementById('catLider').value;
-      const setor = document.getElementById('catSetor').value.trim();
-      const nome = document.getElementById('catNome').value.trim();
-
-      if (!lider || !setor || !nome) {
-        return alert("Preencha todos os campos para cadastrar no catálogo!");
-      }
-
-      push(ref(db, 'catalogo'), { lider, setor, nome }).then(() => {
-        document.getElementById('catSetor').value = '';
-        document.getElementById('catNome').value = '';
-        alert("Produto adicionado ao catálogo com sucesso!");
-      });
-    };
-
-    function renderizarTabelaCatalogo() {
-      const tabela = document.getElementById('tabelaCatalogo');
-      tabela.innerHTML = '';
-      catalogoProdutos.forEach(c => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${c.lider}</td>
-          <td>${c.setor}</td>
-          <td>${c.nome}</td>
-          <td><button class="btn-del" onclick="deletarCatalogo('${c.id}')">🗑️ Excluir</button></td>
-        `;
-        tabela.appendChild(tr);
-      });
-    }
-
-    window.deletarAgendamento = function(id) {
-      if (confirm("Deseja remover esta ordem de produção?")) {
+    window.deletarItem = function(id) {
+      if (confirm("Tem certeza que deseja remover esta ordem de produção?")) {
         remove(ref(db, `produtos/${id}`));
-      }
-    };
-
-    window.deletarCatalogo = function(id) {
-      if (confirm("Deseja remover este produto do catálogo?")) {
-        remove(ref(db, `catalogo/${id}`));
       }
     };
   </script>
