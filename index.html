@@ -201,15 +201,15 @@
     const diasSemana = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"];
     let diaSelecionado = diasSemana[0];
 
-    // MATRIZ DE DIAS DE PRODUÇÃO DOS BOLOS DA ELISÂNGELA
+    // MATRIZ ATUALIZADA DO CRONOGRAMA DA ELISÂNGELA
     const cronogramaProducao = {
       "placa": ["Segunda-feira", "Quarta-feira"],
-      "redondo": ["Terça-feira", "Quarta-feira", "Quinta-feira"],
       "caseiro": ["Segunda-feira", "Quinta-feira"],
       "ingles": ["Segunda-feira", "Quinta-feira"],
       "inglês": ["Segunda-feira", "Quinta-feira"],
+      "redondo": ["Terça-feira", "Quinta-feira"],
       "cobertura": ["Terça-feira", "Quinta-feira"],
-      "cremoso": ["Sexta-feira"]
+      "cremoso": ["Quarta-feira", "Sexta-feira"]
     };
 
     if (liderAtual) {
@@ -318,7 +318,7 @@
         normalizarString(p.dia) === normalizarString(diaSelecionado)
       );
 
-      // FILTRO JÉSSICA: Exibe apenas os lotes realmente liberados pela Elisângela
+      // JÉSSICA: Exibe lotes enviados para embalagem
       if (isJessica) {
         prodsDia = prodsDia.filter(p => p.idOrigemElisangela || p.concluido);
       }
@@ -397,20 +397,20 @@
       update(itemRef, { concluido: concluido });
     };
 
-    // ELISÂNGELA: ENVIA APENAS A QUANTIDADE FEITA PARA A JÉSSICA (SEM MARCAR O TOTAL COMO FEITO SE FOR METADE)
+    // ELISÂNGELA: ENVIA A QUANTIDADE FEITA E ATUALIZA O SALDO PENDENTE DO DIA
     window.enviarParaEmbalagem = function(id) {
       const input = document.getElementById(`inputQtdElis_${id}`);
       const qtdProduzida = parseFloat(input.value);
       const prodElis = produtosGlobais.find(p => p.id === id);
 
       if (!prodElis || isNaN(qtdProduzida) || qtdProduzida <= 0) {
-        alert("Por favor, digite a quantidade real que você produziu!");
+        alert("Por favor, digite a quantidade real produzida!");
         return;
       }
 
       const qtdAtualElis = parseFloat(prodElis.qtd) || 0;
       if (qtdProduzida > qtdAtualElis) {
-        alert(`A quantidade enviada (${qtdProduzida}) é maior do que a pendente (${qtdAtualElis})!`);
+        alert(`A quantidade enviada (${qtdProduzida}) não pode ser maior do que a pendente (${qtdAtualElis})!`);
         return;
       }
 
@@ -419,7 +419,7 @@
 
       const nomeProdJessica = prodElis.nome.toUpperCase().includes('EMB') ? prodElis.nome : `${prodElis.nome} EMB`;
 
-      // 1. Envia a quantidade exata produzida para a Jéssica
+      // 1. Cria o lote para a Jéssica no dia atual
       const novoItemJessica = {
         dia: prodElis.dia,
         lider: "Jéssica",
@@ -433,17 +433,17 @@
       };
 
       push(ref(db, 'produtos'), novoItemJessica).then(() => {
-        // 2. Atualiza o saldo da Elisângela. Só fica cinza se zerar tudo!
+        // 2. Atualiza saldo da Elisângela. Se sobrar algo, mantém pendente; se zerou, marca como concluído
         update(ref(db, `produtos/${id}`), {
           qtd: novaQtdElis,
           concluido: elisEstaConcluido
         });
 
-        alert(`Lote de ${qtdProduzida} ${prodElis.unidade} liberado para a Jéssica com sucesso!`);
+        alert(`Lote de ${qtdProduzida} ${prodElis.unidade} liberado para a Jéssica! Saldo restante atualizado.`);
       });
     };
 
-    // JÉSSICA: DÁ BAIXA E REBATE NO PRÓXIMO DIA ESPECÍFICO DO CRONOGRAMA DA ELISÂNGELA
+    // JÉSSICA: DÁ BAIXA E REBATA NO PRÓXIMO DIA DO CRONOGRAMA DA ELISÂNGELA
     window.darBaixaEmbalagem = function(id) {
       const input = document.getElementById(`inputQtdJess_${id}`);
       const qtdEmbalada = parseFloat(input.value);
@@ -460,14 +460,13 @@
         return;
       }
 
-      // Marcar item da Jéssica como concluído (ficará cinza)
+      // Marcar item da Jéssica como concluído
       update(ref(db, `produtos/${id}`), {
         qtd: qtdEmbalada,
         concluido: true
       }).then(() => {
-        // Desconta do próximo dia do cronograma da Elisângela
         rebaterProximoDiaCronograma(prodJessica, qtdEmbalada);
-        alert(`Baixa de ${qtdEmbalada} confirmada! Saldo atualizado no próximo dia correspondente da Elisângela.`);
+        alert(`Baixa de ${qtdEmbalada} confirmada! Próximo dia da Elisângela atualizado.`);
       });
     };
 
@@ -484,10 +483,9 @@
         }
       });
 
-      // Se achou o tipo do bolo no cronograma, pega os dias em que ele é produzido
       let diasProducao = tipoBoloEncontrado ? cronogramaProducao[tipoBoloEncontrado] : diasSemana;
 
-      // Descobre qual é o PRÓXIMO dia do cronograma após o dia atual
+      // Descobre o PRÓXIMO dia do cronograma (Ex: Segunda -> Quarta para Bolo Placa)
       let proximoDiaAlvo = null;
       for (let i = 1; i <= 7; i++) {
         let proxIdx = (idxDiaOrigem + i) % 7;
@@ -500,25 +498,37 @@
 
       if (!proximoDiaAlvo) proximoDiaAlvo = diaOrigem;
 
-      const nomeBase = nomeProdNorm.replace(/\bemb\b/g, '').trim();
+      const nomeBase = nomeProdNorm.replace(/\bemb\b/g, '').trim().toUpperCase();
 
-      // Procura o agendamento da Elisângela exatamente no próximo dia do cronograma
+      // Busca se já existe agendamento da Elisângela nesse próximo dia
       const prodElisProximoDia = produtosGlobais.find(p => 
         normalizarString(p.lider) === 'elisângela' &&
-        normalizarString(p.nome).includes(nomeBase) &&
+        normalizarString(p.nome).includes(normalizarString(nomeBase)) &&
         p.dia === proximoDiaAlvo &&
         !p.concluido
       );
 
       if (prodElisProximoDia) {
+        // Se já existe, abate o saldo
         const qtdAtual = parseFloat(prodElisProximoDia.qtd) || 0;
         const novaQtd = Math.max(0, qtdAtual - qtdEmbalada);
-        const estaConcluido = novaQtd === 0;
-
         update(ref(db, `produtos/${prodElisProximoDia.id}`), {
           qtd: novaQtd,
-          concluido: estaConcluido
+          concluido: novaQtd === 0
         });
+      } else {
+        // Se não existe agendamento na Quarta-feira, cria automaticamente para a Elisângela
+        const novoAgendamentoProximoDia = {
+          dia: proximoDiaAlvo,
+          lider: "Elisângela",
+          setor: prodJessica.setor ? prodJessica.setor.replace(/\bEMB\b/g, '').trim() : "BOLO PLACA",
+          qtd: qtdEmbalada,
+          unidade: prodJessica.unidade || "un",
+          nome: nomeBase,
+          concluido: false,
+          finalizadoSemFazer: false
+        };
+        push(ref(db, 'produtos'), novoAgendamentoProximoDia);
       }
     }
 
