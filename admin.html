@@ -2,125 +2,63 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Admin - Panificação Alvorada</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Admin - Panificação Alvorada</title>
   <style>
     :root {
       --verde-alvorada: #007a33;
       --verde-escuro: #005624;
-      --laranja-alvorada: #f39c12;
-      --amarelo-alvorada: #f1c40f;
       --bg-fundo: #f4f6f8;
     }
 
     * { box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-fundo); margin: 0; padding: 12px; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-fundo); margin: 0; padding: 15px; }
 
-    .brand-header {
+    .header-admin {
       background: linear-gradient(135deg, var(--verde-alvorada), var(--verde-escuro));
-      color: white; padding: 15px; border-radius: 12px;
-      display: flex; align-items: center; justify-content: space-between;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15); margin-bottom: 20px;
+      color: white; padding: 15px 20px; border-radius: 12px;
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
     }
 
-    .brand-title { font-size: 18px; font-weight: bold; text-transform: uppercase; }
+    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); margin-bottom: 20px; }
+    .card h2 { margin-top: 0; color: #1e293b; font-size: 18px; border-bottom: 2px solid var(--verde-alvorada); padding-bottom: 8px; }
 
-    .modal-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center;
-      z-index: 1000; padding: 15px;
-    }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 15px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group label { font-size: 13px; font-weight: bold; color: #475569; }
+    .form-group select, .form-group input { padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; }
 
-    .modal-box { background: white; padding: 25px; border-radius: 12px; width: 100%; max-width: 380px; text-align: center; }
-    .modal-box input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; text-align: center; }
-    .modal-box button { width: 100%; padding: 12px; background: var(--verde-alvorada); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
-    .modal-box .btn-voltar { background: #6c757d; margin-top: 8px; }
+    .btn-add { background-color: var(--verde-alvorada); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; width: 100%; }
+    .btn-add:hover { background-color: var(--verde-escuro); }
 
-    .admin-content { display: none; max-width: 1000px; margin: 0 auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+    th { background-color: #1e293b; color: white; font-weight: bold; }
+    .btn-del { background: #e11d48; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; }
 
-    .alerta-box {
-      background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404;
-      padding: 15px; border-radius: 10px; margin-bottom: 20px;
-      display: flex; justify-content: space-between; align-items: center; font-weight: bold;
-    }
-
-    .badge-alerta { background-color: #d32f2f; color: white; padding: 4px 10px; border-radius: 20px; font-size: 14px; }
-
-    .form-card {
-      background-color: #ffffff; padding: 20px; border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 25px; border-top: 4px solid var(--verde-alvorada);
-    }
-
-    .form-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
-    @media (min-width: 768px) { .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 2fr; } }
-
-    select, input { padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; width: 100%; }
-
-    button.btn-add {
-      width: 100%; padding: 14px; background-color: var(--verde-alvorada); color: white;
-      border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px;
-    }
-
-    .secao-card { background: white; border-radius: 10px; padding: 15px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow-x: auto; }
-    
-    table { width: 100%; border-collapse: collapse; min-width: 500px; }
-    th, td { border-bottom: 1px solid #eee; padding: 10px; text-align: left; font-size: 14px; }
-    th { background-color: var(--verde-alvorada); color: white; }
-
-    .btn-delete { background-color: #d32f2f; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
-    .btn-delete-multi { background-color: #d32f2f; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; }
-    .btn-reagendar { background-color: var(--laranja-alvorada); color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; }
-
-    .obs-destaque { color: #c62828; font-style: italic; font-weight: bold; }
-    .badge-setor { background: #e2e8f0; color: #1e293b; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-    .tbl-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+    .tab-btn { padding: 10px 18px; border: none; background: #e2e8f0; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .tab-btn.ativo { background: var(--verde-alvorada); color: white; }
   </style>
 </head>
 <body>
 
-  <div class="modal-overlay" id="senhaModal">
-    <div class="modal-box">
-      <h2>🔒 Painel Admin</h2>
-      <input type="password" id="senhaInput" placeholder="Digite a senha...">
-      <button onclick="validarSenha()">Entrar no Sistema</button>
-      <button class="btn-voltar" onclick="window.location.href='index.html'">Voltar para Operação</button>
-    </div>
+  <div class="header-admin">
+    <h1 style="margin:0; font-size:20px;">⚙️ Painel do Administrador</h1>
+    <a href="index.html" style="color:white; text-decoration:none; font-weight:bold;">← Voltar para Produção</a>
   </div>
 
-  <div class="admin-content" id="conteudoAdmin">
+  <div class="tabs">
+    <button class="tab-btn ativo" onclick="mudarAba('agendar')">📅 Lançar Programação Rápida</button>
+    <button class="tab-btn" onclick="mudarAba('catalogo')">📦 Cadastrar Catálogo de Produtos</button>
+  </div>
 
-    <div class="brand-header">
-      <div class="brand-title">Gestão da Panificação</div>
-      <a href="index.html" style="color: var(--amarelo-alvorada); text-decoration: none; font-weight: bold; font-size: 13px;">← Operação</a>
-    </div>
-
-    <div class="alerta-box">
-      <span>⚠️ Relatório de Ocorrências e Pendências</span>
-      <span class="badge-alerta" id="contadorAlertas">0 Alertas</span>
-    </div>
-
-    <div class="secao-card" style="border-left: 5px solid #d32f2f;">
-      <h2 style="color: #d32f2f; margin-top: 0; font-size: 18px;">🚨 Produtos Não Feitos (Justificados pelos Líderes)</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Dia Previsto</th>
-            <th>Líder</th>
-            <th>Setor</th>
-            <th>Produto</th>
-            <th>Justificativa / Motivo</th>
-            <th>Ação do Admin</th>
-          </tr>
-        </thead>
-        <tbody id="tabelaPendencias"></tbody>
-      </table>
-    </div>
-
-    <div class="form-card">
-      <h2 style="margin-top:0; color: var(--verde-alvorada); font-size: 18px;">Cadastrar Tarefas aos Líderes</h2>
-      <div class="form-grid">
-        <select id="diaSemana">
-          <option value="">Selecione o Dia...</option>
+  <div id="abaAgendar" class="card">
+    <h2>⚡ Lançar Programação de Produção</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>1. Dia da Semana:</label>
+        <select id="selectDia">
           <option value="Segunda-feira">Segunda-feira</option>
           <option value="Terça-feira">Terça-feira</option>
           <option value="Quarta-feira">Quarta-feira</option>
@@ -129,63 +67,112 @@
           <option value="Sábado">Sábado</option>
           <option value="Domingo">Domingo</option>
         </select>
+      </div>
 
-        <select id="liderDesignado" onchange="atualizarSetores()">
-          <option value="">Líder Responsável...</option>
+      <div class="form-group">
+        <label>2. Líder Responsável:</label>
+        <select id="selectLider" onchange="carregarSetoresDoLider()">
+          <option value="">Selecione o Líder...</option>
+          <option value="Elisângela">Elisângela</option>
           <option value="Breno">Breno</option>
           <option value="Raynara">Raynara</option>
-          <option value="Elisângela">Elisângela</option>
           <option value="Jonathan">Jonathan</option>
           <option value="Ana Cláudia">Ana Cláudia</option>
           <option value="Jéssica">Jéssica</option>
         </select>
+      </div>
 
-        <select id="setorInput">
-          <option value="">Primeiro selecione o Líder...</option>
+      <div class="form-group">
+        <label>3. Setor:</label>
+        <select id="selectSetor" onchange="carregarProdutosDoSetor()">
+          <option value="">Aguardando Líder...</option>
         </select>
-
-        <div style="display: flex; gap: 5px;">
-          <input type="number" id="qtdInput" placeholder="Qtd">
-          <select id="unidadeInput">
-            <option value="kg">kg</option>
-            <option value="rec">rec</option>
-            <option value="kit">kit</option>
-            <option value="un">un</option>
-          </select>
-        </div>
-
-        <input type="text" id="produtoInput" placeholder="Nome do Produto">
       </div>
 
-      <button class="btn-add" onclick="cadastrarProduto()">+ Cadastrar na Programação</button>
+      <div class="form-group">
+        <label>4. Produto:</label>
+        <select id="selectProduto">
+          <option value="">Aguardando Setor...</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>5. Quantidade:</label>
+        <input type="number" id="inputQtd" placeholder="Ex: 50" min="1">
+      </div>
+
+      <div class="form-group">
+        <label>Unidade:</label>
+        <select id="selectUnidade">
+          <option value="un">un (Unidades)</option>
+          <option value="kg">kg (Quilos)</option>
+          <option value="cx">cx (Caixas)</option>
+        </select>
+      </div>
     </div>
 
-    <div class="secao-card">
-      <div class="tbl-header-flex">
-        <h3 style="margin:0; color: #333;">Toda a Programação Cadastrada</h3>
-        <button class="btn-delete-multi" onclick="excluirSelecionados()">🗑️ Excluir Selecionados</button>
+    <button class="btn-add" onclick="agendarProduto()">➕ Agendar Produção</button>
+
+    <h3 style="margin-top:25px; font-size:16px;">📋 Agendamentos Cadastrados</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Dia</th>
+          <th>Líder</th>
+          <th>Setor</th>
+          <th>Produto</th>
+          <th>Qtd</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaAgendamentos"></tbody>
+    </table>
+  </div>
+
+  <div id="abaCatalogo" class="card" style="display:none;">
+    <h2>📦 Gerenciar Produtos Pré-Cadastrados por Líder</h2>
+    <p style="font-size:13px; color:#666;">Cadastre aqui os produtos que cada líder produz para aparecerem na lista automática.</p>
+    
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Líder:</label>
+        <select id="catLider">
+          <option value="Elisângela">Elisângela</option>
+          <option value="Breno">Breno</option>
+          <option value="Raynara">Raynara</option>
+          <option value="Jonathan">Jonathan</option>
+          <option value="Ana Cláudia">Ana Cláudia</option>
+          <option value="Jéssica">Jéssica</option>
+        </select>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th style="width: 40px; text-align: center;"><input type="checkbox" id="checkTodos" onchange="selecionarTodos(this.checked)" style="width:18px; height:18px; cursor:pointer;"></th>
-            <th>Dia</th>
-            <th>Líder</th>
-            <th>Setor</th>
-            <th>Qtd</th>
-            <th>Produto</th>
-            <th>Status</th>
-            <th>Ação</th>
-          </tr>
-        </thead>
-        <tbody id="tabelaCorpo"></tbody>
-      </table>
+      <div class="form-group">
+        <label>Setor:</label>
+        <input type="text" id="catSetor" placeholder="Ex: Bolos, Pães, Salgados...">
+      </div>
+      <div class="form-group">
+        <label>Nome do Produto:</label>
+        <input type="text" id="catNome" placeholder="Ex: BOLO PLACA">
+      </div>
     </div>
+    <button class="btn-add" onclick="salvarProdutoCatalogo()">💾 Salvar no Catálogo</button>
+
+    <h3 style="margin-top:25px; font-size:16px;">📑 Catálogo Atual</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Líder</th>
+          <th>Setor</th>
+          <th>Produto</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaCatalogo"></tbody>
+    </table>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyB-KGrSWvIAKW6ZT0SDGUH7LFLzvYsmcJk",
@@ -200,193 +187,174 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    const SENHA_CORRETA = "1234";
-    let produtosGlobais = [];
+    let catalogoProdutos = [];
 
-    const setoresPorLider = {
-      "Breno": ["Panificação"],
-      "Raynara": ["Pré-Pesagem", "Recheio", "Pratos Prontos", "Pão de Queijo", "Salgados Fritos"],
-      "Jonathan": ["Biscoito", "Levain", "Salgados Assados"],
-      "Elisângela": ["Sobremesas", "Bolo Confeitados", "Bolo Redondo/Brownie", "Bolo Cremoso/Cobertura", "Bolo Caseiro/Inglês", "Bolo Placa"],
-      "Ana Cláudia": ["Embalagem Congelados", "Pizza", "Pratos Prontos Embalados", "Sobremesas Embaladas"],
-      "Jéssica": ["Pães EMB", "Biscoitinhos EMB", "Bolo Redondo/Brownie EMB", "Bolo Cremoso/Cobertura EMB", "Bolo Caseiro/Inglês EMB", "Bolo Placa EMB", "Panettone/Colomba EMB"]
-    };
+    // PRODUTOS PADRÃO (BASE INICIAL CASO BANCO ESTEJA VAZIO)
+    const catalogoPadrao = [
+      { lider: "Elisângela", setor: "Bolos", nome: "BOLO PLACA" },
+      { lider: "Elisângela", setor: "Bolos", nome: "BOLO CASEIRO" },
+      { lider: "Elisângela", setor: "Bolos", nome: "BOLO INGLÊS" },
+      { lider: "Elisângela", setor: "Bolos", nome: "BOLO REDONDO" },
+      { lider: "Elisângela", setor: "Bolos", nome: "BOLO COBERTURA" },
+      { lider: "Elisângela", setor: "Bolos", nome: "BOLO CREMOSO" }
+    ];
 
-    window.atualizarSetores = function() {
-      const lider = document.getElementById('liderDesignado').value;
-      const setorSelect = document.getElementById('setorInput');
-      setorSelect.innerHTML = '';
-
-      if (!lider || !setoresPorLider[lider]) {
-        setorSelect.innerHTML = '<option value="">Primeiro selecione o Líder...</option>';
-        return;
-      }
-
-      setorSelect.innerHTML = '<option value="">Selecione o Setor...</option>';
-      setoresPorLider[lider].forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s;
-        opt.textContent = s;
-        setorSelect.appendChild(opt);
-      });
-    };
-
-    window.validarSenha = function() {
-      const senhaDigitada = document.getElementById('senhaInput').value;
-      if (senhaDigitada === SENHA_CORRETA) {
-        document.getElementById('senhaModal').style.display = 'none';
-        document.getElementById('conteudoAdmin').style.display = 'block';
-        ouvirProdutosFirebase();
+    window.mudarAba = function(aba) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('ativo'));
+      if (aba === 'agendar') {
+        document.getElementById('abaAgendar').style.display = 'block';
+        document.getElementById('abaCatalogo').style.display = 'none';
+        event.target.classList.add('ativo');
       } else {
-        alert("Senha incorreta!");
+        document.getElementById('abaAgendar').style.display = 'none';
+        document.getElementById('abaCatalogo').style.display = 'block';
+        event.target.classList.add('ativo');
       }
     };
 
-    function ouvirProdutosFirebase() {
-      const produtosRef = ref(db, 'produtos');
-      onValue(produtosRef, (snapshot) => {
-        const data = snapshot.val();
-        produtosGlobais = [];
+    // OUVIR CATÁLOGO DO FIREBASE
+    onValue(ref(db, 'catalogo'), (snapshot) => {
+      const data = snapshot.val();
+      catalogoProdutos = [];
+      if (data) {
+        Object.keys(data).forEach(id => {
+          catalogoProdutos.push({ id, ...data[id] });
+        });
+      } else {
+        // Se estiver vazio, popula com a lista padrão
+        catalogoPadrao.forEach(item => push(ref(db, 'catalogo'), item));
+      }
+      renderizarTabelaCatalogo();
+    });
 
-        if (data) {
-          Object.keys(data).forEach(id => {
-            produtosGlobais.push({ id, ...data[id] });
-          });
-        }
+    // OUVIR AGENDAMENTOS
+    onValue(ref(db, 'produtos'), (snapshot) => {
+      const data = snapshot.val();
+      const tabela = document.getElementById('tabelaAgendamentos');
+      tabela.innerHTML = '';
 
-        carregarTabelas();
+      if (data) {
+        Object.keys(data).forEach(id => {
+          const p = data[id];
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${p.dia}</td>
+            <td>${p.lider}</td>
+            <td>${p.setor || '-'}</td>
+            <td>${p.nome}</td>
+            <td><strong>${p.qtd} ${p.unidade}</strong></td>
+            <td><button class="btn-del" onclick="deletarAgendamento('${id}')">🗑️ Excluir</button></td>
+          `;
+          tabela.appendChild(tr);
+        });
+      }
+    });
+
+    window.carregarSetoresDoLider = function() {
+      const lider = document.getElementById('selectLider').value;
+      const selectSetor = document.getElementById('selectSetor');
+      selectSetor.innerHTML = '<option value="">Selecione o Setor...</option>';
+      document.getElementById('selectProduto').innerHTML = '<option value="">Aguardando Setor...</option>';
+
+      if (!lider) return;
+
+      const setores = [...new Set(catalogoProdutos.filter(c => c.lider === lider).map(c => c.setor))];
+      
+      if (setores.length === 0) {
+        selectSetor.innerHTML = '<option value="Geral">Geral</option>';
+      } else {
+        setores.forEach(s => {
+          selectSetor.innerHTML += `<option value="${s}">${s}</option>`;
+        });
+      }
+      carregarProdutosDoSetor();
+    };
+
+    window.carregarProdutosDoSetor = function() {
+      const lider = document.getElementById('selectLider').value;
+      const setor = document.getElementById('selectSetor').value;
+      const selectProduto = document.getElementById('selectProduto');
+      selectProduto.innerHTML = '<option value="">Selecione o Produto...</option>';
+
+      if (!lider) return;
+
+      const prods = catalogoProdutos.filter(c => c.lider === lider && (!setor || c.setor === setor));
+      prods.forEach(p => {
+        selectProduto.innerHTML += `<option value="${p.nome}">${p.nome}</option>`;
       });
-    }
+    };
 
-    window.cadastrarProduto = function() {
-      const dia = document.getElementById('diaSemana').value;
-      const lider = document.getElementById('liderDesignado').value;
-      const setor = document.getElementById('setorInput').value;
-      const qtd = document.getElementById('qtdInput').value;
-      const unidade = document.getElementById('unidadeInput').value;
-      const nome = document.getElementById('produtoInput').value.trim();
+    window.agendarProduto = function() {
+      const dia = document.getElementById('selectDia').value;
+      const lider = document.getElementById('selectLider').value;
+      const setor = document.getElementById('selectSetor').value || 'Geral';
+      const nome = document.getElementById('selectProduto').value;
+      const qtd = parseFloat(document.getElementById('inputQtd').value);
+      const unidade = document.getElementById('selectUnidade').value;
 
-      if (!dia || !lider || !setor || !qtd || !nome) {
-        alert("Preencha todos os campos do formulário (incluindo o Setor)!");
-        return;
+      if (!lider || !nome || isNaN(qtd) || qtd <= 0) {
+        return alert("Por favor, preencha todos os campos corretamente!");
       }
 
-      const novoItem = {
+      const novoAgendamento = {
         dia,
         lider,
         setor,
+        nome,
         qtd,
         unidade,
-        nome,
         concluido: false,
-        finalizadoSemFazer: false,
-        obs: ''
+        finalizadoSemFazer: false
       };
 
-      const produtosRef = ref(db, 'produtos');
-      push(produtosRef, novoItem)
-        .then(() => {
-          document.getElementById('qtdInput').value = '';
-          document.getElementById('produtoInput').value = '';
-        })
-        .catch(err => alert("Erro ao salvar produto: " + err.message));
+      push(ref(db, 'produtos'), novoAgendamento).then(() => {
+        document.getElementById('inputQtd').value = '';
+        alert("Agendamento de produção realizado com sucesso!");
+      });
     };
 
-    function carregarTabelas() {
-      const tbodyGeral = document.getElementById('tabelaCorpo');
-      const tbodyPendencias = document.getElementById('tabelaPendencias');
-      
-      tbodyGeral.innerHTML = '';
-      tbodyPendencias.innerHTML = '';
+    window.salvarProdutoCatalogo = function() {
+      const lider = document.getElementById('catLider').value;
+      const setor = document.getElementById('catSetor').value.trim();
+      const nome = document.getElementById('catNome').value.trim().toUpperCase();
 
-      let contadorAlertas = 0;
+      if (!lider || !setor || !nome) {
+        return alert("Preencha todos os campos do produto!");
+      }
 
-      produtosGlobais.forEach((prod) => {
-        let statusTexto = '⚪ Em Aberto';
-        if (prod.concluido) statusTexto = '🟢 Feito';
-        else if (prod.finalizadoSemFazer) statusTexto = '🔴 Não Feito';
+      push(ref(db, 'catalogo'), { lider, setor, nome }).then(() => {
+        document.getElementById('catSetor').value = '';
+        document.getElementById('catNome').value = '';
+        alert("Produto salvo no catálogo com sucesso!");
+      });
+    };
 
+    function renderizarTabelaCatalogo() {
+      const tabela = document.getElementById('tabelaCatalogo');
+      tabela.innerHTML = '';
+      catalogoProdutos.forEach(c => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td style="text-align: center;"><input type="checkbox" class="check-item" value="${prod.id}" style="width:18px; height:18px; cursor:pointer;"></td>
-          <td>${prod.dia}</td>
-          <td><strong>${prod.lider}</strong></td>
-          <td><span class="badge-setor">${prod.setor || 'Geral'}</span></td>
-          <td>${prod.qtd} ${prod.unidade}</td>
-          <td>${(prod.nome || '').toUpperCase()}</td>
-          <td>${statusTexto}</td>
-          <td><button class="btn-delete" onclick="removerProduto('${prod.id}')">Excluir</button></td>
+          <td>${c.lider}</td>
+          <td>${c.setor}</td>
+          <td>${c.nome}</td>
+          <td><button class="btn-del" onclick="deletarCatalogo('${c.id}')">🗑️ Excluir</button></td>
         `;
-        tbodyGeral.appendChild(tr);
-
-        if (prod.finalizadoSemFazer && !prod.concluido) {
-          contadorAlertas++;
-          const trObs = document.createElement('tr');
-          trObs.innerHTML = `
-            <td><strong>${prod.dia}</strong></td>
-            <td>${prod.lider}</td>
-            <td><span class="badge-setor">${prod.setor || 'Geral'}</span></td>
-            <td>${prod.qtd} ${prod.unidade} - ${(prod.nome || '').toUpperCase()}</td>
-            <td class="obs-destaque">"${prod.obs || ''}"</td>
-            <td>
-              <button class="btn-reagendar" onclick="reagendarProduto('${prod.id}')">🔄 Reagendar Dia</button>
-            </td>
-          `;
-          tbodyPendencias.appendChild(trObs);
-        }
+        tabela.appendChild(tr);
       });
-
-      document.getElementById('contadorAlertas').textContent = `${contadorAlertas} Alerta(s)`;
-      document.getElementById('checkTodos').checked = false;
     }
 
-    window.selecionarTodos = function(marcado) {
-      const checkboxes = document.querySelectorAll('.check-item');
-      checkboxes.forEach(cb => cb.checked = marcado);
-    };
-
-    window.excluirSelecionados = function() {
-      const checkboxes = document.querySelectorAll('.check-item:checked');
-      if (checkboxes.length === 0) {
-        alert("Selecione pelo menos um item para excluir!");
-        return;
-      }
-
-      if (confirm(`Tem certeza que deseja excluir ${checkboxes.length} item(ns) selecionado(s)?`)) {
-        const updates = {};
-        checkboxes.forEach(cb => {
-          updates[`produtos/${cb.value}`] = null;
-        });
-
-        update(ref(db), updates)
-          .then(() => alert("Itens excluídos com sucesso!"))
-          .catch(err => alert("Erro ao excluir itens: " + err.message));
+    window.deletarAgendamento = function(id) {
+      if (confirm("Deseja realmente remover este agendamento?")) {
+        remove(ref(db, `produtos/${id}`));
       }
     };
 
-    window.reagendarProduto = function(id) {
-      const novoDia = prompt("Para qual dia deseja mover este produto?", "Terça-feira");
-
-      if (novoDia) {
-        const itemRef = ref(db, `produtos/${id}`);
-        update(itemRef, {
-          dia: novoDia,
-          finalizadoSemFazer: false,
-          obs: ""
-        })
-        .then(() => alert(`Produto transferido para ${novoDia} com sucesso!`))
-        .catch(err => alert("Erro ao reagendar: " + err.message));
+    window.deletarCatalogo = function(id) {
+      if (confirm("Deseja remover este produto do catálogo?")) {
+        remove(ref(db, `catalogo/${id}`));
       }
     };
-
-    window.removerProduto = function(id) {
-      if (confirm("Tem certeza que deseja excluir este produto?")) {
-        const itemRef = ref(db, `produtos/${id}`);
-        remove(itemRef)
-          .catch(err => alert("Erro ao remover produto: " + err.message));
-      }
-    }
   </script>
-
 </body>
 </html>
