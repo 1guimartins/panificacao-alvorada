@@ -38,7 +38,17 @@
       background: white; padding: 10px 15px; border-radius: 8px;
       display: flex; justify-content: space-between; align-items: center;
       margin-bottom: 12px; border-left: 5px solid var(--laranja-alvorada);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05); flex-wrap: wrap; gap: 8px;
+    }
+
+    .data-semana-box {
+      background: white; padding: 10px 15px; border-radius: 8px;
+      margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-size: 13px; font-weight: bold; color: #333;
+    }
+
+    .data-semana-box input[type="date"] {
+      padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; font-weight: bold;
     }
 
     .dias-bar {
@@ -58,7 +68,6 @@
       box-shadow: 0 2px 6px rgba(0,122,51,0.3);
     }
 
-    /* BLOCO NOVO SEPARADO POR SETOR */
     .setor-card {
       background: white; border-radius: 12px; margin-bottom: 16px;
       box-shadow: 0 3px 10px rgba(0,0,0,0.08); overflow: hidden;
@@ -127,6 +136,11 @@
       <button onclick="trocarLider()" style="background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Sair</button>
     </div>
 
+    <div class="data-semana-box">
+      <span>📅 Segunda-feira da Semana:</span>
+      <input type="date" id="inputDataInicio" onchange="atualizarDataInicio(this.value)">
+    </div>
+
     <div class="dias-bar" id="barDias"></div>
     <div id="containerDias"></div>
     <div id="containerBotaoFinalizar"></div>
@@ -159,6 +173,7 @@
     const db = getDatabase(app);
 
     let liderAtual = localStorage.getItem('liderAtivo') || '';
+    let dataInicioSemana = localStorage.getItem('dataInicioSemana') || obterSegundaFeiraAtual();
     let produtosGlobais = [];
     let diaEmFinalizacao = '';
 
@@ -167,6 +182,33 @@
 
     if (liderAtual) {
       iniciarSistema();
+    }
+
+    function obterSegundaFeiraAtual() {
+      const d = new Date();
+      const day = d.getDay();
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      const segunda = new Date(d.setDate(diff));
+      return segunda.toISOString().split('T')[0];
+    }
+
+    window.atualizarDataInicio = function(val) {
+      if (!val) return;
+      dataInicioSemana = val;
+      localStorage.setItem('dataInicioSemana', dataInicioSemana);
+      renderizarBotoesDias();
+      renderizarProdutosDoDia();
+    };
+
+    function calcularDataDoDia(indexDia) {
+      if (!dataInicioSemana) return '';
+      const partes = dataInicioSemana.split('-');
+      const data = new Date(partes[0], partes[1] - 1, partes[2]);
+      data.setDate(data.getDate() + indexDia);
+      
+      const diaNum = String(data.getDate()).padStart(2, '0');
+      const mesNum = String(data.getMonth() + 1).padStart(2, '0');
+      return `${diaNum}/${mesNum}`;
     }
 
     window.confirmarLider = function() {
@@ -186,6 +228,7 @@
       document.getElementById('liderModal').style.display = 'none';
       document.getElementById('conteudoPrincipal').style.display = 'block';
       document.getElementById('nomeLiderExibicao').textContent = liderAtual;
+      document.getElementById('inputDataInicio').value = dataInicioSemana;
       renderizarBotoesDias();
       ouvirProdutos();
     }
@@ -193,10 +236,11 @@
     function renderizarBotoesDias() {
       const bar = document.getElementById('barDias');
       bar.innerHTML = '';
-      diasSemana.forEach(dia => {
+      diasSemana.forEach((dia, index) => {
+        const dataFormatada = calcularDataDoDia(index);
         const btn = document.createElement('button');
         btn.className = `btn-dia ${dia === diaSelecionado ? 'ativo' : ''}`;
-        btn.textContent = dia;
+        btn.textContent = `${dia.split('-')[0]} (${dataFormatada})`;
         btn.onclick = () => {
           diaSelecionado = dia;
           renderizarBotoesDias();
@@ -232,13 +276,15 @@
       container.innerHTML = '';
       containerBtn.innerHTML = '';
 
+      const idxDia = diasSemana.indexOf(diaSelecionado);
+      const dataFormatada = calcularDataDoDia(idxDia);
+
       const prodsDia = produtosGlobais.filter(p => 
         normalizarString(p.lider) === normalizarString(liderAtual) && 
         normalizarString(p.dia) === normalizarString(diaSelecionado)
       );
 
       if (prodsDia.length > 0) {
-        // Obter setores únicos para criar blocos visuais separados
         const setores = [...new Set(prodsDia.map(p => p.setor || 'Geral'))];
 
         setores.forEach(setor => {
@@ -268,14 +314,13 @@
           container.appendChild(setorCard);
         });
 
-        // Botão para encerrar a produção do dia no final da tela
         containerBtn.innerHTML = `
-          <button class="btn-concluir-dia" onclick="abrirModalConcluir('${diaSelecionado}')">🔒 Finalizar Programação de ${diaSelecionado}</button>
+          <button class="btn-concluir-dia" onclick="abrirModalConcluir('${diaSelecionado}')">🔒 Finalizar Programação de ${diaSelecionado} (${dataFormatada})</button>
         `;
 
       } else {
         container.innerHTML = `<div style="text-align:center; padding:35px 15px; color:#777; background:white; border-radius:10px; margin-top:10px;">
-          Nenhum produto agendado para <strong>${diaSelecionado}</strong>.
+          Nenhum produto agendado para <strong>${diaSelecionado} (${dataFormatada})</strong>.
         </div>`;
       }
     }
