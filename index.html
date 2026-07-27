@@ -86,7 +86,7 @@
       transition: background-color 0.3s ease;
     }
 
-    /* ESTILO PARA ITENS JÁ CONCLUÍDOS / BAIXADOS */
+    /* ESTILO PARA ITENS CONCLUÍDOS / BAIXADOS */
     .item-row.concluido {
       background-color: #f1f5f9;
       opacity: 0.6;
@@ -308,7 +308,7 @@
         normalizarString(p.dia) === normalizarString(diaSelecionado)
       );
 
-      // FILTRO PARA A JÉSSICA: Exibe apenas o lote vindo diretamente da Elisângela
+      // FILTRO JÉSSICA: Exibe apenas os lotes liberados pela Elisângela
       if (isJessica) {
         prodsDia = prodsDia.filter(p => p.idOrigemElisangela || p.concluido);
       }
@@ -328,10 +328,10 @@
             let acaoVisual = '';
 
             if (prod.concluido) {
-              // Quando concluído, exibe um ícone de "OK" em verde
+              // Quando o item está concluído/enviado, exibe check verde e fica cinza
               acaoVisual = `<span style="font-size: 20px; color: var(--verde-alvorada); font-weight: bold;">✓</span>`;
             } else if (isElisangela) {
-              // ELISÂNGELA: Campo para enviar o lote produzido para a Jéssica
+              // ELISÂNGELA: Digita quanto produziu
               acaoVisual = `
                 <div class="box-acao-rapida">
                   <input type="number" id="inputQtdElis_${prod.id}" class="input-qtd-acao" placeholder="Fiz Qtd" max="${prod.qtd}">
@@ -339,7 +339,7 @@
                 </div>
               `;
             } else if (isJessica) {
-              // JÉSSICA: Campo para dar a baixa real
+              // JÉSSICA: Digita quantidade real embalada
               acaoVisual = `
                 <div class="box-acao-rapida">
                   <input type="number" id="inputQtdJess_${prod.id}" class="input-qtd-acao" placeholder="Qtd Real" max="${prod.qtd}">
@@ -347,7 +347,7 @@
                 </div>
               `;
             } else {
-              // DEMAIS LÍDERES: Checkbox tradicional
+              // OUTROS LÍDERES
               acaoVisual = `
                 <input type="checkbox" class="checkbox-custom" ${prod.concluido ? 'checked' : ''} onchange="toggleItem('${prod.id}', this.checked)">
               `;
@@ -391,7 +391,7 @@
       update(itemRef, { concluido: concluido });
     };
 
-    // ELISÂNGELA INFORMA O QUANTO PRODUZIU -> CRIA O LOTE PARA A JÉSSICA
+    // ELISÂNGELA: Envia lote para a Jéssica e MARCA SEU PRÓPRIO ITEM COMO CONCLUÍDO (fICA CINZA)
     window.enviarParaEmbalagem = function(id) {
       const input = document.getElementById(`inputQtdElis_${id}`);
       const qtdProduzida = parseFloat(input.value);
@@ -402,13 +402,9 @@
         return;
       }
 
-      if (qtdProduzida > parseFloat(prodElis.qtd)) {
-        alert(`A quantidade enviada (${qtdProduzida}) é maior do que a pendente (${prodElis.qtd})!`);
-        return;
-      }
-
       const nomeProdJessica = prodElis.nome.toUpperCase().includes('EMB') ? prodElis.nome : `${prodElis.nome} EMB`;
 
+      // 1. Criar a tarefa correspondente para a Jéssica
       const novoItemJessica = {
         dia: prodElis.dia,
         lider: "Jéssica",
@@ -422,12 +418,17 @@
       };
 
       push(ref(db, 'produtos'), novoItemJessica).then(() => {
-        input.value = '';
-        alert(`Lote de ${qtdProduzida} ${prodElis.unidade} enviado com sucesso para a Jéssica Embalar!`);
+        // 2. Marcar o item da Elisângela como concluído (fica cinza na hora!)
+        update(ref(db, `produtos/${id}`), {
+          concluido: true,
+          qtdProduzidaReal: qtdProduzida
+        });
+
+        alert(`Lote de ${qtdProduzida} ${prodElis.unidade} enviado para a Jéssica! Item concluído.`);
       });
     };
 
-    // JÉSSICA DAR BAIXA -> CONCLUI (FICA CINZA) E REBATE NA ELISÂNGELA
+    // JÉSSICA: Dá baixa e REBATE NO PRÓXIMO DIA PROGRAMADO DA ELISÂNGELA
     window.darBaixaEmbalagem = function(id) {
       const input = document.getElementById(`inputQtdJess_${id}`);
       const qtdEmbalada = parseFloat(input.value);
@@ -444,41 +445,53 @@
         return;
       }
 
-      // Marca o lote da Jéssica como Concluído para que a linha fique cinza/riscada
+      // Marcar item da Jéssica como concluído (ficará cinza)
       update(ref(db, `produtos/${id}`), {
         qtd: qtdEmbalada,
         concluido: true
       }).then(() => {
-        // Desconta o valor embalado do saldo total da Elisângela
-        rebaterSaldoElisangela(prodJessica, qtdEmbalada);
-        alert(`Baixa de ${qtdEmbalada} confirmada! Saldo da Elisângela atualizado.`);
+        // Rebater no PRÓXIMO dia agendado da Elisângela
+        rebaterNoProximoDiaElisangela(prodJessica, qtdEmbalada);
+        alert(`Baixa de ${qtdEmbalada} confirmada! Saldo do próximo dia da Elisângela atualizado.`);
       });
     };
 
-    function rebaterSaldoElisangela(prodJessica, qtdEmbalada) {
-      let prodElis = null;
+    function rebaterNoProximoDiaElisangela(prodJessica, qtdEmbalada) {
+      const nomeBase = normalizarString(prodJessica.nome).replace(/\bemb\b/g, '').trim();
+      const idxDiaAtual = diasSemana.indexOf(prodJessica.dia);
 
-      if (prodJessica.idOrigemElisangela) {
-        prodElis = produtosGlobais.find(p => p.id === prodJessica.idOrigemElisangela);
-      }
+      // Busca todos os agendamentos da Elisângela para o mesmo produto que ainda não foram concluídos
+      const agendamentosElis = produtosGlobais.filter(p => 
+        normalizarString(p.lider) === 'elisângela' &&
+        normalizarString(p.nome).includes(nomeBase) &&
+        !p.concluido
+      );
 
-      if (!prodElis) {
-        const nomeBase = normalizarString(prodJessica.nome).replace(/\bemb\b/g, '').trim();
-        prodElis = produtosGlobais.find(p => 
-          normalizarString(p.lider) === 'elisângela' &&
-          normalizarString(p.nome).includes(nomeBase) &&
-          !p.concluido
-        );
-      }
+      if (agendamentosElis.length === 0) return;
 
-      if (prodElis) {
-        const qtdAtualElis = parseFloat(prodElis.qtd) || 0;
-        const novaQtdElis = Math.max(0, qtdAtualElis - qtdEmbalada);
-        const elisConcluido = novaQtdElis === 0;
+      // Ordena os agendamentos futuros para pegar o próximo dia mais próximo
+      agendamentosElis.sort((a, b) => {
+        let idxA = diasSemana.indexOf(a.dia);
+        let idxB = diasSemana.indexOf(b.dia);
 
-        update(ref(db, `produtos/${prodElis.id}`), {
-          qtd: novaQtdElis,
-          concluido: elisConcluido
+        // Se o dia for anterior ou igual ao atual, coloca para o final da fila (próxima semana)
+        if (idxA <= idxDiaAtual) idxA += 7;
+        if (idxB <= idxDiaAtual) idxB += 7;
+
+        return idxA - idxB;
+      });
+
+      // Pega o próximo agendamento (ex: Quarta-feira)
+      const proximoItemElis = agendamentosElis[0];
+
+      if (proximoItemElis) {
+        const qtdAtualProximo = parseFloat(proximoItemElis.qtd) || 0;
+        const novaQtdProximo = Math.max(0, qtdAtualProximo - qtdEmbalada);
+        const proximoConcluido = novaQtdProximo === 0;
+
+        update(ref(db, `produtos/${proximoItemElis.id}`), {
+          qtd: novaQtdProximo,
+          concluido: proximoConcluido
         });
       }
     }
