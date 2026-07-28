@@ -46,15 +46,81 @@
     }
     .btn-cat.ativo { background: #1e293b; color: white; border-color: #0f172a; }
 
-    /* Form da Expedição */
+    /* Estilos do Formulário de Lista */
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 13px; color: var(--texto-dark); }
     .form-control { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; }
-    .grid-lojas { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-top: 15px; }
-    .card-loja { background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px; border-radius: 6px; text-align: center; }
-    .card-loja label { font-size: 11px; font-weight: bold; display: block; margin-bottom: 4px; color: #475569; }
-    .card-loja input { width: 100%; text-align: center; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: bold; }
-    
+
+    .card-produto-item {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 12px 15px;
+      margin-bottom: 12px;
+      transition: all 0.2s;
+    }
+    .card-produto-item.selecionado {
+      border-color: var(--verde-alvorada);
+      background: #ffffff;
+      box-shadow: 0 2px 8px rgba(0, 122, 51, 0.12);
+    }
+
+    .header-prod-check {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .header-prod-check input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--verde-alvorada);
+      cursor: pointer;
+    }
+    .header-prod-check .prod-titulo {
+      font-weight: bold;
+      font-size: 14px;
+      color: var(--texto-dark);
+    }
+
+    .grid-lojas-expedicao {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px dashed #cbd5e1;
+    }
+
+    .box-loja {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 5px;
+      text-align: center;
+    }
+    .box-loja label {
+      font-size: 10px;
+      font-weight: bold;
+      color: #475569;
+      display: block;
+      margin-bottom: 3px;
+    }
+    .box-loja input {
+      width: 100%;
+      text-align: center;
+      padding: 5px;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 12px;
+    }
+    .box-loja input:disabled {
+      background: #e2e8f0;
+      color: #94a3b8;
+      cursor: not-allowed;
+    }
+
     .btn-salvar { background: var(--verde-alvorada); color: white; border: none; padding: 12px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 15px; width: 100%; font-size: 14px; }
     .btn-salvar:hover { background: var(--verde-escuro); }
 
@@ -88,9 +154,9 @@
 
   <div id="tab-expedicao" class="tab-content">
     <div class="card">
-      <h3 style="margin-top: 0; color: var(--verde-escuro);">Lançamento de Expedição por Loja</h3>
+      <h3 style="margin-top: 0; color: var(--verde-escuro);">Lançamento de Expedição por Lista de Produtos</h3>
       
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px;">
         <div class="form-group">
           <label>Categoria:</label>
           <select id="selExpCategoria" class="form-control"></select>
@@ -106,16 +172,15 @@
             <option value="Sábado">Sábado</option>
           </select>
         </div>
-        <div class="form-group">
-          <label>Produto:</label>
-          <select id="selExpProduto" class="form-control"></select>
-        </div>
       </div>
 
-      <h4 style="margin-top: 15px; margin-bottom: 5px;">Distribuição de Quantidades por Loja:</h4>
-      <div class="grid-lojas" id="gridLojasExpedicao"></div>
+      <p style="font-size: 13px; color: #64748b; margin-top: 0;">
+        📌 <strong>Instrução:</strong> Selecione os produtos que serão produzidos marcando a caixa correspondente. Em seguida, digite as quantidades enviadas para cada loja.
+      </p>
 
-      <button class="btn-salvar" onclick="salvarLancamentoExpedicao()">💾 Salvar Lançamento no Banco</button>
+      <div id="containerListaProdutosExpedicao"></div>
+
+      <button class="btn-salvar" onclick="salvarTodaExpedicao()">💾 Salvar Lançamentos no Banco</button>
     </div>
   </div>
 
@@ -322,7 +387,7 @@
     let unsubMetas = null;
     let unsubLojas = null;
 
-    // Troca de Abas
+    // Alternar entre as Abas
     window.mudarAba = function(aba, e) {
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('ativo'));
       document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('ativo'));
@@ -331,7 +396,7 @@
       if(e && e.target) e.target.classList.add('ativo');
     };
 
-    // Renderizar Botões de Categorias
+    // Renderizar Categoria do Progresso
     function renderizarCategorias() {
       const container = document.getElementById('containerCategorias');
       container.innerHTML = '';
@@ -350,7 +415,7 @@
       });
     }
 
-    // Carregar Dados em Tempo Real com limpeza de listeners
+    // Painel em Tempo Real (Aba Progresso)
     function carregarDadosPainelRealtime() {
       if (unsubMetas) unsubMetas();
       if (unsubLojas) unsubLojas();
@@ -417,26 +482,21 @@
         document.getElementById('lblTotalFalta').innerText = `${faltaCat.toLocaleString('pt-BR')} un`;
       };
 
-      // Listener Metas
       unsubMetas = onValue(ref(db, `expedicao_metas_semana/${categoriaAtual}`), (snapshot) => {
         metasCache = snapshot.val() || {};
         atualizarTabela();
       });
 
-      // Listener Lançamentos Lojas
       unsubLojas = onValue(ref(db, `expedicao_lojas/${categoriaAtual}`), (snapshot) => {
         lancamentosCache = snapshot.val() || {};
         atualizarTabela();
       });
     }
 
-    // --- LÓGICA DA ABA DE EXPEDIÇÃO ---
+    // --- NOVA LÓGICA DA ABA DE EXPEDIÇÃO EM LISTA ---
     function inicializarAbaExpedicao() {
       const selCat = document.getElementById('selExpCategoria');
-      const selProd = document.getElementById('selExpProduto');
-      const grid = document.getElementById('gridLojasExpedicao');
-
-      // Preenche categorias
+      
       selCat.innerHTML = '';
       Object.keys(CATEGORIAS_DADOS).forEach(catKey => {
         const opt = document.createElement('option');
@@ -445,79 +505,131 @@
         selCat.appendChild(opt);
       });
 
-      // Preenche 21 Lojas
-      grid.innerHTML = '';
-      for (let i = 1; i <= 21; i++) {
-        const numLoja = String(i).padStart(2, '0');
-        const div = document.createElement('div');
-        div.className = 'card-loja';
-        div.innerHTML = `
-          <label>LOJA ${numLoja}</label>
-          <input type="number" min="0" id="inputLoja_${numLoja}" placeholder="0" value="0">
-        `;
-        grid.appendChild(div);
-      }
+      selCat.onchange = () => carregarListaExpedicao();
+      document.getElementById('selExpDia').onchange = () => carregarListaExpedicao();
 
-      // Evento de troca na categoria atualiza produtos
-      selCat.onchange = () => carregarProdutosExpedicao();
-      document.getElementById('selExpDia').onchange = () => carregarValoresLancadosExpedicao();
-      selProd.onchange = () => carregarValoresLancadosExpedicao();
-
-      carregarProdutosExpedicao();
+      carregarListaExpedicao();
     }
 
-    function carregarProdutosExpedicao() {
+    async function carregarListaExpedicao() {
       const catKey = document.getElementById('selExpCategoria').value;
-      const selProd = document.getElementById('selExpProduto');
-      selProd.innerHTML = '';
+      const dia = document.getElementById('selExpDia').value;
+      const container = document.getElementById('containerListaProdutosExpedicao');
 
-      CATEGORIAS_DADOS[catKey].produtos.forEach((p, idx) => {
-        const opt = document.createElement('option');
-        opt.value = idx;
-        opt.textContent = `${p.item} - ${p.nome}`;
-        selProd.appendChild(opt);
+      container.innerHTML = '<p style="text-align:center; color:#64748b;">Carregando produtos...</p>';
+
+      const snapshot = await get(ref(db, `expedicao_lojas/${catKey}/${dia}`));
+      const dadosSalvos = snapshot.val() || {};
+
+      const produtos = CATEGORIAS_DADOS[catKey].produtos;
+      container.innerHTML = '';
+
+      produtos.forEach((prod, pIdx) => {
+        const prodDados = dadosSalvos[`PROD_${pIdx}`] || {};
+        
+        // Verifica se há alguma quantidade maior que 0 cadastrada para ativar o checkbox
+        let estaAtivo = false;
+        for (let i = 1; i <= 21; i++) {
+          const numLoja = String(i).padStart(2, '0');
+          if (prodDados[`LOJA_${numLoja}`] > 0) {
+            estaAtivo = true;
+            break;
+          }
+        }
+
+        const divCard = document.createElement('div');
+        divCard.className = `card-produto-item ${estaAtivo ? 'selecionado' : ''}`;
+        divCard.id = `cardProd_${pIdx}`;
+
+        let htmlLojas = '';
+        for (let i = 1; i <= 21; i++) {
+          const numLoja = String(i).padStart(2, '0');
+          const valorSalvo = prodDados[`LOJA_${numLoja}`] || '';
+
+          htmlLojas += `
+            <div class="box-loja">
+              <label>LOJA ${numLoja}</label>
+              <input type="number" step="0.1" min="0" 
+                     id="input_${pIdx}_${numLoja}" 
+                     class="input-loja-p_${pIdx}" 
+                     value="${valorSalvo}" 
+                     placeholder="0"
+                     ${!estaAtivo ? 'disabled' : ''}>
+            </div>
+          `;
+        }
+
+        divCard.innerHTML = `
+          <div class="header-prod-check" onclick="alternarSelecaoProduto(${pIdx})">
+            <input type="checkbox" id="chkProd_${pIdx}" ${estaAtivo ? 'checked' : ''} onclick="event.stopPropagation(); alternarSelecaoProduto(${pIdx})">
+            <span class="prod-titulo">${prod.item} - ${prod.nome}</span>
+          </div>
+          <div class="grid-lojas-expedicao" id="gridLojas_${pIdx}">
+            ${htmlLojas}
+          </div>
+        `;
+
+        container.appendChild(divCard);
+      });
+    }
+
+    // Habilita ou desabilita os inputs das lojas ao marcar/desmarcar o produto
+    window.alternarSelecaoProduto = function(pIdx) {
+      const chk = document.getElementById(`chkProd_${pIdx}`);
+      const card = document.getElementById(`cardProd_${pIdx}`);
+      const inputs = document.querySelectorAll(`.input-loja-p_${pIdx}`);
+
+      // Se o clique foi no card (e não no checkbox), inverte o estado
+      if (event.target.tagName !== 'INPUT' || event.target.type !== 'checkbox') {
+        chk.checked = !chk.checked;
+      }
+
+      if (chk.checked) {
+        card.classList.add('selecionado');
+        inputs.forEach(inp => inp.removeAttribute('disabled'));
+      } else {
+        card.classList.remove('selecionado');
+        inputs.forEach(inp => {
+          inp.setAttribute('disabled', 'true');
+          inp.value = '';
+        });
+      }
+    };
+
+    // Salva os lançamentos de toda a lista no Firebase
+    window.salvarTodaExpedicao = async function() {
+      const catKey = document.getElementById('selExpCategoria').value;
+      const dia = document.getElementById('selExpDia').value;
+      const produtos = CATEGORIAS_DADOS[catKey].produtos;
+
+      const payloadAtualizacao = {};
+
+      produtos.forEach((prod, pIdx) => {
+        const chk = document.getElementById(`chkProd_${pIdx}`);
+        const dadosLoja = {};
+
+        if (chk && chk.checked) {
+          for (let i = 1; i <= 21; i++) {
+            const numLoja = String(i).padStart(2, '0');
+            const input = document.getElementById(`input_${pIdx}_${numLoja}`);
+            const val = parseFloat(input.value) || 0;
+            dadosLoja[`LOJA_${numLoja}`] = val;
+          }
+        } else {
+          for (let i = 1; i <= 21; i++) {
+            const numLoja = String(i).padStart(2, '0');
+            dadosLoja[`LOJA_${numLoja}`] = 0;
+          }
+        }
+
+        payloadAtualizacao[`PROD_${pIdx}`] = dadosLoja;
       });
 
-      carregarValoresLancadosExpedicao();
-    }
-
-    async function carregarValoresLancadosExpedicao() {
-      const catKey = document.getElementById('selExpCategoria').value;
-      const dia = document.getElementById('selExpDia').value;
-      const pIdx = document.getElementById('selExpProduto').value;
-
-      if (pIdx === null || pIdx === undefined || pIdx === '') return;
-
-      const pathRef = ref(db, `expedicao_lojas/${catKey}/${dia}/PROD_${pIdx}`);
-      const snapshot = await get(pathRef);
-      const dados = snapshot.val() || {};
-
-      for (let i = 1; i <= 21; i++) {
-        const numLoja = String(i).padStart(2, '0');
-        const input = document.getElementById(`inputLoja_${numLoja}`);
-        if (input) {
-          input.value = dados[`LOJA_${numLoja}`] || 0;
-        }
-      }
-    }
-
-    window.salvarLancamentoExpedicao = async function() {
-      const catKey = document.getElementById('selExpCategoria').value;
-      const dia = document.getElementById('selExpDia').value;
-      const pIdx = document.getElementById('selExpProduto').value;
-
-      const dadosLoja = {};
-      for (let i = 1; i <= 21; i++) {
-        const numLoja = String(i).padStart(2, '0');
-        const val = parseInt(document.getElementById(`inputLoja_${numLoja}`).value) || 0;
-        dadosLoja[`LOJA_${numLoja}`] = val;
-      }
-
       try {
-        await set(ref(db, `expedicao_lojas/${catKey}/${dia}/PROD_${pIdx}`), dadosLoja);
-        alert('Lançamento salvo com sucesso!');
+        await set(ref(db, `expedicao_lojas/${catKey}/${dia}`), payloadAtualizacao);
+        alert('Lançamentos salvos com sucesso!');
       } catch (err) {
-        alert('Erro ao salvar lançamento: ' + err.message);
+        alert('Erro ao salvar no banco de dados: ' + err.message);
       }
     };
 
