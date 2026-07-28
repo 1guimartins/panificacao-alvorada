@@ -21,37 +21,45 @@
     }
     .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #cbd5e1; margin-bottom: 15px; }
     
-    /* Abas dos Dias da Semana */
-    .nav-dias { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
+    /* Navegação de Dias */
+    .nav-dias { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
     .btn-dia { 
-      padding: 10px 18px; border: 1px solid #cbd5e1; background: #e2e8f0; 
+      padding: 8px 16px; border: 1px solid #cbd5e1; background: #e2e8f0; 
       border-radius: 20px; font-weight: bold; cursor: pointer; color: #475569; transition: all 0.2s;
     }
     .btn-dia.ativo { background: var(--verde-alvorada); color: white; border-color: var(--verde-escuro); box-shadow: 0 2px 6px rgba(0,122,51,0.3); }
 
-    /* Painel de Metas da Segunda */
+    /* Navegação de Categorias / Planilhas */
+    .nav-categorias { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; background: #f1f5f9; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0; }
+    .btn-cat { 
+      padding: 6px 14px; border: 1px solid #cbd5e1; background: white; 
+      border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; color: #334155; transition: all 0.2s;
+    }
+    .btn-cat.ativo { background: #1e293b; color: white; border-color: #0f172a; }
+
+    /* Painel de Metas */
     .painel-metas { display: none; background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px dashed #94a3b8; margin-bottom: 15px; }
-    .grid-metas { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-top: 10px; }
-    .item-meta-input { display: flex; flex-direction: column; font-size: 11px; font-weight: bold; }
-    .item-meta-input input { padding: 5px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; margin-top: 3px; }
+    .grid-metas { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; margin-top: 10px; max-height: 300px; overflow-y: auto; }
+    .item-meta-input { display: flex; flex-direction: column; font-size: 11px; font-weight: bold; background: white; padding: 6px; border-radius: 4px; border: 1px solid #e2e8f0; }
+    .item-meta-input input { padding: 4px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; margin-top: 3px; }
 
     /* Tabela Invertida (Produtos nas Linhas x Lojas nas Colunas) */
-    .container-tabela { overflow: auto; max-height: 75vh; border: 1px solid #cbd5e1; border-radius: 6px; }
+    .container-tabela { overflow: auto; max-height: 70vh; border: 1px solid #cbd5e1; border-radius: 6px; }
     table.tabela-expedicao { width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; white-space: nowrap; }
-    table.tabela-expedicao th, table.tabela-expedicao td { border: 1px solid #cbd5e1; padding: 5px; }
+    table.tabela-expedicao th, table.tabela-expedicao td { border: 1px solid #cbd5e1; padding: 4px 6px; }
     table.tabela-expedicao thead th { background-color: #1e293b; color: white; position: sticky; top: 0; z-index: 3; }
     
-    /* Colunas Fixas à Esquerda (Produto e Status) */
+    /* Colunas Fixas à Esquerda */
     .col-prod-nome { 
-      text-align: left; font-weight: bold; min-width: 200px; max-width: 220px; 
+      text-align: left; font-weight: bold; min-width: 220px; max-width: 250px; 
       position: sticky; left: 0; background-color: #f8fafc; z-index: 2; 
     }
-    .col-progresso { min-width: 100px; position: sticky; left: 200px; background-color: #f8fafc; z-index: 2; }
+    .col-progresso { min-width: 110px; position: sticky; left: 220px; background-color: #f8fafc; z-index: 2; }
     .col-tot-dia { font-weight: bold; background-color: #e2e8f0; min-width: 70px; }
 
-    /* Colunas das Lojas */
-    .th-loja { min-width: 50px; font-size: 11px; }
-    .th-loja-ref { background-color: #ca8a04 !important; color: white; } /* Loja 05 Reforma */
+    /* Lojas */
+    .th-loja { min-width: 48px; font-size: 11px; }
+    .th-loja-ref { background-color: #ca8a04 !important; color: white; }
     .td-loja-ref { background-color: #fef08a; }
 
     .badge-progresso {
@@ -62,7 +70,7 @@
     .badge-progresso.pendente { background: #d97706; }
     
     input.qtd-loja {
-      width: 44px; text-align: center; padding: 4px; border: 1px solid #94a3b8; border-radius: 4px; font-weight: bold;
+      width: 42px; text-align: center; padding: 4px; border: 1px solid #94a3b8; border-radius: 4px; font-weight: bold;
     }
     input.qtd-loja:focus { background-color: #e0f2fe; border-color: #0284c7; outline: none; }
     
@@ -74,7 +82,7 @@
 <body>
 
   <div class="header">
-    <h2 style="margin:0;">📦 Ficha de Expedição e Controle Semanal por Loja</h2>
+    <h2 style="margin:0;">📦 Ficha de Expedição e Controle por Loja (21 Lojas)</h2>
     <a href="admin.html" style="color:white; text-decoration:none; background:rgba(255,255,255,0.2); padding:6px 12px; border-radius:4px; font-size:13px;">⚙️ Admin</a>
   </div>
 
@@ -87,9 +95,15 @@
     <button class="btn-dia" onclick="mudarDia('Sábado', this)">Sábado</button>
   </div>
 
+  <div class="nav-categorias" id="containerCategorias">
+    </div>
+
   <div class="card">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-      <span id="labelDiaSelecionado" style="font-size:16px; font-weight:bold; color:var(--verde-escuro);">Lançamento: Segunda-feira</span>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:10px;">
+      <div>
+        <span id="labelDiaSelecionado" style="font-size:15px; font-weight:bold; color:var(--verde-escuro);">Lançamento: Segunda-feira</span>
+        <span id="labelCategoriaAtiva" style="font-size:13px; color:#64748b; margin-left:10px; font-weight:bold;">| Categoria: PÃES / ROSCAS</span>
+      </div>
       <div>
         <button class="btn-secundario" id="btnToggleMetas" onclick="togglePainelMetas()">📋 Definir Pedidos da Semana</button>
         <button class="btn-acao" onclick="salvarExpedicaoDia()">💾 Salvar Lançamentos do Dia</button>
@@ -98,8 +112,8 @@
 
     <div class="painel-metas" id="painelMetasSemana">
       <div style="display:flex; justify-content:space-between; align-items:center;">
-        <strong>🎯 Pedido Total da Semana por Produto (Entrada de Segunda-feira):</strong>
-        <button class="btn-acao" style="padding:4px 10px; font-size:12px;" onclick="salvarMetasSemana()">Salvar Metas</button>
+        <strong>🎯 Pedido Semanal da Categoria Atual:</strong>
+        <button class="btn-acao" style="padding:4px 10px; font-size:12px;" onclick="salvarMetasSemana()">Salvar Metas desta Categoria</button>
       </div>
       <div class="grid-metas" id="containerInputsMetas">
         </div>
@@ -137,20 +151,166 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    const LISTA_PRODUTOS = [
-      "BRIOCHE C/ COCO", "BRIOCHE TRADICIONAL", "PÃO DE BATATA", "PÃO DE CEBOLA",
-      "PÃO DE FORMA 52% INTEGRAL", "PÃO DE FORMA P/ TORTA", "PÃO DE FORMA TRADICIONAL",
-      "PÃO DE HAMBURGUER C/ GERGELIM", "PÃO DE HAMBURGUER TRADICIONAL", "PÃO DE HOT DOG",
-      "PÃO DE MILHO TRADICIONAL", "PÃO SOVADO", "PAULISTINHA", "ROSCA DA FAZENDA C/ AÇÚCAR",
-      "ROSCA DA FAZENDA TRADICIONAL", "ROSCA DE LEITE CONDENSADO", "ROSCA LISA",
-      "ROSCA RAINHA", "ROSCA RAINHA C/ CREME", "ROSQUINHA C/ AÇÚCAR", "ROSQUINHA C/ CREME"
-    ];
+    // Banco de Dados com TODAS as Planilhas/Categorias do Relatório
+    const CATEGORIAS_DADOS = {
+      "PAES_ROSCAS": {
+        nome: "191-1 - PÃES / ROSCAS",
+        produtos: [
+          { item: "2171", nome: "BRIOCHE C/ COCO UN - 275g" },
+          { item: "2172", nome: "BRIOCHE TRADICIONAL UN - 225g" },
+          { item: "2175", nome: "PÃO DE BATATA ALVORADA C/ 4UN - 200g" },
+          { item: "5370", nome: "PÃO DE CEBOLA ALVORADA UN - 200g" },
+          { item: "2555", nome: "PÃO DE FORMA 52% INTEGRAL UN - 400g" },
+          { item: "5170", nome: "PÃO DE FORMA P/ TORTA UN - 400g" },
+          { item: "2916", nome: "PÃO DE FORMA TRADICIONAL UN - 500g" },
+          { item: "2250", nome: "PÃO DE HAMBÚRGUER C/ GERGELIM C/ 4UN - 260g" },
+          { item: "2252", nome: "PÃO DE HAMBÚRGUER TRADICIONAL C/ 4UN - 260g" },
+          { item: "2598", nome: "PÃO DE HOT DOG C/ 4UN - 270g" },
+          { item: "2558", nome: "PÃO DE MILHO TRADICIONAL C/ 4UN - 260g" },
+          { item: "2173", nome: "PÃO SOVADO ALVORADA UN - 475g" },
+          { item: "2906", nome: "PAULISTINHA CD C/ 5UN - 200g" },
+          { item: "3932", nome: "ROSCA DA FAZENDA C/ AÇÚCAR UN - 300g" },
+          { item: "2391", nome: "ROSCA DA FAZENDA UN - 300g" },
+          { item: "2494", nome: "ROSCA DE LEITE CONDENSADO CD C/ 3UN - 180g" },
+          { item: "2824", nome: "ROSCA LISA C/ 4UN - 200g" },
+          { item: "2174", nome: "ROSCA RAINHA ALVORADA UN - 300g" },
+          { item: "4350", nome: "ROSCA RAINHA C/ CREME UN - 300g" },
+          { item: "4491", nome: "ROSQUINHA C/ AÇÚCAR C/ 4UN - 250g" },
+          { item: "4467", nome: "ROSQUINHA C/ CREME C/ 4UN - 300g" }
+        ]
+      },
+      "PANETONES": {
+        nome: "191-18 - PANETONES",
+        produtos: [
+          { item: "4525", nome: "COLOMBA PASCAL FRUTAS CRISTALIZADAS 400G" },
+          { item: "4526", nome: "COLOMBA PASCAL GOTAS DE CHOCOLATE 400G" },
+          { item: "7008", nome: "PANETTONE ALVORADA UN 400G" },
+          { item: "8134", nome: "PANETTONE GOTAS DE CHOC. ALVORADA 400G" }
+        ]
+      },
+      "BOLOS_PLACA": {
+        nome: "191-4 - BOLOS PLACA",
+        produtos: [
+          { item: "1796", nome: "BOLO DE ABACAXI UN - 1800g" },
+          { item: "1138", nome: "BOLO DE CENOURA C/ COBERTURA UN - 1800g" },
+          { item: "1141", nome: "BOLO DE CENOURA UN - 1800g" },
+          { item: "1140", nome: "BOLO DE CHOCOLATE C/ COBERTURA UN - 1800g" },
+          { item: "1109", nome: "BOLO DE CHOCOLATE UN - 1800g" },
+          { item: "1782", nome: "BOLO DE COCO C/ COBERTURA UN - 1800g" },
+          { item: "1110", nome: "BOLO DE COCO UN - 1800g" },
+          { item: "1106", nome: "BOLO DE FUBÁ UN - 1800g" },
+          { item: "1783", nome: "BOLO DE LARANJA UN - 1800g" },
+          { item: "1115", nome: "BOLO DE LEITE CONDENSADO UN - 1800g" },
+          { item: "1779", nome: "BOLO DE LIMÃO C/ COBERTURA UN - 1800g" },
+          { item: "1773", nome: "BOLO DE LIMÃO UN - 1800g" },
+          { item: "1776", nome: "BOLO DE MILHO UN - 1800g" },
+          { item: "1778", nome: "BOLO FORMIGUEIRO UN - 1800g" },
+          { item: "1785", nome: "BOLO NEUTRO UN - 1800g" }
+        ]
+      },
+      "BOLOS_CASEIROS": {
+        nome: "191-4 - BOLOS CASEIROS / INGLÊS",
+        produtos: [
+          { item: "5028", nome: "BOLO CASEIRO LARANJA UN - 250g" },
+          { item: "6553", nome: "BOLO CASEIRO TAMEGUEIRA CD - 150g" },
+          { item: "4114", nome: "BOLO INGLÊS CHOCOLATE UN - 200g" },
+          { item: "4116", nome: "BOLO INGLÊS FORMIGUEIRO UN - 200g" },
+          { item: "4117", nome: "BOLO INGLÊS LARANJA UN - 200g" },
+          { item: "3036", nome: "BOLO INGLÊS MESCLADO UN - 200g" },
+          { item: "4457", nome: "BOLO INGLÊS MILHO UN - 200g" },
+          { item: "4118", nome: "BOLO INGLÊS CENOURA C/ LARANJA UN - 200g" }
+        ]
+      },
+      "BOLOS_CREMOSOS": {
+        nome: "191-4 - BOLOS CREMOSOS / COBERTURA",
+        produtos: [
+          { item: "2176", nome: "BOLO CREMOSO ABACAXI UN - 300g" },
+          { item: "2496", nome: "BOLO CREMOSO ADOCICA C/ COCO UN - 300g" },
+          { item: "2177", nome: "BOLO CREMOSO AIPIM UN - 300g" },
+          { item: "2498", nome: "BOLO CREMOSO BANANA C/ GRANOLA UN - 300g" },
+          { item: "2178", nome: "BOLO CREMOSO C/ CUCA UN - 300g" },
+          { item: "2488", nome: "BOLO CREMOSO DOS DEUS UN - 300g" },
+          { item: "2192", nome: "BOLO CREMOSO CHOCOLATE UN - 300g" },
+          { item: "2184", nome: "BOLO CREMOSO CHURROS UN - 300g" },
+          { item: "2187", nome: "BOLO CREMOSO COCO UN - 300g" },
+          { item: "2186", nome: "BOLO CREMOSO GOIABADA UN - 300g" },
+          { item: "1942", nome: "BOLO CREMOSO LEITE CONDENSADO UN - 300g" },
+          { item: "1939", nome: "BOLO CREMOSO MARACUJÁ UN - 300g" },
+          { item: "2190", nome: "BOLO CREMOSO MILHO UN - 300g" },
+          { item: "5155", nome: "BOLO CREMOSO QUEIJADINHA UN - 300g" },
+          { item: "1933", nome: "BOLO CREMOSO DE PAÇOCA UN - 300g" },
+          { item: "2197", nome: "BOLO CREMOSO RED VELVET C/ COBERTURA" },
+          { item: "2193", nome: "BOLO REDONDO CENOURA C/ COBERTURA" },
+          { item: "4406", nome: "BOLO REDONDO CHOCOLATE C/ COBERTURA" },
+          { item: "2132", nome: "BOLO REDONDO CHURROS C/ COBERTURA" },
+          { item: "4103", nome: "BOLO REDONDO COCO C/ COBERTURA UN - 300g" },
+          { item: "2009", nome: "BOLO REDONDO LIMÃO C/ COBERTURA UN - 300g" },
+          { item: "4100", nome: "BOLO REDONDO CAFÉ C/ COBERTURA UN - 300g" },
+          { item: "4446", nome: "BOLO REDONDO CAPPUCCINO C/ COBERTURA" },
+          { item: "4945", nome: "BOLO REDONDO NOZES C/ COBERTURA UN - 300g" },
+          { item: "4905", nome: "BOLO REDONDO PAÇOCA C/ COBERTURA UN - 300g" }
+        ]
+      },
+      "BOLOS_REDONDOS": {
+        nome: "191-4 - BOLOS REDONDOS / BROWNIE / COOKIES",
+        produtos: [
+          { item: "4127", nome: "BOLO REDONDO ABACAXI UN - 280g" },
+          { item: "4126", nome: "BOLO REDONDO CENOURA UN - 280g" },
+          { item: "4036", nome: "BOLO REDONDO CHOCOLATE UN - 280g" },
+          { item: "4098", nome: "BOLO REDONDO FORMIGUEIRO UN - 280g" },
+          { item: "4093", nome: "BOLO REDONDO FUBÁ UN - 280g" },
+          { item: "4133", nome: "BOLO REDONDO LARANJA UN - 280g" },
+          { item: "4047", nome: "BOLO REDONDO LEITE CONDENSADO UN - 280g" },
+          { item: "4148", nome: "BOLO REDONDO LIMÃO UN - 280g" },
+          { item: "4132", nome: "BOLO REDONDO MILHO UN - 280g" },
+          { item: "3915", nome: "BOLO REDONDO NEUTRO UN - 280g" },
+          { item: "2918", name: "BROWNIE DE CHOCOLATE C/ COBERTURA UN" },
+          { item: "2916", name: "BROWNIE DE CHOCOLATE TRADICIONAL UN" },
+          { item: "2182", name: "COOKIES C/ CREME DE AVELÃ UN - 240g" },
+          { item: "2127", name: "COOKIES CHOCOLATE ALVORADA UN - 170g" },
+          { item: "2125", name: "COOKIES TRADICIONAL ALVORADA UN - 120g" },
+          { item: "2195", name: "DONUTS SABORES UN - 70g" }
+        ]
+      },
+      "BISCOITOS": {
+        nome: "191-5 - BISCOITOS / MASSAS",
+        produtos: [
+          { item: "267041", nome: "BISC. AMANTEIGADO BEIJINHO DE FREIRA" },
+          { item: "267141", nome: "BISC. AMANTEIGADO BELISCÃO UN - 150g" },
+          { item: "267241", nome: "BISC. AMANTEIGADO CHOCOCHIP UN - 120g" },
+          { item: "273241", nome: "BISC. AMANTEIGADO GOIABINHA C/ AÇÚCAR" },
+          { item: "267341", nome: "BISC. AMANTEIGADO PRATO DE CHOCOLATE" },
+          { item: "271571", nome: "BISC. AMANTEIGADO ROMEU E JULIETA UN" },
+          { item: "267541", nome: "BISC. AMANTEIGADO SEQUILHO DE LEITE" },
+          { item: "5164", nome: "BISCOITO DE POLVILHO ARGOLA UN - 100g" },
+          { item: "5330", nome: "BISCOITO DE POLVILHO RAINHA QUEIJO UN" },
+          { item: "5166", nome: "BISCOITO DE POLVILHO UN - 100g" },
+          { item: "5367", nome: "BISCOITO DE POLVILHO PALITO UN - 200g" },
+          { item: "2195", nome: "MASSA P/ PIZZA ALVORADA C/ 2UN - 400g" }
+        ]
+      }
+    };
 
     let diaAtual = 'Segunda-feira';
+    let categoriaAtual = 'PAES_ROSCAS';
     let metasSemanais = {}; 
     let todosLancamentosSemana = {};
 
-    // 1. Inicializa o Layout da Tabela
+    // Renderiza os Botões das Categorias
+    function renderizarAbasCategorias() {
+      const container = document.getElementById('containerCategorias');
+      container.innerHTML = '';
+
+      Object.keys(CATEGORIAS_DADOS).forEach(catKey => {
+        const btn = document.createElement('button');
+        btn.className = `btn-cat ${catKey === categoriaAtual ? 'ativo' : ''}`;
+        btn.innerText = CATEGORIAS_DADOS[catKey].nome;
+        btn.onclick = () => mudarCategoria(catKey, btn);
+        container.appendChild(btn);
+      });
+    }
+
+    // Inicializa a Tabela para a Categoria Selecionada
     function inicializarTabela() {
       const trCab = document.getElementById('trCabecalhoLojas');
       const tbody = document.getElementById('tbodyProdutos');
@@ -158,13 +318,13 @@
 
       trCab.innerHTML = `
         <th class="col-prod-nome">PRODUTO</th>
-        <th class="col-progresso">EMBALADO / META</th>
+        <th class="col-progresso">ACUMULADO / META</th>
         <th class="col-tot-dia">TOTAL DIA</th>
       `;
       tbody.innerHTML = '';
       containerMetas.innerHTML = '';
 
-      // Adiciona Colunas das 21 Lojas no Cabeçalho
+      // Adiciona Colunas de LOJA 01 até LOJA 21
       for (let i = 1; i <= 21; i++) {
         const numLoja = String(i).padStart(2, '0');
         const th = document.createElement('th');
@@ -173,17 +333,19 @@
         trCab.appendChild(th);
       }
 
-      // Adiciona os Produtos nas Linhas
-      LISTA_PRODUTOS.forEach((prod, pIdx) => {
+      // Adiciona Linhas dos Produtos da Categoria Ativa
+      const prods = CATEGORIAS_DADOS[categoriaAtual].produtos;
+
+      prods.forEach((prodObj, pIdx) => {
         const tr = document.createElement('tr');
         
         let html = `
-          <td class="col-prod-nome">${prod}</td>
+          <td class="col-prod-nome" title="Cód: ${prodObj.item}">${prodObj.nome}</td>
           <td class="col-progresso"><span class="badge-progresso" id="badge_p${pIdx}">0 / 0</span></td>
           <td class="col-tot-dia" id="total_dia_p${pIdx}">0</td>
         `;
 
-        // Inputs das Lojas para este produto
+        // Inputs das Lojas
         for (let i = 1; i <= 21; i++) {
           const numLoja = String(i).padStart(2, '0');
           html += `
@@ -197,17 +359,27 @@
         tr.innerHTML = html;
         tbody.appendChild(tr);
 
-        // Input no painel de metas
+        // Input para Cadastro da Meta
         containerMetas.innerHTML += `
           <div class="item-meta-input">
-            <label>${prod}</label>
-            <input type="number" id="meta_input_p${pIdx}" placeholder="Pedido Semanal (ex: 2188)">
+            <label>[${prodObj.item}] ${prodObj.nome}</label>
+            <input type="number" id="meta_input_p${pIdx}" placeholder="Meta Semanal">
           </div>
         `;
       });
     }
 
-    // 2. Troca de Aba por Dia
+    // Troca de Categoria
+    window.mudarCategoria = function(catKey, btnElement) {
+      categoriaAtual = catKey;
+      document.getElementById('labelCategoriaAtiva').innerText = `| Categoria: ${CATEGORIAS_DADOS[catKey].nome}`;
+      document.querySelectorAll('.btn-cat').forEach(b => b.classList.remove('ativo'));
+      btnElement.classList.add('ativo');
+      inicializarTabela();
+      carregarDadosSemana();
+    };
+
+    // Troca de Dia da Semana
     window.mudarDia = function(dia, btnElement) {
       diaAtual = dia;
       document.getElementById('labelDiaSelecionado').innerText = `Lançamento: ${dia}`;
@@ -221,28 +393,31 @@
       p.style.display = p.style.display === 'block' ? 'none' : 'block';
     };
 
-    // 3. Salvar Metas do Pedido Semanal
+    // Salva Metas no Firebase
     window.salvarMetasSemana = function() {
+      const prods = CATEGORIAS_DADOS[categoriaAtual].produtos;
       const pacoteMetas = {};
-      LISTA_PRODUTOS.forEach((_, pIdx) => {
+
+      prods.forEach((_, pIdx) => {
         const val = parseInt(document.getElementById(`meta_input_p${pIdx}`).value) || 0;
         pacoteMetas[pIdx] = val;
       });
 
-      set(ref(db, `expedicao_metas_semana`), pacoteMetas)
+      set(ref(db, `expedicao_metas_semana/${categoriaAtual}`), pacoteMetas)
         .then(() => {
-          alert('Metas da semana salvas!');
+          alert('Metas salvas com sucesso!');
           document.getElementById('painelMetasSemana').style.display = 'none';
           carregarDadosSemana();
         })
         .catch(err => alert("Erro ao salvar metas: " + err.message));
     };
 
-    // 4. Salvar Digitação do Dia Atual
+    // Salva Lançamentos Diários
     window.salvarExpedicaoDia = function() {
+      const prods = CATEGORIAS_DADOS[categoriaAtual].produtos;
       const pacoteSalvar = {};
       
-      LISTA_PRODUTOS.forEach((_, pIdx) => {
+      prods.forEach((_, pIdx) => {
         pacoteSalvar[`PROD_${pIdx}`] = {};
         for (let i = 1; i <= 21; i++) {
           const numLoja = String(i).padStart(2, '0');
@@ -251,17 +426,17 @@
         }
       });
 
-      set(ref(db, `expedicao_lojas/${diaAtual}`), pacoteSalvar)
-        .then(() => alert(`Lançamentos de ${diaAtual} salvos!`))
+      set(ref(db, `expedicao_lojas/${categoriaAtual}/${diaAtual}`), pacoteSalvar)
+        .then(() => alert(`Lançamentos de ${diaAtual} salvos para ${CATEGORIAS_DADOS[categoriaAtual].nome}!`))
         .catch(err => alert("Erro ao salvar: " + err.message));
     };
 
-    // 5. Cálculos em Tempo Real
+    // Cálculos em Tempo Real (Total do Dia e Acumulado x Meta)
     window.calcularTotais = function() {
+      const prods = CATEGORIAS_DADOS[categoriaAtual].produtos;
       const somaHoje = {};
 
-      // Soma da linha de cada produto hoje
-      LISTA_PRODUTOS.forEach((_, pIdx) => {
+      prods.forEach((_, pIdx) => {
         let totalDia = 0;
         for (let i = 1; i <= 21; i++) {
           const numLoja = String(i).padStart(2, '0');
@@ -275,7 +450,7 @@
       });
 
       // Soma acumulada da semana toda
-      LISTA_PRODUTOS.forEach((_, pIdx) => {
+      prods.forEach((_, pIdx) => {
         let acumuladoSemana = 0;
         const dias = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
 
@@ -290,7 +465,6 @@
           }
         });
 
-        // Atualiza Badge (Embalado / Meta)
         const metaTotal = metasSemanais[pIdx] || 0;
         const badge = document.getElementById(`badge_p${pIdx}`);
         
@@ -306,20 +480,22 @@
       });
     };
 
-    // 6. Carregar Dados
+    // Carregar Dados do Firebase
     function carregarDadosSemana() {
-      onValue(ref(db, `expedicao_metas_semana`), (snapshot) => {
+      onValue(ref(db, `expedicao_metas_semana/${categoriaAtual}`), (snapshot) => {
         metasSemanais = snapshot.val() || {};
-        LISTA_PRODUTOS.forEach((_, pIdx) => {
+        const prods = CATEGORIAS_DADOS[categoriaAtual].produtos;
+
+        prods.forEach((_, pIdx) => {
           const inp = document.getElementById(`meta_input_p${pIdx}`);
           if (inp) inp.value = metasSemanais[pIdx] || '';
         });
 
-        onValue(ref(db, `expedicao_lojas`), (snapLojas) => {
+        onValue(ref(db, `expedicao_lojas/${categoriaAtual}`), (snapLojas) => {
           todosLancamentosSemana = snapLojas.val() || {};
           const dadosDia = todosLancamentosSemana[diaAtual] || {};
 
-          LISTA_PRODUTOS.forEach((_, pIdx) => {
+          prods.forEach((_, pIdx) => {
             const prodKey = `PROD_${pIdx}`;
             for (let i = 1; i <= 21; i++) {
               const numLoja = String(i).padStart(2, '0');
@@ -336,6 +512,7 @@
       }, { onlyOnce: true });
     }
 
+    renderizarAbasCategorias();
     inicializarTabela();
     carregarDadosSemana();
   </script>
