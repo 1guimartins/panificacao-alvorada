@@ -3,142 +3,99 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel Admin - Panificação Alvorada</title>
+  <title>Expedição por Loja - Panificação Alvorada</title>
   <style>
-    :root { --verde-alvorada: #007a33; --verde-escuro: #005624; --bg-fundo: #f4f6f8; --cinza-escuro: #1e293b; }
+    :root { --verde-alvorada: #007a33; --verde-escuro: #005624; --bg-fundo: #f4f6f8; }
     * { box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-fundo); margin: 0; padding: 15px; }
-    .header-admin { background: linear-gradient(135deg, #007a33, #005624); color: white; padding: 15px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); margin-bottom: 20px; border: 1px solid #e2e8f0; }
-    .card h2 { margin-top: 0; color: #1e293b; font-size: 18px; border-bottom: 2px solid #007a33; padding-bottom: 8px; }
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 15px; }
-    .form-group { display: flex; flex-direction: column; gap: 6px; }
-    .form-group label { font-size: 13px; font-weight: bold; color: #475569; }
-    .form-group select, .form-group input { padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; }
-    .tabela-produtos { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
-    .tabela-produtos th { background-color: #1e293b; color: white; padding: 10px; text-align: left; }
-    .tabela-produtos td { padding: 8px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
-    .input-edit { width: 75px; padding: 6px; border: 1px solid #cbd5e1; border-radius: 6px; text-align: center; font-weight: bold; }
-    .btn-salvar-linha { background: #007a33; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-    .btn-del { background: #e11d48; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-    .btn-consolida { background: #2563eb; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
-    .btn-imprimir { background: #475569; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
+    body { font-family: Arial, sans-serif; background-color: var(--bg-fundo); margin: 0; padding: 15px; }
     
-    @media print {
-      .no-print { display: none !important; }
-      body { background: white; padding: 0; }
-      .card { box-shadow: none; border: none; }
+    .header { background: linear-gradient(135deg, #007a33, #005624); color: white; padding: 15px 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 1px solid #ccc; margin-bottom: 20px; }
+    
+    .controles { display: flex; gap: 15px; align-items: center; margin-bottom: 15px; flex-wrap: wrap; }
+    .controles select { padding: 8px 12px; border-radius: 6px; border: 1px solid #888; font-size: 14px; font-weight: bold; }
+
+    /* Estilo da Tabela Idêntica à Folha Física */
+    .container-tabela { overflow-x: auto; max-height: 75vh; }
+    table.tabela-expedicao { width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; }
+    table.tabela-expedicao th, table.tabela-expedicao td { border: 1px solid #444; padding: 4px; }
+    
+    /* Cabeçalho na vertical como na folha */
+    table.tabela-expedicao th.col-prod { 
+      height: 160px; 
+      white-space: nowrap; 
+      vertical-align: bottom;
+      padding-bottom: 10px;
+      background-color: #e2e8f0;
     }
+    table.tabela-expedicao th.col-prod div {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      font-weight: bold;
+      font-size: 12px;
+    }
+    
+    .col-loja { width: 80px; font-weight: bold; background-color: #f1f5f9; position: sticky; left: 0; z-index: 2; }
+    .linha-reforma { background-color: #fef08a !important; color: #854d0e; }
+    .linha-total { background-color: #cbd5e1; font-weight: bold; font-size: 12px; }
+    
+    input.qtd-loja {
+      width: 45px;
+      text-align: center;
+      padding: 3px;
+      border: 1px solid #999;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    input.qtd-loja:focus { background-color: #e0f2fe; border-color: #0284c7; }
+    
+    .btn-salvar { background-color: var(--verde-alvorada); color: white; border: none; padding: 10px 20px; font-size: 14px; font-weight: bold; border-radius: 6px; cursor: pointer; }
+    .btn-salvar:hover { background-color: var(--verde-escuro); }
   </style>
 </head>
 <body>
 
-  <div class="header-admin no-print">
-    <h1 style="margin:0; font-size:20px;">⚙️ Painel do Administrador & Controle Mensal</h1>
-    <a href="index.html" style="color:white; text-decoration:none; font-weight:bold; background: rgba(255,255,255,0.2); padding: 8px 14px; border-radius: 6px;">← Ir para Tela Produção</a>
-  </div>
-
-  <div class="card no-print">
-    <h2>📝 Lançamento / Atualização Manual de Ficha</h2>
-    <div class="form-grid">
-      <div class="form-group">
-        <label>1. Data da Produção:</label>
-        <input type="date" id="inputDataProducao">
-      </div>
-      <div class="form-group">
-        <label>2. Líder:</label>
-        <select id="selectLider" onchange="carregarSetoresDoLider()">
-          <option value="">Escolha o Líder...</option>
-          <option value="Breno">Breno</option>
-          <option value="Elisângela">Elisângela</option>
-          <option value="Jéssica">Jéssica</option>
-          <option value="Raynara">Raynara</option>
-          <option value="Jonathan">Jonathan</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>3. Setor:</label>
-        <select id="selectSetor" onchange="carregarListaDeProdutos()">
-          <option value="">Aguardando Líder...</option>
-        </select>
-      </div>
-    </div>
-
-    <div id="areaProdutosSetor" style="display:none;">
-      <table class="tabela-produtos">
-        <thead>
-          <tr>
-            <th style="width: 30px;">✓</th>
-            <th>Produto</th>
-            <th>Meta</th>
-            <th>Feito (Prod)</th>
-            <th>Embalado</th>
-            <th>Perda / Não Feito</th>
-            <th>Medida</th>
-          </tr>
-        </thead>
-        <tbody id="tbodyListaProdutos"></tbody>
-      </table>
-      <button onclick="lançarProdutosSelecionados()" style="background:#007a33; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; width:100%; margin-top:15px; cursor:pointer;">💾 Salvar Lançamentos Manualmente</button>
-    </div>
-  </div>
-
-  <div class="card no-print">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <h2>📊 Lançamentos em Aberto (Edição Direta)</h2>
-      <button class="btn-consolida" onclick="acumularNoRelatorioMensal()">📥 Registrar e Acumular no Mês</button>
-    </div>
-    <div style="overflow-x:auto;">
-      <table class="tabela-produtos">
-        <thead>
-          <tr>
-            <th>Data / Dia</th>
-            <th>Líder</th>
-            <th>Produto</th>
-            <th>Meta Total</th>
-            <th>Produzido</th>
-            <th>Embalado</th>
-            <th>Perda / Não Feito</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="tabelaAgendamentos"></tbody>
-      </table>
-    </div>
+  <div class="header">
+    <h2 style="margin:0;">📦 Ficha de Expedição e Lançamento por Loja</h2>
+    <a href="admin.html" style="color:white; text-decoration:none; background:rgba(255,255,255,0.2); padding:6px 12px; border-radius:4px; font-size:13px;">⚙️ Ir para Painel Admin</a>
   </div>
 
   <div class="card">
-    <div style="display:flex; justify-content:space-between; align-items:center;" class="no-print">
-      <h2>📈 Relatório Mensal Consolidado (Para Diretoria/Superior)</h2>
-      <div style="display:flex; gap:10px; align-items:center;">
-        <input type="month" id="filtroMesRelatorio" onchange="carregarRelatorioMensal()">
-        <button class="btn-imprimir" onclick="window.print()">🖨️ Imprimir Relatório</button>
-      </div>
+    <div class="controles">
+      <label><strong>Dia do Lançamento:</strong></label>
+      <select id="selectDiaSemana" onchange="carregarDadosExpedicao()">
+        <option value="Segunda-feira">Segunda-feira</option>
+        <option value="Terça-feira">Terça-feira</option>
+        <option value="Quarta-feira">Quarta-feira</option>
+        <option value="Quinta-feira">Quinta-feira</option>
+        <option value="Sexta-feira">Sexta-feira</option>
+        <option value="Sábado">Sábado</option>
+      </select>
+
+      <button class="btn-salvar" onclick="salvarExpedicaoDia()">💾 Salvar Lançamentos do Dia</button>
     </div>
 
-    <div id="areaImpressaoHeader" style="margin-bottom:15px; border-bottom:1px solid #ccc; padding-bottom:10px;">
-      <h2 style="margin:0;">🥐 Panificação Alvorada - Relatório Mensal de Produção</h2>
-      <p style="margin:5px 0 0 0; color:#475569; font-size:14px;"><strong>Mês de Referência:</strong> <span id="txtMesReferencia">-</span></p>
+    <div class="container-tabela">
+      <table class="tabela-expedicao">
+        <thead>
+          <tr id="trCabecalhoProdutos">
+            <th class="col-loja">LOJA / ITEM</th>
+            </tr>
+        </thead>
+        <tbody id="tbodyLojas">
+          </tbody>
+        <tfoot>
+          <tr class="linha-total" id="trTotalDia">
+            <td class="col-loja">TOTAL DIA</td>
+            </tr>
+        </tfoot>
+      </table>
     </div>
-
-    <table class="tabela-produtos">
-      <thead>
-        <tr>
-          <th>Líder / Setor</th>
-          <th>Produto</th>
-          <th>Total Produzido</th>
-          <th>Total Embalado</th>
-          <th>Total Perdas / Não Produzido</th>
-          <th>Aproveitamento</th>
-        </tr>
-      </thead>
-      <tbody id="tabelaRelatorioMensal"></tbody>
-    </table>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyB-KGrSWvIAKW6ZT0SDGUH7LFLzvYsmcJk",
@@ -153,322 +110,126 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Inicializa datas
-    const hoje = new Date();
-    document.getElementById('inputDataProducao').value = hoje.toISOString().split('T')[0];
-    document.getElementById('filtroMesRelatorio').value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
+    // Produtos idênticos aos da folha enviada
+    const LISTA_PRODUTOS = [
+      "BRIOCHE C/ COCO", "BRIOCHE TRADICIONAL", "PÃO DE BATATA", "PÃO DE CEBOLA",
+      "PÃO DE FORMA 52% INTEGRAL", "PÃO DE FORMA P/ TORTA", "PÃO DE FORMA TRADICIONAL",
+      "PÃO DE HAMBURGUER C/ GERGELIM", "PÃO DE HAMBURGUER TRADICIONAL", "PÃO DE HOT DOG",
+      "PÃO DE MILHO TRADICIONAL", "PÃO SOVADO", "PAULISTINHA", "ROSCA DA FAZENDA C/ AÇÚCAR",
+      "ROSCA DA FAZENDA TRADICIONAL", "ROSCA DE LEITE CONDENSADO", "ROSCA LISA",
+      "ROSCA RAINHA", "ROSCA RAINHA C/ CREME", "ROSQUINHA C/ AÇÚCAR", "ROSQUINHA C/ CREME"
+    ];
 
-    // CATALOGO COMPLETO
-    const CATALOGO = {
-      "Breno": {
-        "Panificação": [
-          "Brioche", "Pão de Batata", "Pão de Cebola", "Pão de Forma Integral", "Pão de Forma Tradicional",
-          "Pão de Hamburguer c/ Gergelim", "Pão de Hamburguer Tradicional", "Pão de Hot Dog", "Pão de Milho",
-          "Pão Sovado", "Rosca Fazenda c/ Açúcar", "Rosca Fazenda Tradicional", "Rosca de Leite Condensado",
-          "Rosca Lisa", "Rosca Rainha Tradicional", "Rosca Rainha c/ Creme", "Rosquinha c/ Açúcar",
-          "Rosquinha c/ Creme", "Panettone c/ Frutas", "Chocottone", "Colomba Pascal c/ Frutas", "Colomba Pascal c/ Gotas de Chocolate"
-        ]
-      },
-      "Elisângela": {
-        "Bolos Redondos/Brownie": [
-          "Bolo Redondo de Abacaxi", "Bolo Redondo de Cenoura", "Bolo Redondo de Chocolate", "Bolo Redondo de Coco",
-          "Bolo Redondo de Formigueiro", "Bolo Redondo de Fubá", "Bolo Redondo de Laranja", "Bolo Redondo de Leite Condensado",
-          "Bolo Redondo de Limão", "Bolo Redondo de Milho", "Bolo Redondo de Neutro", "Brownie de Chocolate c/ Cobertura", "Brownie de Chocolate Tradicional"
-        ],
-        "Bolo Cremoso/Cobertura": [
-          "Bolo Cremoso de Abacaxi", "Bolo Cremoso de Abóbora c/ Coco", "Bolo Cremoso de Aipim", "Bolo Cremoso de Banana c/ Granola",
-          "Bolo Cremoso de Caçarola", "Bolo Cremoso de Cenoura", "Bolo Cremoso de Chocolate", "Bolo Cremoso de Churros",
-          "Bolo Cremoso de Coco", "Bolo Cremoso de Laranja", "Bolo Cremoso de Leite Condensado", "Bolo Cremoso de Maracujá",
-          "Bolo Cremoso de Milho", "Bolo Cremoso de Quebra Queixo", "Bolo Cremoso de Pamonha", "Bolo Cremoso de Red Velvet c/ Cobertura",
-          "Bolo Redondo de Cenoura c/ Cobertura", "Bolo Redondo de Chocolate c/ Cobertura", "Bolo Redondo de Churros c/ Cobertura",
-          "Bolo Redondo de Coco c/ Cobertura", "Bolo Redondo de Limão c/ Cobertura", "Bolo Redondo de Café c/ Cobertura",
-          "Bolo Redondo de Cappuccino c/ Cobertura", "Bolo Redondo de Nozes c/ Cobertura", "Bolo Redondo de Paçoca c/ Cobertura"
-        ],
-        "Bolo Caseiro/Inglês": [
-          "Bolo Caseiro de Laranja", "Bolo Caseiro de Tangerina", "Bolo Inglês de Chocolate", "Bolo Inglês de Formigueiro",
-          "Bolo Inglês de Laranja", "Bolo Inglês de Mesclado", "Bolo Inglês de Milho"
-        ],
-        "Bolo Placa": [
-          "Bolo Placa de Abacaxi", "Bolo Placa de Cenoura c/ Cobertura", "Bolo Placa de Cenoura", "Bolo Placa de Chocolate c/ Cobertura",
-          "Bolo Placa de Chocolate", "Bolo Placa de Coco c/ Cobertura", "Bolo Placa de Coco", "Bolo Placa de Fubá", "Bolo Placa de Laranja",
-          "Bolo Placa de Leite Condensado", "Bolo Placa de Limão c/ Cobertura", "Bolo Placa de Limão", "Bolo Placa de Milho",
-          "Bolo Placa de Formigueiro", "Bolo Placa de Neutro"
-        ],
-        "Bolos Confeitados/Premium/Gourmet/Tortas": [
-          "Bolo Confeitado de Avelã", "Bolo Confeitado de Doce de Leite", "Bolo Confeitado de Flocos", "Bolo Confeitado de Maracujá",
-          "Bolo Confeitado de Pistache", "Bolo Gourmet de Creme de Avelã", "Bolo Gourmet de Leitinho", "Bolo Premium de 4 Leites",
-          "Bolo Premium de Chocolate", "Bolo Premium de Coco", "Bolo Premium de Nozes", "Torta Gourmet de Bueno",
-          "Torta Gourmet de Creme de Pistache", "Torta Gourmet de Creme de Morango", "Torta Gourmet de Leitinho",
-          "Torta Gourmet de Limão", "Torta Gourmet de Pistache", "Torta Holandesa"
-        ],
-        "Sobremesas": [
-          "Bolo Artesanal de Brigadeiro", "Bolo Gelado de Coco", "Bolo Indiano", "Brigadeirão", "Caçarola Italiana",
-          "Cake de Cenoura Trufado c/ Avelã", "Cake de Pão de Mel", "Creme Holandês", "Manjar de Coco - 150g (PEQUENO)",
-          "Manjar de Coco - 600g (GRANDE)", "Mousse de Chocolate - 150g (PEQUENO)", "Mousse de Chocolate - 600g (GRANDE)",
-          "Mousse de Maracujá - 200g (PEQUENO)", "Mousse de Maracujá - 600g (GRANDE)", "Pudim Grande - 750g", "Pudim Pequeno - 95g",
-          "Quindim", "Rocambole de Prestígio (FATIADO)", "Rocambole de Prestígio (INTEIRO)", "Rocambole de Doce de Leite (FATIADO)", "Rocambole de Doce de Leite (INTEIRO)"
-        ]
-      },
-      "Jéssica": {
-        "Embalagem (Pães)": [
-          "Brioche c/ Coco", "Brioche Tadicional", "Pão de Batata", "Pão de Cebola", "Pão de Forma Integral",
-          "Pão de Forma p/ Torta", "Pão de Forma Tradicional", "Pão de Hamburguer c/ Gergelim", "Pão de Hamburguer Tradicional",
-          "Pão de Hot Dog", "Pão de Milho", "Pão Sovado", "Rosca Fazenda c/ Açúcar", "Rosca Fazenda Tradicional",
-          "Rosca de Leite Condensado", "Rosca Lisa", "Rosca Rainha Tradicional", "Rosca Rainha c/ Creme", "Rosquinha c/ Açúcar",
-          "Rosquinha c/ Creme", "Panettone c/ Frutas", "Chocottone", "Colomba Pascal c/ Frutas", "Colomba Pascal c/ Gotas de Chocolate"
-        ],
-        "Embalagem (Bolos Redondos/Brownie)": [
-          "Bolo Redondo de Abacaxi", "Bolo Redondo de Cenoura", "Bolo Redondo de Chocolate", "Bolo Redondo de Coco",
-          "Bolo Redondo de Formigueiro", "Bolo Redondo de Fubá", "Bolo Redondo de Laranja", "Bolo Redondo de Leite Condensado",
-          "Bolo Redondo de Limão", "Bolo Redondo de Milho", "Bolo Redondo de Neutro", "Brownie de Chocolate c/ Cobertura", "Brownie de Chocolate Tradicional"
-        ],
-        "Embalagem (Bolo Cremoso/Cobertura)": [
-          "Bolo Cremoso de Abacaxi", "Bolo Cremoso de Abóbora c/ Coco", "Bolo Cremoso de Aipim", "Bolo Cremoso de Banana c/ Granola",
-          "Bolo Cremoso de Caçarola", "Bolo Cremoso de Cenoura", "Bolo Cremoso de Chocolate", "Bolo Cremoso de Churros",
-          "Bolo Cremoso de Coco", "Bolo Cremoso de Laranja", "Bolo Cremoso de Leite Condensado", "Bolo Cremoso de Maracujá",
-          "Bolo Cremoso de Milho", "Bolo Cremoso de Quebra Queixo", "Bolo Cremoso de Pamonha", "Bolo Cremoso de Red Velvet c/ Cobertura",
-          "Bolo Redondo de Cenoura c/ Cobertura", "Bolo Redondo de Chocolate c/ Cobertura", "Bolo Redondo de Churros c/ Cobertura",
-          "Bolo Redondo de Coco c/ Cobertura", "Bolo Redondo de Limão c/ Cobertura", "Bolo Redondo de Café c/ Cobertura",
-          "Bolo Redondo de Cappuccino c/ Cobertura", "Bolo Redondo de Nozes c/ Cobertura", "Bolo Redondo de Paçoca c/ Cobertura"
-        ],
-        "Embalagem (Bolo Caseiro/Inglês)": [
-          "Bolo Caseiro de Laranja", "Bolo Caseiro de Tangerina", "Bolo Inglês de Chocolate", "Bolo Inglês de Formigueiro",
-          "Bolo Inglês de Laranja", "Bolo Inglês de Mesclado", "Bolo Inglês de Milho"
-        ],
-        "Embalagem (Bolo Placa)": [
-          "Bolo Placa de Abacaxi", "Bolo Placa de Cenoura c/ Cobertura", "Bolo Placa de Cenoura", "Bolo Placa de Chocolate c/ Cobertura",
-          "Bolo Placa de Chocolate", "Bolo Placa de Coco c/ Cobertura", "Bolo Placa de Coco", "Bolo Placa de Fubá", "Bolo Placa de Laranja",
-          "Bolo Placa de Leite Condensado", "Bolo Placa de Limão c/ Cobertura", "Bolo Placa de Limão", "Bolo Placa de Milho",
-          "Bolo Placa de Formigueiro", "Bolo Placa de Neutro"
-        ],
-        "Embalagem (Biscoitos)": [
-          "Biscoito Amanteigado Beijinho de Freira", "Biscoito Amanteigado Beliscão", "Biscoito Amanteigado Chocofesta",
-          "Biscoito Amanteigado Goiabinha c/ Queijo", "Biscoito Amanteigado Palito de Chocolate", "Biscoito Amanteigado Romeu e Julieta",
-          "Biscoito Amanteigado Sequilho Leite Condensado", "Biscoito de Polvilho Argola", "Biscoito de Polvilho Bolinha de Queijo",
-          "Biscoito de Polvilho KG", "Biscoito de Polvilho Palito", "Massa p/ Pizza Alvorada c/ 2 und"
-        ]
-      },
-      "Raynara": {
-        "Pratos Prontos": [
-          "Almondega de Carne", "Caldo de Ervilha", "Caldo de Feijão", "Caldo de Milho", "Caldo Verde", "Coxa e Sobrecoxa c/ Purê",
-          "Escondidinho de Carne", "Escondidinho de Frango", "Feijão Tropeiro", "Feijoada", "Fricassê de Frango", "Lasanha Bolonhesa",
-          "Lasanha de Frango", "Lasanha de 4 Queijos", "Medalhão de Frango", "Pappardelle c/ Almondegas", "Parmegiana de Frango",
-          "Strogonoff de Carne", "Strogonoff de Carne c/ Arroz", "Strogonoff de Frango", "Strogonoff de Frango c/ Arroz"
-        ],
-        "Pão de Queijo/Broa": [
-          "Pão de Queijo 3 Queijos", "Pão de Queijo c/ Frango", "Pão de Queijo Coquetel", "Pão de Queijo Lanche",
-          "Pão de Queijo Tradicional", "Broa Aerosa"
-        ],
-        "Salgados Fritos": [
-          "Bolinha de Milho", "Bolinha de Pizza", "Bolinha de Queijo", "Bolinho de Bacalhau", "Coxinha de Frango Grande",
-          "Coxinha de Frango c/ Requeijão Grande", "Dadinho de Tapioca", "Empada de Carne Seca", "Empada de Frango",
-          "Empada de Palmito", "Mini Empada de Frango c/ 6 und", "Mini Empada Festa", "Mini Coxinha de Frango",
-          "Mini Quibe de Carne", "Mini Quibe de Carne c/ Requeijão", "Quibe de Carne Grande", "Cookies Tradicional", "Cookies Chocolate"
-        ]
-      },
-      "Jonathan": {
-        "Biscoitos": [
-          "Biscoitão", "Biscoito de Polvilho Argola", "Biscoito de Polvilho Bolinha de Queijo", "Biscoito de Polvilho Palito"
-        ],
-        "Salgados Assados": [
-          "Assado de Salsicha", "Cigarrete", "Doguinho", "Esfiha Aberta de 4 Queijos", "Esfiha Aberta de Carne",
-          "Esfiha Aberta de Frango c/ Requeijão", "Esfiha Fechada de Carne", "Esfiha Fechada de Frango c/ Requeijão",
-          "Misto de Presunto e Queijo", "Pastel Assado de Frango", "Torta de Frango c/ Catupiry"
-        ],
-        "Levain": [
-          "Baguete Italiana UND", "Baguete Levain Calabresa KG", "Baguete Levain Calabresa UND", "Baguete Levain Gergelim UND",
-          "Baguete Levain Tradicional UND", "Ciabatta c/ Azeitona KG", "Ciabatta c/ Azeitona UND", "Ciabatta c/ Calabresa UND",
-          "Ciabatta c/ Tomate Seco KG", "Ciabatta c/ Tomate Seco UND", "Croissant Tradicional", "Croissant de Frango",
-          "Croissant de Presunto e Queijo", "Pão de Grãos Levain UND", "Pão Italiano Levain UND", "Pão Levain Açafrão UND",
-          "Pão Levain Braga UND", "Pão Levain Cacau c/ Laranja UND", "Pão Levain Ciabatta c/ 2 UND", "Pão Levain Cupiac UND",
-          "Pão Levain Focaccia KG", "Pão Levain Focaccia UND", "Pão Levain Italiano Bola c/ 2 UND", "Pão Levain Italiano KG",
-          "Pão Levain Italiano UND", "Pão Levain Mineiroca KG", "Pão Levain Mini Baguete c/ 2 UND", "Pão Levain Nozes c/ Mel KG",
-          "Pão Levain Vinho c/ Uva Passas UND", "Pão Levain Campanha UND", "Pão Levain Nozes c/ Mel UND"
-        ]
-      }
-    };
+    let dadosDiaAtual = {};
 
-    let dadosLancados = {};
+    // 1. Monta o Cabeçalho da Tabela
+    function renderizarTabela() {
+      const trCab = document.getElementById('trCabecalhoProdutos');
+      const trTot = document.getElementById('trTotalDia');
+      const tbody = document.getElementById('tbodyLojas');
 
-    window.carregarSetoresDoLider = function() {
-      const lider = document.getElementById('selectLider').value;
-      const selectSetor = document.getElementById('selectSetor');
-      selectSetor.innerHTML = '<option value="">-- Escolha o Setor --</option>';
-      document.getElementById('areaProdutosSetor').style.display = 'none';
+      LISTA_PRODUTOS.forEach((prod, pIdx) => {
+        // Coluna Produto (Rotacionada)
+        const th = document.createElement('th');
+        th.className = 'col-prod';
+        th.innerHTML = `<div>${prod}</div>`;
+        trCab.appendChild(th);
 
-      if (!lider || !CATALOGO[lider]) return;
-      Object.keys(CATALOGO[lider]).forEach(s => selectSetor.innerHTML += `<option value="${s}">${s}</option>`);
-    };
+        // Coluna Rodapé Total
+        const tdTot = document.createElement('td');
+        tdTot.id = `total_prod_${pIdx}`;
+        tdTot.innerText = '0';
+        trTot.appendChild(tdTot);
+      });
 
-    window.carregarListaDeProdutos = function() {
-      const lider = document.getElementById('selectLider').value;
-      const setor = document.getElementById('selectSetor').value;
-      const area = document.getElementById('areaProdutosSetor');
-      const tbody = document.getElementById('tbodyListaProdutos');
-
-      tbody.innerHTML = '';
-      if (!lider || !setor || !CATALOGO[lider][setor]) { area.style.display = 'none'; return; }
-
-      CATALOGO[lider][setor].forEach((prod, idx) => {
+      // Renderiza as 21 Lojas
+      for (let i = 1; i <= 21; i++) {
+        const numLoja = String(i).padStart(2, '0');
         const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><input type="checkbox" id="chk_${idx}"></td>
-          <td><strong>${prod}</strong></td>
-          <td><input type="number" id="meta_${idx}" class="input-edit" placeholder="0"></td>
-          <td><input type="number" id="feito_${idx}" class="input-edit" placeholder="0"></td>
-          <td><input type="number" id="emb_${idx}" class="input-edit" placeholder="0"></td>
-          <td><input type="number" id="perda_${idx}" class="input-edit" placeholder="0"></td>
-          <td>
-            <select id="un_${idx}" style="padding:4px;">
-              <option value="un">un</option>
-              <option value="kg">kg</option>
-            </select>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-      area.style.display = 'block';
-    };
-
-    window.lançarProdutosSelecionados = function() {
-      const dataStr = document.getElementById('inputDataProducao').value;
-      const lider = document.getElementById('selectLider').value;
-      const setor = document.getElementById('selectSetor').value;
-      const produtos = CATALOGO[lider][setor];
-      let total = 0;
-
-      produtos.forEach((prod, idx) => {
-        const chk = document.getElementById(`chk_${idx}`);
-        if (chk && chk.checked) {
-          const meta = parseFloat(document.getElementById(`meta_${idx}`).value) || 0;
-          const feito = parseFloat(document.getElementById(`feito_${idx}`).value) || 0;
-          const emb = parseFloat(document.getElementById(`emb_${idx}`).value) || 0;
-          const perda = parseFloat(document.getElementById(`perda_${idx}`).value) || (feito > emb ? feito - emb : 0);
-          const un = document.getElementById(`un_${idx}`).value;
-
-          push(ref(db, 'produtos_diarios'), {
-            data: dataStr,
-            mesAno: dataStr.substring(0, 7),
-            lider, setor, nome: prod,
-            qtdMeta: meta,
-            qtdFeita: feito,
-            qtdEmbalada: emb,
-            qtdPerda: perda,
-            unidade: un
-          });
-          total++;
-        }
-      });
-
-      if (total > 0) {
-        alert(`${total} item(ns) salvos com sucesso!`);
-        carregarListaDeProdutos();
-      } else {
-        alert("Marque ao menos um produto!");
-      }
-    };
-
-    // Monitora os Lançamentos do Dia no Banco
-    onValue(ref(db, 'produtos_diarios'), (snapshot) => {
-      dadosLancados = snapshot.val() || {};
-      const tbody = document.getElementById('tabelaAgendamentos');
-      tbody.innerHTML = '';
-
-      Object.keys(dadosLancados).forEach(id => {
-        const item = dadosLancados[id];
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><input type="date" value="${item.data}" id="edit_data_${id}" class="input-edit" style="width:130px;"></td>
-          <td><strong>${item.lider}</strong></td>
-          <td>${item.nome}</td>
-          <td><input type="number" value="${item.qtdMeta}" id="edit_meta_${id}" class="input-edit"></td>
-          <td><input type="number" value="${item.qtdFeita}" id="edit_feito_${id}" class="input-edit"></td>
-          <td><input type="number" value="${item.qtdEmbalada}" id="edit_emb_${id}" class="input-edit"></td>
-          <td><input type="number" value="${item.qtdPerda || 0}" id="edit_perda_${id}" class="input-edit"></td>
-          <td>
-            <button class="btn-salvar-linha" onclick="atualizarLinhaManual('${id}')">💾</button>
-            <button class="btn-del" onclick="deletarLinha('${id}')">🗑️</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      carregarRelatorioMensal();
-    });
-
-    window.atualizarLinhaManual = function(id) {
-      const dataStr = document.getElementById(`edit_data_${id}`).value;
-      const meta = parseFloat(document.getElementById(`edit_meta_${id}`).value) || 0;
-      const feito = parseFloat(document.getElementById(`edit_feito_${id}`).value) || 0;
-      const emb = parseFloat(document.getElementById(`edit_emb_${id}`).value) || 0;
-      const perda = parseFloat(document.getElementById(`edit_perda_${id}`).value) || 0;
-
-      update(ref(db, `produtos_diarios/${id}`), {
-        data: dataStr,
-        mesAno: dataStr.substring(0, 7),
-        qtdMeta: meta,
-        qtdFeita: feito,
-        qtdEmbalada: emb,
-        qtdPerda: perda
-      }).then(() => alert("Linha atualizada no banco de dados!"));
-    };
-
-    window.deletarLinha = function(id) {
-      if (confirm("Remover este lançamento?")) remove(ref(db, `produtos_diarios/${id}`));
-    };
-
-    // --- RELATÓRIO MENSAL CONSOLIDADO ---
-    window.carregarRelatorioMensal = function() {
-      const mesFiltro = document.getElementById('filtroMesRelatorio').value;
-      document.getElementById('txtMesReferencia').innerText = mesFiltro;
-      const tbody = document.getElementById('tabelaRelatorioMensal');
-      tbody.innerHTML = '';
-
-      const consolidado = {};
-
-      Object.keys(dadosLancados).forEach(id => {
-        const item = dadosLancados[id];
         
-        if (item.mesAno === mesFiltro) {
-          const chave = `${item.lider}_${item.nome}`;
-          if (!consolidado[chave]) {
-            consolidado[chave] = {
-              lider: item.lider,
-              nome: item.nome,
-              unidade: item.unidade || 'un',
-              totalFeito: 0,
-              totalEmbalado: 0,
-              totalPerda: 0
-            };
-          }
+        if (i === 5) tr.className = 'linha-reforma'; // Destaque para Loja 05 (Reforma)
 
-          consolidado[chave].totalFeito += parseFloat(item.qtdFeita) || 0;
-          consolidado[chave].totalEmbalado += parseFloat(item.qtdEmbalada) || 0;
-          consolidado[chave].totalPerda += parseFloat(item.qtdPerda) || 0;
-        }
-      });
+        let html = `<td class="col-loja">LOJA ${numLoja} ${i === 5 ? '(Ref.)' : ''}</td>`;
 
-      if (Object.keys(consolidado).length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#64748b;">Nenhum dado registrado para o mês ${mesFiltro}.</td></tr>`;
-        return;
-      }
+        LISTA_PRODUTOS.forEach((_, pIdx) => {
+          html += `
+            <td>
+              <input type="number" class="qtd-loja" id="input_L${numLoja}_P${pIdx}" 
+                placeholder="0" oninput="window.calcularTotaisColunas()" min="0">
+            </td>
+          `;
+        });
 
-      Object.keys(consolidado).forEach(k => {
-        const c = consolidado[k];
-        const aproveitamento = c.totalFeito > 0 ? ((c.totalEmbalado / c.totalFeito) * 100).toFixed(1) : '0.0';
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><strong>${c.lider}</strong></td>
-          <td>${c.nome}</td>
-          <td><strong style="color:#0369a1;">${c.totalFeito} ${c.unidade}</strong></td>
-          <td><strong style="color:#15803d;">${c.totalEmbalado} ${c.unidade}</strong></td>
-          <td><strong style="color:#e11d48;">${c.totalPerda} ${c.unidade}</strong></td>
-          <td><strong>${aproveitamento}%</strong></td>
-        `;
+        tr.innerHTML = html;
         tbody.appendChild(tr);
+      }
+    }
+
+    // 2. Calcula Totais por Coluna em tempo real
+    window.calcularTotaisColunas = function() {
+      LISTA_PRODUTOS.forEach((_, pIdx) => {
+        let soma = 0;
+        for (let i = 1; i <= 21; i++) {
+          const numLoja = String(i).padStart(2, '0');
+          const input = document.getElementById(`input_L${numLoja}_P${pIdx}`);
+          if (input && input.value) {
+            soma += parseInt(input.value) || 0;
+          }
+        }
+        document.getElementById(`total_prod_${pIdx}`).innerText = soma;
       });
     };
+
+    // 3. Salva Lançamentos do Dia Selecionado no Firebase
+    window.salvarExpedicaoDia = function() {
+      const dia = document.getElementById('selectDiaSemana').value;
+      const pacoteSalvar = {};
+
+      for (let i = 1; i <= 21; i++) {
+        const numLoja = String(i).padStart(2, '0');
+        pacoteSalvar[`LOJA_${numLoja}`] = {};
+
+        LISTA_PRODUTOS.forEach((prod, pIdx) => {
+          const input = document.getElementById(`input_L${numLoja}_P${pIdx}`);
+          pacoteSalvar[`LOJA_${numLoja}`][pIdx] = parseInt(input.value) || 0;
+        });
+      }
+
+      set(ref(db, `expedicao_lojas/${dia}`), pacoteSalvar)
+        .then(() => alert(`Lançamentos de ${dia} salvos com sucesso!`))
+        .catch((err) => alert("Erro ao salvar: " + err.message));
+    };
+
+    // 4. Carrega os Dados do Dia do Banco de Dados
+    window.carregarDadosExpedicao = function() {
+      const dia = document.getElementById('selectDiaSemana').value;
+
+      // Limpa inputs
+      document.querySelectorAll('.qtd-loja').forEach(inp => inp.value = '');
+
+      onValue(ref(db, `expedicao_lojas/${dia}`), (snapshot) => {
+        const data = snapshot.val() || {};
+        
+        for (let i = 1; i <= 21; i++) {
+          const numLoja = String(i).padStart(2, '0');
+          const lojaKey = `LOJA_${numLoja}`;
+
+          if (data[lojaKey]) {
+            LISTA_PRODUTOS.forEach((_, pIdx) => {
+              const input = document.getElementById(`input_L${numLoja}_P${pIdx}`);
+              if (input && data[lojaKey][pIdx] !== undefined) {
+                input.value = data[lojaKey][pIdx] > 0 ? data[lojaKey][pIdx] : '';
+              }
+            });
+          }
+        }
+        window.calcularTotaisColunas();
+      }, { onlyOnce: true });
+    };
+
+    // Inicialização
+    renderizarTabela();
+    window.carregarDadosExpedicao();
   </script>
 </body>
 </html>
