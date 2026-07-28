@@ -64,7 +64,7 @@
   </div>
 
   <div class="card">
-    <h2>⚡ Lançar Programação de Produção</h2>
+    <h2>⚡ Lançar Meta Geral de Produção</h2>
     
     <div class="form-grid">
       <div class="form-group">
@@ -81,12 +81,11 @@
       </div>
 
       <div class="form-group">
-        <label>2. Selecione o Líder:</label>
+        <label>2. Selecione o Líder da Produção:</label>
         <select id="selectLider" onchange="carregarSetoresDoLider()">
           <option value="">Escolha o Líder...</option>
           <option value="Breno">Breno</option>
           <option value="Elisângela">Elisângela</option>
-          <option value="Jéssica">Jéssica</option>
           <option value="Raynara">Raynara</option>
           <option value="Jonathan">Jonathan</option>
         </select>
@@ -101,7 +100,7 @@
     </div>
 
     <div id="areaProdutosSetor" style="display:none; margin-top:20px;">
-      <h3 style="font-size:15px; color:#334155; margin-bottom:10px;">📋 Marque os produtos e digite as quantidades:</h3>
+      <h3 style="font-size:15px; color:#334155; margin-bottom:10px;">📋 Marque os produtos e defina o total exigido:</h3>
       
       <div style="overflow-x:auto;">
         <table class="tabela-produtos">
@@ -109,7 +108,7 @@
             <tr>
               <th style="width: 40px; text-align:center;">✓</th>
               <th>Nome do Produto</th>
-              <th style="width: 110px;">Quantidade</th>
+              <th style="width: 110px;">Meta Total</th>
               <th style="width: 100px;">Medida</th>
             </tr>
           </thead>
@@ -117,23 +116,24 @@
         </table>
       </div>
 
-      <button class="btn-salvar-lote" onclick="lançarProdutosSelecionados()">➕ Confirmar e Lançar Produção</button>
+      <button class="btn-salvar-lote" onclick="lançarProdutosSelecionados()">➕ Confirmar e Lançar Meta</button>
     </div>
   </div>
 
   <div class="card">
-    <h2>📋 Acompanhamento em Tempo Real & Saldos</h2>
+    <h2>📋 Progresso Unificado em Tempo Real</h2>
     <div style="overflow-x:auto;">
       <table class="tabela-produtos">
         <thead>
           <tr>
             <th>Dia</th>
-            <th>Líder</th>
+            <th>Líder Produção</th>
             <th>Setor</th>
             <th>Produto</th>
-            <th>Qtd Pedida</th>
-            <th>Qtd Realizada</th>
-            <th>Progresso</th>
+            <th>Meta Total</th>
+            <th>Feito (Produção)</th>
+            <th>Embalado (Final)</th>
+            <th>Progresso Final</th>
             <th>Status</th>
             <th>Ação</th>
           </tr>
@@ -145,7 +145,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyB-KGrSWvIAKW6ZT0SDGUH7LFLzvYsmcJk",
@@ -159,8 +159,6 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-
-    const DIAS_SEMANA = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"];
 
     const CATALOGO = {
       "Breno": {
@@ -224,56 +222,6 @@
           "Rocambole de Prestígio (INTEIRO)", "Rocambole de Doce de Leite (FATIADO)", "Rocambole de Doce de Leite (INTEIRO)"
         ]
       },
-      "Jéssica": {
-        "Embalagem (Pães)": [
-          "Brioche c/ Coco", "Brioche Tadicional", "Pão de Batata", "Pão de Cebola",
-          "Pão de Forma Integral", "Pão de Forma p/ Torta", "Pão de Forma Tradicional",
-          "Pão de Hamburguer c/ Gergelim", "Pão de Hamburguer Tradicional", "Pão de Hot Dog",
-          "Pão de Milho", "Pão Sovado", "Rosca Fazenda c/ Açúcar", "Rosca Fazenda Tradicional",
-          "Rosca de Leite Condensado", "Rosca Lisa", "Rosca Rainha Tradicional", "Rosca Rainha c/ Creme",
-          "Rosquinha c/ Açúcar", "Rosquinha c/ Creme", "Panettone c/ Frutas", "Chocottone",
-          "Colomba Pascal c/ Frutas", "Colomba Pascal c/ Gotas de Chocolate"
-        ],
-        "Embalagem (Bolos Redondos/Brownie)": [
-          "Bolo Redondo de Abacaxi", "Bolo Redondo de Cenoura", "Bolo Redondo de Chocolate",
-          "Bolo Redondo de Coco", "Bolo Redondo de Formigueiro", "Bolo Redondo de Fubá",
-          "Bolo Redondo de Laranja", "Bolo Redondo de Leite Condensado", "Bolo Redondo de Limão",
-          "Bolo Redondo de Milho", "Bolo Redondo de Neutro", "Brownie de Chocolate c/ Cobertura",
-          "Brownie de Chocolate Tradicional"
-        ],
-        "Embalagem (Bolo Cremoso/Cobertura)": [
-          "Bolo Cremoso de Abacaxi", "Bolo Cremoso de Abóbora c/ Coco", "Bolo Cremoso de Aipim",
-          "Bolo Cremoso de Banana c/ Granola", "Bolo Cremoso de Caçarola", "Bolo Cremoso de Cenoura",
-          "Bolo Cremoso de Chocolate", "Bolo Cremoso de Churros", "Bolo Cremoso de Coco",
-          "Bolo Cremoso de Laranja", "Bolo Cremoso de Leite Condensado", "Bolo Cremoso de Maracujá",
-          "Bolo Cremoso de Milho", "Bolo Cremoso de Quebra Queixo", "Bolo Cremoso de Pamonha",
-          "Bolo Cremoso de Red Velvet c/ Cobertura", "Bolo Redondo de Cenoura c/ Cobertura",
-          "Bolo Redondo de Chocolate c/ Cobertura", "Bolo Redondo de Churros c/ Cobertura",
-          "Bolo Redondo de Coco c/ Cobertura", "Bolo Redondo de Limão c/ Cobertura",
-          "Bolo Redondo de Café c/ Cobertura", "Bolo Redondo de Cappuccino c/ Cobertura",
-          "Bolo Redondo de Nozes c/ Cobertura", "Bolo Redondo de Paçoca c/ Cobertura"
-        ],
-        "Embalagem (Bolo Caseiro/Inglês)": [
-          "Bolo Caseiro de Laranja", "Bolo Caseiro de Tangerina", "Bolo Inglês de Chocolate",
-          "Bolo Inglês de Formigueiro", "Bolo Inglês de Laranja", "Bolo Inglês de Mesclado",
-          "Bolo Inglês de Milho"
-        ],
-        "Embalagem (Bolo Placa)": [
-          "Bolo Placa de Abacaxi", "Bolo Placa de Cenoura c/ Cobertura", "Bolo Placa de Cenoura",
-          "Bolo Placa de Chocolate c/ Cobertura", "Bolo Placa de Chocolate", "Bolo Placa de Coco c/ Cobertura",
-          "Bolo Placa de Coco", "Bolo Placa de Fubá", "Bolo Placa de Laranja", "Bolo Placa de Leite Condensado",
-          "Bolo Placa de Limão c/ Cobertura", "Bolo Placa de Limão", "Bolo Placa de Milho",
-          "Bolo Placa de Formigueiro", "Bolo Placa de Neutro"
-        ],
-        "Embalagem (Biscoitos)": [
-          "Biscoito Amanteigado Beijinho de Freira", "Biscoito Amanteigado Beliscão",
-          "Biscoito Amanteigado Chocofesta", "Biscoito Amanteigado Goiabinha c/ Queijo",
-          "Biscoito Amanteigado Palito de Chocolate", "Biscoito Amanteigado Romeu e Julieta",
-          "Biscoito Amanteigado Sequilho Leite Condensado", "Biscoito de Polvilho Argola",
-          "Biscoito de Polvilho Bolinha de Queijo", "Biscoito de Polvilho KG",
-          "Biscoito de Polvilho Palito", "Massa p/ Pizza Alvorada c/ 2 und"
-        ]
-      },
       "Raynara": {
         "Pratos Prontos": [
           "Almondega de Carne", "Caldo de Ervilha", "Caldo de Feijão", "Caldo de Milho",
@@ -282,42 +230,11 @@
           "Lasanha de Frango", "Lasanha de 4 Queijos", "Medalhão de Frango", "Pappardelle c/ Almondegas",
           "Parmegiana de Frango", "Strogonoff de Carne", "Strogonoff de Carne c/ Arroz",
           "Strogonoff de Frango", "Strogonoff de Frango c/ Arroz"
-        ],
-        "Pão de Queijo/Broa": [
-          "Pão de Queijo 3 Queijos", "Pão de Queijo c/ Frango", "Pão de Queijo Coquetel",
-          "Pão de Queijo Lanche", "Pão de Queijo Tradicional", "Broa Aerosa"
-        ],
-        "Salgados Fritos": [
-          "Bolinha de Milho", "Bolinha de Pizza", "Bolinha de Queijo", "Bolinho de Bacalhau",
-          "Coxinha de Frango Grande", "Coxinha de Frango c/ Requeijão Grande", "Dadinho de Tapioca",
-          "Empada de Carne Seca", "Empada de Frango", "Empada de Palmito", "Mini Empada de Frango c/ 6 und",
-          "Mini Empada Festa", "Mini Coxinha de Frango", "Mini Quibe de Carne",
-          "Mini Quibe de Carne c/ Requeijão", "Quibe de Carne Grande", "Cookies Tradicional", "Cookies Chocolate"
         ]
       },
       "Jonathan": {
-        "Biscoitos": [
-          "Biscoitão", "Biscoito de Polvilho Argola", "Biscoito de Polvilho Bolinha de Queijo", "Biscoito de Polvilho Palito"
-        ],
-        "Salgados Assados": [
-          "Assado de Salsicha", "Cigarrete", "Doguinho", "Esfiha Aberta de 4 Queijos",
-          "Esfiha Aberta de Carne", "Esfiha Aberta de Frango c/ Requeijão", "Esfiha Fechada de Carne",
-          "Esfiha Fechada de Frango c/ Requeijão", "Misto de Presunto e Queijo",
-          "Pastel Assado de Frango", "Torta de Frango c/ Catupiry"
-        ],
-        "Levain": [
-          "Baguete Italiana UND", "Baguete Levain Calabresa KG", "Baguete Levain Calabresa UND",
-          "Baguete Levain Gergelim UND", "Baguete Levain Tradicional UND", "Ciabatta c/ Azeitona KG",
-          "Ciabatta c/ Azeitona UND", "Ciabatta c/ Calabresa UND", "Ciabatta c/ Tomate Seco KG",
-          "Ciabatta c/ Tomate Seco UND", "Croissant Tradicional", "Croissant de Frango",
-          "Croissant de Presunto e Queijo", "Pão de Grãos Levain UND", "Pão Italiano Levain UND",
-          "Pão Levain Açafrão UND", "Pão Levain Braga UND", "Pão Levain Cacau c/ Laranja UND",
-          "Pão Levain Ciabatta c/ 2 UND", "Pão Levain Cupiac UND", "Pão Levain Focaccia KG",
-          "Pão Levain Focaccia UND", "Pão Levain Italiano Bola c/ 2 UND", "Pão Levain Italiano KG",
-          "Pão Levain Italiano UND", "Pão Levain Mineiroca KG", "Pão Levain Mini Baguete c/ 2 UND",
-          "Pão Levain Nozes c/ Mel KG", "Pão Levain Vinho c/ Uva Passas UND", "Pão Levain Campanha UND",
-          "Pão Levain Nozes c/ Mel UND"
-        ]
+        "Biscoitos": ["Biscoitão", "Biscoito de Polvilho Argola", "Biscoito de Polvilho Palito"],
+        "Salgados Assados": ["Assado de Salsicha", "Cigarrete", "Doguinho", "Misto de Presunto e Queijo"]
       }
     };
 
@@ -365,8 +282,6 @@
               <option value="un">un</option>
               <option value="kg">kg</option>
               <option value="rec">receita</option>
-              <option value="kit">kit</option>
-              <option value="cx">cx</option>
             </select>
           </td>
         `;
@@ -384,11 +299,8 @@
       inputQtd.disabled = !chk.checked;
       selectUn.disabled = !chk.checked;
 
-      if (chk.checked) {
-        inputQtd.focus();
-      } else {
-        inputQtd.value = '';
-      }
+      if (chk.checked) inputQtd.focus();
+      else inputQtd.value = '';
     };
 
     window.lançarProdutosSelecionados = function() {
@@ -411,10 +323,10 @@
             setor: setor,
             nome: prod,
             qtd: parseFloat(qtdInput.value),
-            qtdRealizada: 0,
+            qtdEnviadaEmb: 0,   // O que a Elisângela produziu
+            qtdEmbalada: 0,     // O que a Jéssica deu baixa
             unidade: unSelect.value,
-            status: 'Pendente',
-            concluido: false
+            status: 'Pendente'
           };
 
           push(ref(db, 'produtos'), novoAgendamento);
@@ -425,12 +337,12 @@
       if (totalLancados === 0) {
         alert("Selecione pelo menos um produto e digite uma quantidade válida!");
       } else {
-        alert(`${totalLancados} produto(s) lançado(s) com sucesso!`);
+        alert(`${totalLancados} meta(s) lançada(s) com sucesso!`);
         carregarListaDeProdutos();
       }
     };
 
-    // CONSOLIDAÇÃO EM TEMPO REAL NO PAINEL
+    // ACOMPANHAMENTO EM TEMPO REAL
     onValue(ref(db, 'produtos'), (snapshot) => {
       const data = snapshot.val();
       const tabela = document.getElementById('tabelaAgendamentos');
@@ -439,19 +351,24 @@
       if (data) {
         Object.keys(data).forEach(id => {
           const p = data[id];
-          const pedida = parseFloat(p.qtd) || 0;
-          // Lê tanto qtdRealizada quanto valores legados para manter retrocompatibilidade
-          const realizada = parseFloat(p.qtdRealizada || p.qtdFeita || p.qtdEmbalada || 0);
-          const falta = Math.max(0, pedida - realizada);
-          const porcentagem = Math.min(100, Math.round((realizada / pedida) * 100));
+          
+          // Ignora lançamentos manuais antigos da Jéssica para limpar a lista
+          if (p.lider === 'Jéssica') return;
+
+          const meta = parseFloat(p.qtd) || 0;
+          const produzido = parseFloat(p.qtdEnviadaEmb || p.qtdFeita || 0);
+          const embalado = parseFloat(p.qtdEmbalada || p.qtdRealizada || 0);
+
+          const porcentagem = Math.min(100, Math.round((embalado / meta) * 100));
+          const falta = Math.max(0, meta - embalado);
 
           let statusBadge = '';
-          if (realizada >= pedida) {
-            statusBadge = `<span class="badge-concluido">✓ Concluído</span>`;
-          } else if (realizada > 0) {
-            statusBadge = `<span class="badge-pendente">Falta ${falta} ${p.unidade}</span>`;
+          if (embalado >= meta) {
+            statusBadge = `<span class="badge-concluido">✓ 100% Concluído</span>`;
+          } else if (produzido > 0) {
+            statusBadge = `<span class="badge-pendente">Falta Embalar ${meta - embalado} ${p.unidade}</span>`;
           } else {
-            statusBadge = `<span class="badge-pendente">Aguardando</span>`;
+            statusBadge = `<span class="badge-pendente">Aguardando Produção</span>`;
           }
 
           const tr = document.createElement('tr');
@@ -460,10 +377,11 @@
             <td><strong>${p.lider}</strong></td>
             <td>${p.setor || '-'}</td>
             <td>${p.nome || p.produto}</td>
-            <td><span class="badge-qtd">${pedida} ${p.unidade}</span></td>
-            <td><span class="badge-progresso">${realizada} ${p.unidade}</span></td>
-            <td style="width: 130px;">
-              <small>${porcentagem}%</small>
+            <td><span class="badge-qtd">${meta} ${p.unidade}</span></td>
+            <td><span class="badge-progresso" style="background:#e0f2fe; color:#0369a1;">${produzido} ${p.unidade}</span></td>
+            <td><span class="badge-progresso" style="background:#dcfce7; color:#15803d;">${embalado} ${p.unidade}</span></td>
+            <td style="width: 120px;">
+              <small><strong>${porcentagem}%</strong></small>
               <div class="barra-progresso-bg">
                 <div class="barra-progresso-fill" style="width: ${porcentagem}%;"></div>
               </div>
@@ -479,7 +397,7 @@
     });
 
     window.deletarItem = function(id) {
-      if (confirm("Tem certeza que deseja remover esta ordem de produção?")) {
+      if (confirm("Tem certeza que deseja remover esta meta?")) {
         remove(ref(db, `produtos/${id}`));
       }
     };
