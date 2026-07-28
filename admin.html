@@ -29,48 +29,40 @@
     }
     .btn-dia.ativo { background: var(--verde-alvorada); color: white; border-color: var(--verde-escuro); box-shadow: 0 2px 6px rgba(0,122,51,0.3); }
 
-    /* Painel de Cadastro de Metas Semanais (Segunda-Feira) */
+    /* Painel de Metas da Segunda */
     .painel-metas { display: none; background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px dashed #94a3b8; margin-bottom: 15px; }
     .grid-metas { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-top: 10px; }
     .item-meta-input { display: flex; flex-direction: column; font-size: 11px; font-weight: bold; }
     .item-meta-input input { padding: 5px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; margin-top: 3px; }
 
-    /* Estilo da Tabela com Cabeçalho Rotacionado e Contadores */
-    .container-tabela { overflow-x: auto; max-height: 70vh; border: 1px solid #cbd5e1; border-radius: 6px; }
-    table.tabela-expedicao { width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; }
-    table.tabela-expedicao th, table.tabela-expedicao td { border: 1px solid #cbd5e1; padding: 4px; }
+    /* Tabela Invertida (Produtos nas Linhas x Lojas nas Colunas) */
+    .container-tabela { overflow: auto; max-height: 75vh; border: 1px solid #cbd5e1; border-radius: 6px; }
+    table.tabela-expedicao { width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; white-space: nowrap; }
+    table.tabela-expedicao th, table.tabela-expedicao td { border: 1px solid #cbd5e1; padding: 5px; }
+    table.tabela-expedicao thead th { background-color: #1e293b; color: white; position: sticky; top: 0; z-index: 3; }
     
-    /* Cabeçalho do Produto */
-    table.tabela-expedicao th.col-prod { 
-      height: 190px; 
-      vertical-align: bottom;
-      padding-bottom: 8px;
-      background-color: #f1f5f9;
-      min-width: 65px;
+    /* Colunas Fixas à Esquerda (Produto e Status) */
+    .col-prod-nome { 
+      text-align: left; font-weight: bold; min-width: 200px; max-width: 220px; 
+      position: sticky; left: 0; background-color: #f8fafc; z-index: 2; 
     }
-    .box-header-prod {
-      display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%;
-    }
+    .col-progresso { min-width: 100px; position: sticky; left: 200px; background-color: #f8fafc; z-index: 2; }
+    .col-tot-dia { font-weight: bold; background-color: #e2e8f0; min-width: 70px; }
+
+    /* Colunas das Lojas */
+    .th-loja { min-width: 50px; font-size: 11px; }
+    .th-loja-ref { background-color: #ca8a04 !important; color: white; } /* Loja 05 Reforma */
+    .td-loja-ref { background-color: #fef08a; }
+
     .badge-progresso {
       background: #0284c7; color: white; font-size: 10px; font-weight: bold;
-      padding: 3px 5px; border-radius: 10px; margin-bottom: 6px; white-space: nowrap;
+      padding: 3px 6px; border-radius: 10px; display: inline-block;
     }
     .badge-progresso.concluido { background: #16a34a; }
     .badge-progresso.pendente { background: #d97706; }
     
-    .nome-prod-vert {
-      writing-mode: vertical-rl;
-      transform: rotate(180deg);
-      font-weight: bold; font-size: 11px; color: var(--texto-dark);
-      max-height: 110px; text-overflow: ellipsis; white-space: nowrap;
-    }
-    
-    .col-loja { width: 90px; font-weight: bold; background-color: #f8fafc; position: sticky; left: 0; z-index: 2; }
-    .linha-reforma { background-color: #fef08a !important; color: #854d0e; }
-    .linha-total { background-color: #1e293b; color: white; font-weight: bold; font-size: 12px; }
-    
     input.qtd-loja {
-      width: 48px; text-align: center; padding: 4px; border: 1px solid #94a3b8; border-radius: 4px; font-weight: bold;
+      width: 44px; text-align: center; padding: 4px; border: 1px solid #94a3b8; border-radius: 4px; font-weight: bold;
     }
     input.qtd-loja:focus { background-color: #e0f2fe; border-color: #0284c7; outline: none; }
     
@@ -106,7 +98,7 @@
 
     <div class="painel-metas" id="painelMetasSemana">
       <div style="display:flex; justify-content:space-between; align-items:center;">
-        <strong>🎯 Pedido Total da Semana por Produto (Chega na Segunda-feira):</strong>
+        <strong>🎯 Pedido Total da Semana por Produto (Entrada de Segunda-feira):</strong>
         <button class="btn-acao" style="padding:4px 10px; font-size:12px;" onclick="salvarMetasSemana()">Salvar Metas</button>
       </div>
       <div class="grid-metas" id="containerInputsMetas">
@@ -116,17 +108,14 @@
     <div class="container-tabela">
       <table class="tabela-expedicao">
         <thead>
-          <tr id="trCabecalhoProdutos">
-            <th class="col-loja">LOJA / ITEM</th>
+          <tr id="trCabecalhoLojas">
+            <th class="col-prod-nome">PRODUTO</th>
+            <th class="col-progresso">ACUMULADO / META</th>
+            <th class="col-tot-dia">TOTAL DIA</th>
             </tr>
         </thead>
-        <tbody id="tbodyLojas">
+        <tbody id="tbodyProdutos">
           </tbody>
-        <tfoot>
-          <tr class="linha-total" id="trTotalDia">
-            <td class="col-loja" style="color:white;">TOTAL DIA</td>
-            </tr>
-        </tfoot>
       </table>
     </div>
   </div>
@@ -158,69 +147,67 @@
     ];
 
     let diaAtual = 'Segunda-feira';
-    let metasSemanais = {}; // Ex: { 11: 2188 } (Sovado)
-    let todosLancamentosSemana = {}; // Armazena dados de todos os dias da semana para somar
+    let metasSemanais = {}; 
+    let todosLancamentosSemana = {};
 
-    // 1. Renderiza a Estrutura Básica da Tabela
+    // 1. Inicializa o Layout da Tabela
     function inicializarTabela() {
-      const trCab = document.getElementById('trCabecalhoProdutos');
-      const trTot = document.getElementById('trTotalDia');
-      const tbody = document.getElementById('tbodyLojas');
+      const trCab = document.getElementById('trCabecalhoLojas');
+      const tbody = document.getElementById('tbodyProdutos');
       const containerMetas = document.getElementById('containerInputsMetas');
 
-      trCab.innerHTML = '<th class="col-loja">LOJA / ITEM</th>';
-      trTot.innerHTML = '<td class="col-loja" style="color:white;">TOTAL DIA</td>';
+      trCab.innerHTML = `
+        <th class="col-prod-nome">PRODUTO</th>
+        <th class="col-progresso">EMBALADO / META</th>
+        <th class="col-tot-dia">TOTAL DIA</th>
+      `;
       tbody.innerHTML = '';
       containerMetas.innerHTML = '';
 
-      LISTA_PRODUTOS.forEach((prod, pIdx) => {
-        // Cabeçalho da Tabela com Nome e Indicador (Embalado / Total)
-        const th = document.createElement('th');
-        th.className = 'col-prod';
-        th.innerHTML = `
-          <div class="box-header-prod">
-            <div class="badge-progresso" id="badge_p${pIdx}">0 / 0</div>
-            <div class="nome-prod-vert">${prod}</div>
-          </div>
-        `;
-        trCab.appendChild(th);
-
-        // Rodapé (Total do Dia)
-        const tdTot = document.createElement('td');
-        tdTot.id = `total_dia_p${pIdx}`;
-        tdTot.innerText = '0';
-        trTot.appendChild(tdTot);
-
-        // Input de Meta Semanal no Painel de Segunda
-        containerMetas.innerHTML += `
-          <div class="item-meta-input">
-            <label>${prod}</label>
-            <input type="number" id="meta_input_p${pIdx}" placeholder="Total Pedido Semanal (ex: 2188)">
-          </div>
-        `;
-      });
-
-      // Linhas das 21 Lojas
+      // Adiciona Colunas das 21 Lojas no Cabeçalho
       for (let i = 1; i <= 21; i++) {
         const numLoja = String(i).padStart(2, '0');
-        const tr = document.createElement('tr');
-        if (i === 5) tr.className = 'linha-reforma';
+        const th = document.createElement('th');
+        th.className = `th-loja ${i === 5 ? 'th-loja-ref' : ''}`;
+        th.innerText = i === 5 ? 'L05 (Ref.)' : `LJ ${numLoja}`;
+        trCab.appendChild(th);
+      }
 
-        let html = `<td class="col-loja">LOJA ${numLoja} ${i === 5 ? '(Ref.)' : ''}</td>`;
-        LISTA_PRODUTOS.forEach((_, pIdx) => {
+      // Adiciona os Produtos nas Linhas
+      LISTA_PRODUTOS.forEach((prod, pIdx) => {
+        const tr = document.createElement('tr');
+        
+        let html = `
+          <td class="col-prod-nome">${prod}</td>
+          <td class="col-progresso"><span class="badge-progresso" id="badge_p${pIdx}">0 / 0</span></td>
+          <td class="col-tot-dia" id="total_dia_p${pIdx}">0</td>
+        `;
+
+        // Inputs das Lojas para este produto
+        for (let i = 1; i <= 21; i++) {
+          const numLoja = String(i).padStart(2, '0');
           html += `
-            <td>
-              <input type="number" class="qtd-loja" id="input_L${numLoja}_P${pIdx}" 
+            <td class="${i === 5 ? 'td-loja-ref' : ''}">
+              <input type="number" class="qtd-loja" id="input_P${pIdx}_L${numLoja}" 
                 placeholder="0" oninput="window.calcularTotais()" min="0">
             </td>
           `;
-        });
+        }
+
         tr.innerHTML = html;
         tbody.appendChild(tr);
-      }
+
+        // Input no painel de metas
+        containerMetas.innerHTML += `
+          <div class="item-meta-input">
+            <label>${prod}</label>
+            <input type="number" id="meta_input_p${pIdx}" placeholder="Pedido Semanal (ex: 2188)">
+          </div>
+        `;
+      });
     }
 
-    // 2. Troca de Aba por Dia da Semana
+    // 2. Troca de Aba por Dia
     window.mudarDia = function(dia, btnElement) {
       diaAtual = dia;
       document.getElementById('labelDiaSelecionado').innerText = `Lançamento: ${dia}`;
@@ -229,13 +216,12 @@
       carregarDadosSemana();
     };
 
-    // 3. Ocultar/Exibir Painel de Metas
     window.togglePainelMetas = function() {
       const p = document.getElementById('painelMetasSemana');
       p.style.display = p.style.display === 'block' ? 'none' : 'block';
     };
 
-    // 4. Salvar Metas da Semana no Firebase
+    // 3. Salvar Metas do Pedido Semanal
     window.salvarMetasSemana = function() {
       const pacoteMetas = {};
       LISTA_PRODUTOS.forEach((_, pIdx) => {
@@ -245,40 +231,41 @@
 
       set(ref(db, `expedicao_metas_semana`), pacoteMetas)
         .then(() => {
-          alert('Metas da semana salvas com sucesso!');
+          alert('Metas da semana salvas!');
           document.getElementById('painelMetasSemana').style.display = 'none';
           carregarDadosSemana();
         })
         .catch(err => alert("Erro ao salvar metas: " + err.message));
     };
 
-    // 5. Salvar Lançamento do Dia Atual
+    // 4. Salvar Digitação do Dia Atual
     window.salvarExpedicaoDia = function() {
       const pacoteSalvar = {};
-      for (let i = 1; i <= 21; i++) {
-        const numLoja = String(i).padStart(2, '0');
-        pacoteSalvar[`LOJA_${numLoja}`] = {};
-        LISTA_PRODUTOS.forEach((_, pIdx) => {
-          const input = document.getElementById(`input_L${numLoja}_P${pIdx}`);
-          pacoteSalvar[`LOJA_${numLoja}`][pIdx] = parseInt(input.value) || 0;
-        });
-      }
+      
+      LISTA_PRODUTOS.forEach((_, pIdx) => {
+        pacoteSalvar[`PROD_${pIdx}`] = {};
+        for (let i = 1; i <= 21; i++) {
+          const numLoja = String(i).padStart(2, '0');
+          const input = document.getElementById(`input_P${pIdx}_L${numLoja}`);
+          pacoteSalvar[`PROD_${pIdx}`][`LOJA_${numLoja}`] = parseInt(input.value) || 0;
+        }
+      });
 
       set(ref(db, `expedicao_lojas/${diaAtual}`), pacoteSalvar)
         .then(() => alert(`Lançamentos de ${diaAtual} salvos!`))
         .catch(err => alert("Erro ao salvar: " + err.message));
     };
 
-    // 6. Calcula Totais do Dia + Soma Todos os Dias da Semana para Atualizar o Cabeçalho
+    // 5. Cálculos em Tempo Real
     window.calcularTotais = function() {
       const somaHoje = {};
 
-      // Soma o que está digitado na tela agora
+      // Soma da linha de cada produto hoje
       LISTA_PRODUTOS.forEach((_, pIdx) => {
         let totalDia = 0;
         for (let i = 1; i <= 21; i++) {
           const numLoja = String(i).padStart(2, '0');
-          const input = document.getElementById(`input_L${numLoja}_P${pIdx}`);
+          const input = document.getElementById(`input_P${pIdx}_L${numLoja}`);
           if (input && input.value) {
             totalDia += parseInt(input.value) || 0;
           }
@@ -287,7 +274,7 @@
         document.getElementById(`total_dia_p${pIdx}`).innerText = totalDia;
       });
 
-      // Calcula Acumulado de Todos os Dias (Segunda a Sábado)
+      // Soma acumulada da semana toda
       LISTA_PRODUTOS.forEach((_, pIdx) => {
         let acumuladoSemana = 0;
         const dias = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
@@ -295,17 +282,15 @@
         dias.forEach(d => {
           if (d === diaAtual) {
             acumuladoSemana += somaHoje[pIdx] || 0;
-          } else if (todosLancamentosSemana[d]) {
+          } else if (todosLancamentosSemana[d] && todosLancamentosSemana[d][`PROD_${pIdx}`]) {
             for (let i = 1; i <= 21; i++) {
               const numLoja = String(i).padStart(2, '0');
-              if (todosLancamentosSemana[d][`LOJA_${numLoja}`]) {
-                acumuladoSemana += todosLancamentosSemana[d][`LOJA_${numLoja}`][pIdx] || 0;
-              }
+              acumuladoSemana += todosLancamentosSemana[d][`PROD_${pIdx}`][`LOJA_${numLoja}`] || 0;
             }
           }
         });
 
-        // Atualiza a Badge do Cabeçalho no formato (Embalado / Meta)
+        // Atualiza Badge (Embalado / Meta)
         const metaTotal = metasSemanais[pIdx] || 0;
         const badge = document.getElementById(`badge_p${pIdx}`);
         
@@ -321,9 +306,8 @@
       });
     };
 
-    // 7. Carrega os Dados Gerais do Banco de Dados
+    // 6. Carregar Dados
     function carregarDadosSemana() {
-      // Carrega Metas
       onValue(ref(db, `expedicao_metas_semana`), (snapshot) => {
         metasSemanais = snapshot.val() || {};
         LISTA_PRODUTOS.forEach((_, pIdx) => {
@@ -331,23 +315,21 @@
           if (inp) inp.value = metasSemanais[pIdx] || '';
         });
 
-        // Carrega Lançamentos de Todos os Dias
         onValue(ref(db, `expedicao_lojas`), (snapLojas) => {
           todosLancamentosSemana = snapLojas.val() || {};
-          
-          // Preenche a tabela com o dia selecionado
           const dadosDia = todosLancamentosSemana[diaAtual] || {};
-          for (let i = 1; i <= 21; i++) {
-            const numLoja = String(i).padStart(2, '0');
-            const lojaKey = `LOJA_${numLoja}`;
-            LISTA_PRODUTOS.forEach((_, pIdx) => {
-              const input = document.getElementById(`input_L${numLoja}_P${pIdx}`);
+
+          LISTA_PRODUTOS.forEach((_, pIdx) => {
+            const prodKey = `PROD_${pIdx}`;
+            for (let i = 1; i <= 21; i++) {
+              const numLoja = String(i).padStart(2, '0');
+              const input = document.getElementById(`input_P${pIdx}_L${numLoja}`);
               if (input) {
-                const val = (dadosDia[lojaKey] && dadosDia[lojaKey][pIdx]) ? dadosDia[lojaKey][pIdx] : '';
+                const val = (dadosDia[prodKey] && dadosDia[prodKey][`LOJA_${numLoja}`]) ? dadosDia[prodKey][`LOJA_${numLoja}`] : '';
                 input.value = val > 0 ? val : '';
               }
-            });
-          }
+            }
+          });
           window.calcularTotais();
         }, { onlyOnce: true });
 
