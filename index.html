@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panificação Alvorada - Produção & Embalagem</title>
+  <title>Panificação Alvorada - Visão Geral de Produção</title>
   <style>
     :root {
       --verde-alvorada: #007a33;
@@ -12,59 +12,105 @@
       --cinza-escuro: #1e293b;
     }
     * { box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-fundo); margin: 0; padding: 15px; }
-    .header-app { background: linear-gradient(135deg, var(--verde-alvorada), var(--verde-escuro)); color: white; padding: 15px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
-    .card-lider { background: white; padding: 15px 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 15px; border: 1px solid #e2e8f0; }
-    .select-lider { padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: bold; width: 100%; max-width: 300px; font-size: 15px; }
-    .dias-container { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 15px; }
-    .btn-dia { background: white; border: 1px solid #cbd5e1; padding: 10px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; white-space: nowrap; color: #475569; }
-    .btn-dia.ativo { background-color: var(--verde-alvorada); color: white; border-color: var(--verde-alvorada); }
-    .box-setor { background: white; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 15px; overflow: hidden; }
-    .header-setor { background: var(--cinza-escuro); color: white; padding: 12px 16px; font-weight: bold; font-size: 14px; display: flex; justify-content: space-between; }
-    .item-prod { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #f1f5f9; gap: 10px; }
-    .item-prod:last-child { border-bottom: none; }
-    .inputs-acao { display: flex; align-items: center; gap: 8px; }
-    .input-qtd { width: 75px; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; text-align: center; font-weight: bold; }
-    .btn-acao { background: var(--verde-alvorada); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; }
-    .btn-acao:hover { background: var(--verde-escuro); }
-    .badge-status { padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; }
-    .badge-concluido { background: #dcfce7; color: #15803d; }
-    .badge-pendente { background: #fef3c7; color: #b45309; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-fundo);
+      margin: 0;
+      padding: 15px;
+    }
+    .header {
+      background: linear-gradient(135deg, var(--verde-alvorada), var(--verde-escuro));
+      color: white;
+      padding: 15px 20px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .header h1 { margin: 0; font-size: 20px; display: flex; align-items: center; gap: 10px; }
+    .btn-admin {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+    .btn-admin:hover { background: rgba(255, 255, 255, 0.3); }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+      border: 1px solid #e2e8f0;
+    }
+    .card h2 { margin-top: 0; color: var(--cinza-escuro); font-size: 18px; border-bottom: 2px solid var(--verde-alvorada); padding-bottom: 8px; }
+    
+    .tabela-producao {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    .tabela-producao th {
+      background-color: var(--cinza-escuro);
+      color: white;
+      padding: 12px;
+      text-align: left;
+    }
+    .tabela-producao td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .tabela-producao tr:nth-child(even) { background-color: #f8fafc; }
+    
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .badge-sucesso { background: #dcfce7; color: #15803d; }
+    .badge-perda { background: #ffe4e6; color: #be123c; }
   </style>
 </head>
 <body>
 
-  <div class="header-app">
-    <h2 style="margin:0;">🥐 Panificação Alvorada</h2>
-    <a href="admin.html" style="color:white; text-decoration:none; font-weight:bold; background: rgba(255,255,255,0.2); padding: 8px 12px; border-radius: 6px;">⚙️ Admin</a>
+  <div class="header">
+    <h1>🥐 Panificação Alvorada — Monitoramento Geral</h1>
+    <a href="admin.html" class="btn-admin">⚙️ Painel Admin</a>
   </div>
 
-  <div class="card-lider">
-    <label style="font-weight:bold; color:#475569; display:block; margin-bottom:6px;">Líder Ativo:</label>
-    <select id="selectLiderAtivo" class="select-lider" onchange="alternarLider()">
-      <option value="Elisângela">Elisângela (Bolos & Sobremesas)</option>
-      <option value="Jéssica">Jéssica (Embalagem Geral)</option>
-      <option value="Breno">Breno (Panificação)</option>
-      <option value="Raynara">Raynara (Cozinha & Salgados)</option>
-      <option value="Jonathan">Jonathan (Levain & Assados)</option>
-    </select>
+  <div class="card">
+    <h2>📋 Acompanhamento Diário de Produção</h2>
+    <div style="overflow-x: auto;">
+      <table class="tabela-producao">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Líder Responsável</th>
+            <th>Produto</th>
+            <th>Meta</th>
+            <th>Produzido</th>
+            <th>Embalado</th>
+            <th>Perda / Dif.</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaGeralProducao">
+          <tr><td colspan="7" style="text-align:center; color:#64748b;">Carregando dados...</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-
-  <div class="dias-container" id="containerDias">
-    <button class="btn-dia ativo" onclick="selecionarDia('Segunda-feira', this)">Segunda-feira</button>
-    <button class="btn-dia" onclick="selecionarDia('Terça-feira', this)">Terça-feira</button>
-    <button class="btn-dia" onclick="selecionarDia('Quarta-feira', this)">Quarta-feira</button>
-    <button class="btn-dia" onclick="selecionarDia('Quinta-feira', this)">Quinta-feira</button>
-    <button class="btn-dia" onclick="selecionarDia('Sexta-feira', this)">Sexta-feira</button>
-    <button class="btn-dia" onclick="selecionarDia('Sábado', this)">Sábado</button>
-    <button class="btn-dia" onclick="selecionarDia('Domingo', this)">Domingo</button>
-  </div>
-
-  <div id="listaOrdens"></div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyB-KGrSWvIAKW6ZT0SDGUH7LFLzvYsmcJk",
@@ -79,166 +125,36 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    let diaSelecionado = 'Segunda-feira';
-    let liderAtivo = 'Elisângela';
-    let dadosGlobais = {};
+    // Carrega todos os registros diários em tempo real
+    onValue(ref(db, 'produtos_diarios'), (snapshot) => {
+      const dados = snapshot.val();
+      const tbody = document.getElementById('tabelaGeralProducao');
+      tbody.innerHTML = '';
 
-    window.alternarLider = function() {
-      liderAtivo = document.getElementById('selectLiderAtivo').value;
-      renderizarTela();
-    };
+      if (!dados) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#64748b;">Nenhum registro encontrado. Cadastre no Painel Admin.</td></tr>';
+        return;
+      }
 
-    window.selecionarDia = function(dia, el) {
-      diaSelecionado = dia;
-      document.querySelectorAll('.btn-dia').forEach(b => b.classList.remove('ativo'));
-      el.classList.add('ativo');
-      renderizarTela();
-    };
+      // Converte em lista e ordena pela data mais recente
+      const lista = Object.values(dados).sort((a, b) => new Date(b.data) - new Date(a.data));
 
-    onValue(ref(db, 'produtos'), (snapshot) => {
-      dadosGlobais = snapshot.val() || {};
-      renderizarTela();
+      lista.forEach(item => {
+        const tr = document.createElement('tr');
+        const un = item.unidade || 'un';
+        
+        tr.innerHTML = `
+          <td><strong>${item.data || '-'}</strong></td>
+          <td>${item.lider || '-'}</td>
+          <td><strong>${item.nome}</strong></td>
+          <td>${item.qtdMeta || 0} ${un}</td>
+          <td><span class="badge badge-sucesso">${item.qtdFeita || 0} ${un}</span></td>
+          <td>${item.qtdEmbalada || 0} ${un}</td>
+          <td><span class="badge badge-perda">${item.qtdPerda || 0} ${un}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
     });
-
-    function renderizarTela() {
-      const container = document.getElementById('listaOrdens');
-      container.innerHTML = '';
-
-      const IDs = Object.keys(dadosGlobais).filter(id => {
-        const item = dadosGlobais[id];
-        return item.dia === diaSelecionado;
-      });
-
-      if (IDs.length === 0) {
-        container.innerHTML = `<div class="card-lider" style="text-align:center; color:#64748b;">Nenhuma ordem agendada para ${diaSelecionado}.</div>`;
-        return;
-      }
-
-      const setores = {};
-      IDs.forEach(id => {
-        const item = dadosGlobais[id];
-        if (liderAtivo !== 'Jéssica' && item.lider !== liderAtivo) return;
-
-        const setorNome = item.setor || 'Geral';
-        if (!setores[setorNome]) setores[setorNome] = [];
-        setores[setorNome].push({ id, ...item });
-      });
-
-      if (Object.keys(setores).length === 0) {
-        container.innerHTML = `<div class="card-lider" style="text-align:center; color:#64748b;">Nenhum item pendente para ${liderAtivo} em ${diaSelecionado}.</div>`;
-        return;
-      }
-
-      Object.keys(setores).forEach(setor => {
-        const box = document.createElement('div');
-        box.className = 'box-setor';
-        let htmlItens = '';
-
-        setores[setor].forEach(prod => {
-          const meta = parseFloat(prod.qtd) || 0;
-          const feito = parseFloat(prod.qtdFeita || prod.qtdEnviadaEmb || 0);
-          const embalado = parseFloat(prod.qtdEmbalada || prod.qtdRealizada || 0);
-          const un = prod.unidade || 'un';
-
-          if (liderAtivo === 'Jéssica') {
-            const disponivelParaEmbalar = Math.max(0, feito - embalado);
-
-            if (disponivelParaEmbalar > 0) {
-              htmlItens += `
-                <div class="item-prod">
-                  <div>
-                    <strong>${prod.nome || prod.produto}</strong>
-                    <div style="font-size:12px; color:#64748b;">Disponível p/ Embalar: <strong>${disponivelParaEmbalar} ${un}</strong> (Líder: ${prod.lider})</div>
-                    <div style="font-size:12px; color:#007a33; font-weight:bold;">Status Atual: ${embalado} / ${meta} ${un}</div>
-                  </div>
-                  <div class="inputs-acao">
-                    <input type="number" id="input_${prod.id}" class="input-qtd" value="${disponivelParaEmbalar}">
-                    <button class="btn-acao" onclick="darBaixaEmbalagem('${prod.id}')">Dar Baixa</button>
-                  </div>
-                </div>
-              `;
-            } else if (embalado >= meta && meta > 0) {
-              htmlItens += `
-                <div class="item-prod" style="opacity:0.6; background:#f8fafc;">
-                  <div>
-                    <span style="text-decoration:line-through;">${prod.nome || prod.produto}</span>
-                    <div style="font-size:12px; color:#15803d;">✓ Concluído (${embalado} / ${meta} ${un})</div>
-                  </div>
-                  <span class="badge-status badge-concluido">Embalado</span>
-                </div>
-              `;
-            } else {
-              htmlItens += `
-                <div class="item-prod" style="opacity:0.6;">
-                  <div>
-                    <span>${prod.nome || prod.produto}</span>
-                    <div style="font-size:12px; color:#b45309;">Aguardando envio da produção... (${embalado} / ${meta} ${un})</div>
-                  </div>
-                  <span class="badge-status badge-pendente">Aguardando</span>
-                </div>
-              `;
-            }
-          } else {
-            const faltaProduzir = Math.max(0, meta - feito);
-
-            htmlItens += `
-              <div class="item-prod">
-                <div>
-                  <strong>${prod.nome || prod.produto}</strong>
-                  <div style="font-size:12px; color:#64748b;">
-                    Meta: <strong>${meta} ${un}</strong> | Enviado Emb.: <strong>${feito} ${un}</strong>
-                  </div>
-                </div>
-                ${faltaProduzir > 0 ? `
-                  <div class="inputs-acao">
-                    <input type="number" id="input_${prod.id}" class="input-qtd" placeholder="${faltaProduzir}">
-                    <button class="btn-acao" onclick="enviarParaEmbalagem('${prod.id}')">Enviar Emb.</button>
-                  </div>
-                ` : `
-                  <span class="badge-status badge-concluido">✓ Enviado (${feito}/${meta})</span>
-                `}
-              </div>
-            `;
-          }
-        });
-
-        if (htmlItens !== '') {
-          box.innerHTML = `<div class="header-setor"><span>📍 SETOR: ${setor.toUpperCase()}</span></div>${htmlItens}`;
-          container.appendChild(box);
-        }
-      });
-    }
-
-    window.enviarParaEmbalagem = function(id) {
-      const input = document.getElementById(`input_${id}`);
-      const val = parseFloat(input.value);
-      if (!val || val <= 0) { alert("Digite uma quantidade válida!"); return; }
-
-      const item = dadosGlobais[id];
-      const atual = parseFloat(item.qtdFeita || item.qtdEnviadaEmb || 0);
-      const novoTotal = atual + val;
-
-      update(ref(db, `produtos/${id}`), { qtdFeita: novoTotal, qtdEnviadaEmb: novoTotal }).then(() => input.value = '');
-    };
-
-    window.darBaixaEmbalagem = function(id) {
-      const input = document.getElementById(`input_${id}`);
-      const val = parseFloat(input.value);
-      if (!val || val <= 0) { alert("Digite a quantidade embalada!"); return; }
-
-      const item = dadosGlobais[id];
-      const feito = parseFloat(item.qtdFeita || item.qtdEnviadaEmb || 0);
-      const atualEmbalado = parseFloat(item.qtdEmbalada || item.qtdRealizada || 0);
-      const disponivel = feito - atualEmbalado;
-
-      if (val > disponivel) {
-        alert(`A quantidade embalada (${val}) não pode ser maior do que a disponível (${disponivel})!`);
-        return;
-      }
-
-      const novoTotal = atualEmbalado + val;
-      update(ref(db, `produtos/${id}`), { qtdEmbalada: novoTotal, qtdRealizada: novoTotal }).then(() => input.value = '');
-    };
   </script>
 </body>
 </html>
