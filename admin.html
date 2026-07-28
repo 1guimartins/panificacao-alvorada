@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Expedição por Loja - Panificação Alvorada</title>
+  <title>Sistema Panificação Alvorada</title>
   <style>
     :root { 
       --verde-alvorada: #007a33; 
@@ -13,130 +13,158 @@
     }
     * { box-sizing: border-box; font-family: Arial, sans-serif; }
     body { background-color: var(--bg-fundo); margin: 0; padding: 15px; }
-    
+
+    /* Cabeçalho e Menu Superior */
     .header { 
       background: linear-gradient(135deg, var(--verde-alvorada), var(--verde-escuro)); 
       color: white; padding: 15px 20px; border-radius: 8px; 
       display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; 
     }
-    .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #cbd5e1; margin-bottom: 15px; }
-    
-    /* Navegação de Dias */
-    .nav-dias { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-    .btn-dia { 
-      padding: 8px 16px; border: 1px solid #cbd5e1; background: #e2e8f0; 
-      border-radius: 20px; font-weight: bold; cursor: pointer; color: #475569; transition: all 0.2s;
+    .nav-principal { display: flex; gap: 8px; margin-bottom: 15px; background: #cbd5e1; padding: 8px; border-radius: 8px; }
+    .btn-tab { 
+      padding: 10px 18px; border: none; background: white; 
+      border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; color: #334155; transition: all 0.2s;
     }
-    .btn-dia.ativo { background: var(--verde-alvorada); color: white; border-color: var(--verde-escuro); box-shadow: 0 2px 6px rgba(0,122,51,0.3); }
+    .btn-tab.ativo { background: var(--verde-alvorada); color: white; }
 
-    /* Navegação de Categorias / Planilhas */
-    .nav-categorias { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; background: #f1f5f9; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0; }
+    .tab-content { display: none; }
+    .tab-content.ativo { display: block; }
+
+    .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #cbd5e1; margin-bottom: 15px; }
+
+    /* Indicadores Rápidos */
+    .grid-resumo { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 15px; }
+    .card-resumo { background: white; padding: 15px; border-radius: 8px; border-left: 5px solid var(--verde-alvorada); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    .card-resumo h4 { margin: 0; font-size: 12px; color: #64748b; text-transform: uppercase; }
+    .card-resumo .valor { font-size: 22px; font-weight: bold; color: var(--texto-dark); margin-top: 5px; }
+
+    /* Seletor de Categoria */
+    .nav-categorias { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; background: #e2e8f0; padding: 8px; border-radius: 8px; }
     .btn-cat { 
-      padding: 6px 14px; border: 1px solid #cbd5e1; background: white; 
+      padding: 8px 14px; border: 1px solid #cbd5e1; background: white; 
       border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; color: #334155; transition: all 0.2s;
     }
     .btn-cat.ativo { background: #1e293b; color: white; border-color: #0f172a; }
 
-    /* Painel de Metas */
-    .painel-metas { display: none; background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px dashed #94a3b8; margin-bottom: 15px; }
-    .grid-metas { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; margin-top: 10px; max-height: 300px; overflow-y: auto; }
-    .item-meta-input { display: flex; flex-direction: column; font-size: 11px; font-weight: bold; background: white; padding: 6px; border-radius: 4px; border: 1px solid #e2e8f0; }
-    .item-meta-input input { padding: 4px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; margin-top: 3px; }
-
-    /* Tabela Invertida (Produtos nas Linhas x Lojas nas Colunas) */
-    .container-tabela { overflow: auto; max-height: 70vh; border: 1px solid #cbd5e1; border-radius: 6px; }
-    table.tabela-expedicao { width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; white-space: nowrap; }
-    table.tabela-expedicao th, table.tabela-expedicao td { border: 1px solid #cbd5e1; padding: 4px 6px; }
-    table.tabela-expedicao thead th { background-color: #1e293b; color: white; position: sticky; top: 0; z-index: 3; }
+    /* Form da Expedição */
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 13px; color: var(--texto-dark); }
+    .form-control { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; }
+    .grid-lojas { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-top: 15px; }
+    .card-loja { background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px; border-radius: 6px; text-align: center; }
+    .card-loja label { font-size: 11px; font-weight: bold; display: block; margin-bottom: 4px; color: #475569; }
+    .card-loja input { width: 100%; text-align: center; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: bold; }
     
-    /* Colunas Fixas à Esquerda */
-    .col-prod-nome { 
-      text-align: left; font-weight: bold; min-width: 220px; max-width: 250px; 
-      position: sticky; left: 0; background-color: #f8fafc; z-index: 2; 
-    }
-    .col-progresso { min-width: 110px; position: sticky; left: 220px; background-color: #f8fafc; z-index: 2; }
-    .col-tot-dia { font-weight: bold; background-color: #e2e8f0; min-width: 70px; }
+    .btn-salvar { background: var(--verde-alvorada); color: white; border: none; padding: 12px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 15px; width: 100%; font-size: 14px; }
+    .btn-salvar:hover { background: var(--verde-escuro); }
 
-    /* Lojas */
-    .th-loja { min-width: 48px; font-size: 11px; }
-    .th-loja-ref { background-color: #ca8a04 !important; color: white; }
-    .td-loja-ref { background-color: #fef08a; }
+    /* Tabela de Progresso */
+    .container-tabela { overflow-x: auto; border: 1px solid #cbd5e1; border-radius: 6px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    th, td { border: 1px solid #cbd5e1; padding: 10px; }
+    th { background-color: #1e293b; color: white; font-size: 12px; }
+    tr:nth-child(even) { background-color: #f8fafc; }
 
-    .badge-progresso {
-      background: #0284c7; color: white; font-size: 10px; font-weight: bold;
-      padding: 3px 6px; border-radius: 10px; display: inline-block;
-    }
-    .badge-progresso.concluido { background: #16a34a; }
-    .badge-progresso.pendente { background: #d97706; }
-    
-    input.qtd-loja {
-      width: 42px; text-align: center; padding: 4px; border: 1px solid #94a3b8; border-radius: 4px; font-weight: bold;
-    }
-    input.qtd-loja:focus { background-color: #e0f2fe; border-color: #0284c7; outline: none; }
-    
-    .btn-acao { background-color: var(--verde-alvorada); color: white; border: none; padding: 8px 16px; font-weight: bold; border-radius: 6px; cursor: pointer; }
-    .btn-acao:hover { background-color: var(--verde-escuro); }
-    .btn-secundario { background-color: #64748b; color: white; border: none; padding: 8px 16px; font-weight: bold; border-radius: 6px; cursor: pointer; }
+    /* Barra de Progresso Visual */
+    .progress-bar-container { background-color: #e2e8f0; border-radius: 10px; height: 16px; width: 100%; overflow: hidden; position: relative; }
+    .progress-bar-fill { background-color: #0284c7; height: 100%; width: 0%; transition: width 0.4s ease-in-out; border-radius: 10px; }
+    .progress-bar-fill.concluido { background-color: #16a34a; }
+
+    .status-badge { font-weight: bold; padding: 4px 8px; border-radius: 12px; font-size: 11px; text-align: center; display: inline-block; }
+    .status-badge.pendente { background-color: #fef3c7; color: #92400e; }
+    .status-badge.concluido { background-color: #dcfce7; color: #166534; }
   </style>
 </head>
 <body>
 
   <div class="header">
-    <h2 style="margin:0;">📦 Ficha de Expedição e Controle por Loja (21 Lojas)</h2>
-    <a href="admin.html" style="color:white; text-decoration:none; background:rgba(255,255,255,0.2); padding:6px 12px; border-radius:4px; font-size:13px;">⚙️ Admin</a>
+    <h2 style="margin:0;">🥐 Panificação Alvorada - Gestão Integrada</h2>
   </div>
 
-  <div class="nav-dias">
-    <button class="btn-dia ativo" onclick="mudarDia('Segunda-feira', this)">Segunda-feira</button>
-    <button class="btn-dia" onclick="mudarDia('Terça-feira', this)">Terça-feira</button>
-    <button class="btn-dia" onclick="mudarDia('Quarta-feira', this)">Quarta-feira</button>
-    <button class="btn-dia" onclick="mudarDia('Quinta-feira', this)">Quinta-feira</button>
-    <button class="btn-dia" onclick="mudarDia('Sexta-feira', this)">Sexta-feira</button>
-    <button class="btn-dia" onclick="mudarDia('Sábado', this)">Sábado</button>
+  <div class="nav-principal">
+    <button class="btn-tab" onclick="mudarAba('expedicao', event)">📦 Expedição Lojas</button>
+    <button class="btn-tab ativo" onclick="mudarAba('progresso', event)">📊 Progresso da Produção</button>
   </div>
 
-  <div class="nav-categorias" id="containerCategorias">
-    </div>
-
-  <div class="card">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:10px;">
-      <div>
-        <span id="labelDiaSelecionado" style="font-size:15px; font-weight:bold; color:var(--verde-escuro);">Lançamento: Segunda-feira</span>
-        <span id="labelCategoriaAtiva" style="font-size:13px; color:#64748b; margin-left:10px; font-weight:bold;">| Categoria: PÃES / ROSCAS</span>
-      </div>
-      <div>
-        <button class="btn-secundario" id="btnToggleMetas" onclick="togglePainelMetas()">📋 Definir Pedidos da Semana</button>
-        <button class="btn-acao" onclick="salvarExpedicaoDia()">💾 Salvar Lançamentos do Dia</button>
-      </div>
-    </div>
-
-    <div class="painel-metas" id="painelMetasSemana">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <strong>🎯 Pedido Semanal da Categoria Atual:</strong>
-        <button class="btn-acao" style="padding:4px 10px; font-size:12px;" onclick="salvarMetasSemana()">Salvar Metas desta Categoria</button>
-      </div>
-      <div class="grid-metas" id="containerInputsMetas">
+  <div id="tab-expedicao" class="tab-content">
+    <div class="card">
+      <h3 style="margin-top: 0; color: var(--verde-escuro);">Lançamento de Expedição por Loja</h3>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+        <div class="form-group">
+          <label>Categoria:</label>
+          <select id="selExpCategoria" class="form-control"></select>
         </div>
+        <div class="form-group">
+          <label>Dia da Semana:</label>
+          <select id="selExpDia" class="form-control">
+            <option value="Segunda-feira">Segunda-feira</option>
+            <option value="Terça-feira">Terça-feira</option>
+            <option value="Quarta-feira">Quarta-feira</option>
+            <option value="Quinta-feira">Quinta-feira</option>
+            <option value="Sexta-feira">Sexta-feira</option>
+            <option value="Sábado">Sábado</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Produto:</label>
+          <select id="selExpProduto" class="form-control"></select>
+        </div>
+      </div>
+
+      <h4 style="margin-top: 15px; margin-bottom: 5px;">Distribuição de Quantidades por Loja:</h4>
+      <div class="grid-lojas" id="gridLojasExpedicao"></div>
+
+      <button class="btn-salvar" onclick="salvarLancamentoExpedicao()">💾 Salvar Lançamento no Banco</button>
+    </div>
+  </div>
+
+  <div id="tab-progresso" class="tab-content ativo">
+
+    <div class="grid-resumo">
+      <div class="card-resumo" style="border-left-color: #0284c7;">
+        <h4>Total do Pedido Semanal</h4>
+        <div class="valor" id="lblTotalPedidoSemana">0 un</div>
+      </div>
+      <div class="card-resumo" style="border-left-color: #16a34a;">
+        <h4>Já Produzido / Embalado</h4>
+        <div class="valor" id="lblTotalProduzido">0 un</div>
+      </div>
+      <div class="card-resumo" style="border-left-color: #d97706;">
+        <h4>Falta Produzir</h4>
+        <div class="valor" id="lblTotalFalta">0 un</div>
+      </div>
     </div>
 
-    <div class="container-tabela">
-      <table class="tabela-expedicao">
-        <thead>
-          <tr id="trCabecalhoLojas">
-            <th class="col-prod-nome">PRODUTO</th>
-            <th class="col-progresso">ACUMULADO / META</th>
-            <th class="col-tot-dia">TOTAL DIA</th>
+    <div class="nav-categorias" id="containerCategorias"></div>
+
+    <div class="card">
+      <h3 id="tituloCategoria" style="margin-top:0; color: var(--verde-escuro);">191-1 - PÃES / ROSCAS</h3>
+
+      <div class="container-tabela">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 80px;">CÓDIGO</th>
+              <th>PRODUTO</th>
+              <th style="width: 120px; text-align: center;">PEDIDO SEMANAL</th>
+              <th style="width: 120px; text-align: center;">PRODUZIDO</th>
+              <th style="width: 120px; text-align: center;">FALTA</th>
+              <th style="width: 180px;">PROGRESSO</th>
+              <th style="width: 110px; text-align: center;">STATUS</th>
             </tr>
-        </thead>
-        <tbody id="tbodyProdutos">
+          </thead>
+          <tbody id="tbodyProgresso">
           </tbody>
-      </table>
+        </table>
+      </div>
     </div>
+
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyB-KGrSWvIAKW6ZT0SDGUH7LFLzvYsmcJk",
@@ -151,7 +179,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Banco de Dados com TODAS as Planilhas/Categorias do Relatório
     const CATEGORIAS_DADOS = {
       "PAES_ROSCAS": {
         nome: "191-1 - PÃES / ROSCAS",
@@ -264,12 +291,12 @@
           { item: "4148", nome: "BOLO REDONDO LIMÃO UN - 280g" },
           { item: "4132", nome: "BOLO REDONDO MILHO UN - 280g" },
           { item: "3915", nome: "BOLO REDONDO NEUTRO UN - 280g" },
-          { item: "2918", name: "BROWNIE DE CHOCOLATE C/ COBERTURA UN" },
-          { item: "2916", name: "BROWNIE DE CHOCOLATE TRADICIONAL UN" },
-          { item: "2182", name: "COOKIES C/ CREME DE AVELÃ UN - 240g" },
-          { item: "2127", name: "COOKIES CHOCOLATE ALVORADA UN - 170g" },
-          { item: "2125", name: "COOKIES TRADICIONAL ALVORADA UN - 120g" },
-          { item: "2195", name: "DONUTS SABORES UN - 70g" }
+          { item: "2918", nome: "BROWNIE DE CHOCOLATE C/ COBERTURA UN" },
+          { item: "2916", nome: "BROWNIE DE CHOCOLATE TRADICIONAL UN" },
+          { item: "2182", nome: "COOKIES C/ CREME DE AVELÃ UN - 240g" },
+          { item: "2127", nome: "COOKIES CHOCOLATE ALVORADA UN - 170g" },
+          { item: "2125", nome: "COOKIES TRADICIONAL ALVORADA UN - 120g" },
+          { item: "2195", nome: "DONUTS SABORES UN - 70g" }
         ]
       },
       "BISCOITOS": {
@@ -291,230 +318,212 @@
       }
     };
 
-    let diaAtual = 'Segunda-feira';
     let categoriaAtual = 'PAES_ROSCAS';
-    let metasSemanais = {}; 
-    let todosLancamentosSemana = {};
+    let unsubMetas = null;
+    let unsubLojas = null;
 
-    // Renderiza os Botões das Categorias
-    function renderizarAbasCategorias() {
+    // Troca de Abas
+    window.mudarAba = function(aba, e) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('ativo'));
+      document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('ativo'));
+      
+      document.getElementById(`tab-${aba}`).classList.add('ativo');
+      if(e && e.target) e.target.classList.add('ativo');
+    };
+
+    // Renderizar Botões de Categorias
+    function renderizarCategorias() {
       const container = document.getElementById('containerCategorias');
       container.innerHTML = '';
-
       Object.keys(CATEGORIAS_DADOS).forEach(catKey => {
         const btn = document.createElement('button');
         btn.className = `btn-cat ${catKey === categoriaAtual ? 'ativo' : ''}`;
         btn.innerText = CATEGORIAS_DADOS[catKey].nome;
-        btn.onclick = () => mudarCategoria(catKey, btn);
+        btn.onclick = () => {
+          categoriaAtual = catKey;
+          document.querySelectorAll('.btn-cat').forEach(b => b.classList.remove('ativo'));
+          btn.classList.add('ativo');
+          document.getElementById('tituloCategoria').innerText = CATEGORIAS_DADOS[catKey].nome;
+          carregarDadosPainelRealtime();
+        };
         container.appendChild(btn);
       });
     }
 
-    // Inicializa a Tabela para a Categoria Selecionada
-    function inicializarTabela() {
-      const trCab = document.getElementById('trCabecalhoLojas');
-      const tbody = document.getElementById('tbodyProdutos');
-      const containerMetas = document.getElementById('containerInputsMetas');
+    // Carregar Dados em Tempo Real com limpeza de listeners
+    function carregarDadosPainelRealtime() {
+      if (unsubMetas) unsubMetas();
+      if (unsubLojas) unsubLojas();
 
-      trCab.innerHTML = `
-        <th class="col-prod-nome">PRODUTO</th>
-        <th class="col-progresso">ACUMULADO / META</th>
-        <th class="col-tot-dia">TOTAL DIA</th>
-      `;
-      tbody.innerHTML = '';
-      containerMetas.innerHTML = '';
+      const tbody = document.getElementById('tbodyProgresso');
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Carregando dados...</td></tr>';
 
-      // Adiciona Colunas de LOJA 01 até LOJA 21
-      for (let i = 1; i <= 21; i++) {
-        const numLoja = String(i).padStart(2, '0');
-        const th = document.createElement('th');
-        th.className = `th-loja ${i === 5 ? 'th-loja-ref' : ''}`;
-        th.innerText = i === 5 ? 'L05 (Ref.)' : `LJ ${numLoja}`;
-        trCab.appendChild(th);
-      }
+      let metasCache = {};
+      let lancamentosCache = {};
 
-      // Adiciona Linhas dos Produtos da Categoria Ativa
-      const prods = CATEGORIAS_DADOS[categoriaAtual].produtos;
-
-      prods.forEach((prodObj, pIdx) => {
-        const tr = document.createElement('tr');
-        
-        let html = `
-          <td class="col-prod-nome" title="Cód: ${prodObj.item}">${prodObj.nome}</td>
-          <td class="col-progresso"><span class="badge-progresso" id="badge_p${pIdx}">0 / 0</span></td>
-          <td class="col-tot-dia" id="total_dia_p${pIdx}">0</td>
-        `;
-
-        // Inputs das Lojas
-        for (let i = 1; i <= 21; i++) {
-          const numLoja = String(i).padStart(2, '0');
-          html += `
-            <td class="${i === 5 ? 'td-loja-ref' : ''}">
-              <input type="number" class="qtd-loja" id="input_P${pIdx}_L${numLoja}" 
-                placeholder="0" oninput="window.calcularTotais()" min="0">
-            </td>
-          `;
-        }
-
-        tr.innerHTML = html;
-        tbody.appendChild(tr);
-
-        // Input para Cadastro da Meta
-        containerMetas.innerHTML += `
-          <div class="item-meta-input">
-            <label>[${prodObj.item}] ${prodObj.nome}</label>
-            <input type="number" id="meta_input_p${pIdx}" placeholder="Meta Semanal">
-          </div>
-        `;
-      });
-    }
-
-    // Troca de Categoria
-    window.mudarCategoria = function(catKey, btnElement) {
-      categoriaAtual = catKey;
-      document.getElementById('labelCategoriaAtiva').innerText = `| Categoria: ${CATEGORIAS_DADOS[catKey].nome}`;
-      document.querySelectorAll('.btn-cat').forEach(b => b.classList.remove('ativo'));
-      btnElement.classList.add('ativo');
-      inicializarTabela();
-      carregarDadosSemana();
-    };
-
-    // Troca de Dia da Semana
-    window.mudarDia = function(dia, btnElement) {
-      diaAtual = dia;
-      document.getElementById('labelDiaSelecionado').innerText = `Lançamento: ${dia}`;
-      document.querySelectorAll('.btn-dia').forEach(b => b.classList.remove('ativo'));
-      btnElement.classList.add('ativo');
-      carregarDadosSemana();
-    };
-
-    window.togglePainelMetas = function() {
-      const p = document.getElementById('painelMetasSemana');
-      p.style.display = p.style.display === 'block' ? 'none' : 'block';
-    };
-
-    // Salva Metas no Firebase
-    window.salvarMetasSemana = function() {
-      const prods = CATEGORIAS_DADOS[categoriaAtual].produtos;
-      const pacoteMetas = {};
-
-      prods.forEach((_, pIdx) => {
-        const val = parseInt(document.getElementById(`meta_input_p${pIdx}`).value) || 0;
-        pacoteMetas[pIdx] = val;
-      });
-
-      set(ref(db, `expedicao_metas_semana/${categoriaAtual}`), pacoteMetas)
-        .then(() => {
-          alert('Metas salvas com sucesso!');
-          document.getElementById('painelMetasSemana').style.display = 'none';
-          carregarDadosSemana();
-        })
-        .catch(err => alert("Erro ao salvar metas: " + err.message));
-    };
-
-    // Salva Lançamentos Diários
-    window.salvarExpedicaoDia = function() {
-      const prods = CATEGORIAS_DADOS[categoriaAtual].produtos;
-      const pacoteSalvar = {};
-      
-      prods.forEach((_, pIdx) => {
-        pacoteSalvar[`PROD_${pIdx}`] = {};
-        for (let i = 1; i <= 21; i++) {
-          const numLoja = String(i).padStart(2, '0');
-          const input = document.getElementById(`input_P${pIdx}_L${numLoja}`);
-          pacoteSalvar[`PROD_${pIdx}`][`LOJA_${numLoja}`] = parseInt(input.value) || 0;
-        }
-      });
-
-      set(ref(db, `expedicao_lojas/${categoriaAtual}/${diaAtual}`), pacoteSalvar)
-        .then(() => alert(`Lançamentos de ${diaAtual} salvos para ${CATEGORIAS_DADOS[categoriaAtual].nome}!`))
-        .catch(err => alert("Erro ao salvar: " + err.message));
-    };
-
-    // Cálculos em Tempo Real (Total do Dia e Acumulado x Meta)
-    window.calcularTotais = function() {
-      const prods = CATEGORIAS_DADOS[categoriaAtual].produtos;
-      const somaHoje = {};
-
-      prods.forEach((_, pIdx) => {
-        let totalDia = 0;
-        for (let i = 1; i <= 21; i++) {
-          const numLoja = String(i).padStart(2, '0');
-          const input = document.getElementById(`input_P${pIdx}_L${numLoja}`);
-          if (input && input.value) {
-            totalDia += parseInt(input.value) || 0;
-          }
-        }
-        somaHoje[pIdx] = totalDia;
-        document.getElementById(`total_dia_p${pIdx}`).innerText = totalDia;
-      });
-
-      // Soma acumulada da semana toda
-      prods.forEach((_, pIdx) => {
-        let acumuladoSemana = 0;
-        const dias = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
-
-        dias.forEach(d => {
-          if (d === diaAtual) {
-            acumuladoSemana += somaHoje[pIdx] || 0;
-          } else if (todosLancamentosSemana[d] && todosLancamentosSemana[d][`PROD_${pIdx}`]) {
-            for (let i = 1; i <= 21; i++) {
-              const numLoja = String(i).padStart(2, '0');
-              acumuladoSemana += todosLancamentosSemana[d][`PROD_${pIdx}`][`LOJA_${numLoja}`] || 0;
-            }
-          }
-        });
-
-        const metaTotal = metasSemanais[pIdx] || 0;
-        const badge = document.getElementById(`badge_p${pIdx}`);
-        
-        badge.innerText = `${acumuladoSemana} / ${metaTotal}`;
-
-        if (metaTotal > 0 && acumuladoSemana >= metaTotal) {
-          badge.className = 'badge-progresso concluido';
-        } else if (acumuladoSemana > 0) {
-          badge.className = 'badge-progresso pendente';
-        } else {
-          badge.className = 'badge-progresso';
-        }
-      });
-    };
-
-    // Carregar Dados do Firebase
-    function carregarDadosSemana() {
-      onValue(ref(db, `expedicao_metas_semana/${categoriaAtual}`), (snapshot) => {
-        metasSemanais = snapshot.val() || {};
+      const atualizarTabela = () => {
         const prods = CATEGORIAS_DADOS[categoriaAtual].produtos;
+        tbody.innerHTML = '';
 
-        prods.forEach((_, pIdx) => {
-          const inp = document.getElementById(`meta_input_p${pIdx}`);
-          if (inp) inp.value = metasSemanais[pIdx] || '';
-        });
+        let totalMetaCat = 0;
+        let totalProduzidoCat = 0;
 
-        onValue(ref(db, `expedicao_lojas/${categoriaAtual}`), (snapLojas) => {
-          todosLancamentosSemana = snapLojas.val() || {};
-          const dadosDia = todosLancamentosSemana[diaAtual] || {};
+        prods.forEach((prod, pIdx) => {
+          const meta = metasCache[pIdx] || 0;
+          let produzido = 0;
 
-          prods.forEach((_, pIdx) => {
-            const prodKey = `PROD_${pIdx}`;
-            for (let i = 1; i <= 21; i++) {
-              const numLoja = String(i).padStart(2, '0');
-              const input = document.getElementById(`input_P${pIdx}_L${numLoja}`);
-              if (input) {
-                const val = (dadosDia[prodKey] && dadosDia[prodKey][`LOJA_${numLoja}`]) ? dadosDia[prodKey][`LOJA_${numLoja}`] : '';
-                input.value = val > 0 ? val : '';
+          const dias = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+          dias.forEach(d => {
+            if (lancamentosCache[d] && lancamentosCache[d][`PROD_${pIdx}`]) {
+              for (let i = 1; i <= 21; i++) {
+                const numLoja = String(i).padStart(2, '0');
+                produzido += Number(lancamentosCache[d][`PROD_${pIdx}`][`LOJA_${numLoja}`]) || 0;
               }
             }
           });
-          window.calcularTotais();
-        }, { onlyOnce: true });
 
-      }, { onlyOnce: true });
+          const falta = Math.max(0, meta - produzido);
+          const porc = meta > 0 ? Math.min(100, Math.round((produzido / meta) * 100)) : 0;
+          const concluido = meta > 0 && produzido >= meta;
+
+          totalMetaCat += meta;
+          totalProduzidoCat += produzido;
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong>${prod.item}</strong></td>
+            <td><strong>${prod.nome}</strong></td>
+            <td style="text-align: center;"><strong>${meta}</strong></td>
+            <td style="text-align: center; color: #16a34a; font-weight: bold;">${produzido}</td>
+            <td style="text-align: center; color: #d97706; font-weight: bold;">${falta}</td>
+            <td>
+              <div class="progress-bar-container">
+                <div class="progress-bar-fill ${concluido ? 'concluido' : ''}" style="width: ${porc}%;"></div>
+              </div>
+              <div style="font-size: 10px; text-align: right; margin-top: 2px; font-weight: bold;">${porc}%</div>
+            </td>
+            <td style="text-align: center;">
+              <span class="status-badge ${concluido ? 'concluido' : 'pendente'}">
+                ${concluido ? '✓ CONCLUÍDO' : '⏳ EM PRODUÇÃO'}
+              </span>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        const faltaCat = Math.max(0, totalMetaCat - totalProduzidoCat);
+        document.getElementById('lblTotalPedidoSemana').innerText = `${totalMetaCat.toLocaleString('pt-BR')} un`;
+        document.getElementById('lblTotalProduzido').innerText = `${totalProduzidoCat.toLocaleString('pt-BR')} un`;
+        document.getElementById('lblTotalFalta').innerText = `${faltaCat.toLocaleString('pt-BR')} un`;
+      };
+
+      // Listener Metas
+      unsubMetas = onValue(ref(db, `expedicao_metas_semana/${categoriaAtual}`), (snapshot) => {
+        metasCache = snapshot.val() || {};
+        atualizarTabela();
+      });
+
+      // Listener Lançamentos Lojas
+      unsubLojas = onValue(ref(db, `expedicao_lojas/${categoriaAtual}`), (snapshot) => {
+        lancamentosCache = snapshot.val() || {};
+        atualizarTabela();
+      });
     }
 
-    renderizarAbasCategorias();
-    inicializarTabela();
-    carregarDadosSemana();
+    // --- LÓGICA DA ABA DE EXPEDIÇÃO ---
+    function inicializarAbaExpedicao() {
+      const selCat = document.getElementById('selExpCategoria');
+      const selProd = document.getElementById('selExpProduto');
+      const grid = document.getElementById('gridLojasExpedicao');
+
+      // Preenche categorias
+      selCat.innerHTML = '';
+      Object.keys(CATEGORIAS_DADOS).forEach(catKey => {
+        const opt = document.createElement('option');
+        opt.value = catKey;
+        opt.textContent = CATEGORIAS_DADOS[catKey].nome;
+        selCat.appendChild(opt);
+      });
+
+      // Preenche 21 Lojas
+      grid.innerHTML = '';
+      for (let i = 1; i <= 21; i++) {
+        const numLoja = String(i).padStart(2, '0');
+        const div = document.createElement('div');
+        div.className = 'card-loja';
+        div.innerHTML = `
+          <label>LOJA ${numLoja}</label>
+          <input type="number" min="0" id="inputLoja_${numLoja}" placeholder="0" value="0">
+        `;
+        grid.appendChild(div);
+      }
+
+      // Evento de troca na categoria atualiza produtos
+      selCat.onchange = () => carregarProdutosExpedicao();
+      document.getElementById('selExpDia').onchange = () => carregarValoresLancadosExpedicao();
+      selProd.onchange = () => carregarValoresLancadosExpedicao();
+
+      carregarProdutosExpedicao();
+    }
+
+    function carregarProdutosExpedicao() {
+      const catKey = document.getElementById('selExpCategoria').value;
+      const selProd = document.getElementById('selExpProduto');
+      selProd.innerHTML = '';
+
+      CATEGORIAS_DADOS[catKey].produtos.forEach((p, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = `${p.item} - ${p.nome}`;
+        selProd.appendChild(opt);
+      });
+
+      carregarValoresLancadosExpedicao();
+    }
+
+    async function carregarValoresLancadosExpedicao() {
+      const catKey = document.getElementById('selExpCategoria').value;
+      const dia = document.getElementById('selExpDia').value;
+      const pIdx = document.getElementById('selExpProduto').value;
+
+      if (pIdx === null || pIdx === undefined || pIdx === '') return;
+
+      const pathRef = ref(db, `expedicao_lojas/${catKey}/${dia}/PROD_${pIdx}`);
+      const snapshot = await get(pathRef);
+      const dados = snapshot.val() || {};
+
+      for (let i = 1; i <= 21; i++) {
+        const numLoja = String(i).padStart(2, '0');
+        const input = document.getElementById(`inputLoja_${numLoja}`);
+        if (input) {
+          input.value = dados[`LOJA_${numLoja}`] || 0;
+        }
+      }
+    }
+
+    window.salvarLancamentoExpedicao = async function() {
+      const catKey = document.getElementById('selExpCategoria').value;
+      const dia = document.getElementById('selExpDia').value;
+      const pIdx = document.getElementById('selExpProduto').value;
+
+      const dadosLoja = {};
+      for (let i = 1; i <= 21; i++) {
+        const numLoja = String(i).padStart(2, '0');
+        const val = parseInt(document.getElementById(`inputLoja_${numLoja}`).value) || 0;
+        dadosLoja[`LOJA_${numLoja}`] = val;
+      }
+
+      try {
+        await set(ref(db, `expedicao_lojas/${catKey}/${dia}/PROD_${pIdx}`), dadosLoja);
+        alert('Lançamento salvo com sucesso!');
+      } catch (err) {
+        alert('Erro ao salvar lançamento: ' + err.message);
+      }
+    };
+
+    renderizarCategorias();
+    carregarDadosPainelRealtime();
+    inicializarAbaExpedicao();
   </script>
 </body>
 </html>
