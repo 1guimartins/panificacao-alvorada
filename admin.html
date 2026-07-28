@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Painel Admin - Panificação Alvorada</title>
   <style>
-    :root { var(--verde-alvorada): #007a33; var(--verde-escuro): #005624; var(--bg-fundo): #f4f6f8; var(--cinza-escuro): #1e293b; }
+    :root { --verde-alvorada: #007a33; --verde-escuro: #005624; --bg-fundo: #f4f6f8; --cinza-escuro: #1e293b; }
     * { box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f4f6f8; margin: 0; padding: 15px; }
     .header-admin { background: linear-gradient(135deg, #007a33, #005624); color: white; padding: 15px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
@@ -23,11 +23,12 @@
     .select-un-tabela { padding: 6px; border: 1px solid #cbd5e1; border-radius: 6px; }
     .btn-salvar-lote { background-color: #007a33; color: white; border: none; padding: 14px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; width: 100%; margin-top: 20px; }
     .btn-del { background: #e11d48; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; }
-    .badge-qtd { background-color: #e2e8f0; color: #0f172a; padding: 3px 8px; border-radius: 6px; font-weight: bold; }
-    .badge-produzido { background-color: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 6px; font-weight: bold; }
-    .badge-embalado { background-color: #dcfce7; color: #15803d; padding: 3px 8px; border-radius: 6px; font-weight: bold; }
-    .barra-progresso-bg { background-color: #e2e8f0; border-radius: 8px; height: 10px; width: 100%; overflow: hidden; margin-top: 4px; }
-    .barra-progresso-fill { background-color: #007a33; height: 100%; transition: width 0.3s ease; }
+    .btn-fechar-dia { background: #e67e22; color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
+    .btn-fechar-dia:hover { background: #d35400; }
+    .badge-qtd { background-color: #e2e8f0; color: #0f172a; padding: 4px 8px; border-radius: 6px; font-weight: bold; }
+    .badge-produzido { background-color: #e0f2fe; color: #0369a1; padding: 4px 8px; border-radius: 6px; font-weight: bold; }
+    .badge-embalado { background-color: #dcfce7; color: #15803d; padding: 4px 8px; border-radius: 6px; font-weight: bold; }
+    .badge-progresso { background-color: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 14px; }
   </style>
 </head>
 <body>
@@ -92,7 +93,11 @@
   </div>
 
   <div class="card">
-    <h2>📊 Monitoramento em Tempo Real (Ao Vivo)</h2>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <h2 style="margin:0; border:none;">📊 Monitoramento em Tempo Real</h2>
+      <button class="btn-fechar-dia" onclick="processarETransferirPerdas()">🔄 Processar Perdas e Somar ao Próximo Dia</button>
+    </div>
+
     <div style="overflow-x:auto;">
       <table class="tabela-produtos">
         <thead>
@@ -104,7 +109,7 @@
             <th>Meta Total</th>
             <th>Feito (Produção)</th>
             <th>Embalado (Jéssica)</th>
-            <th>Progresso</th>
+            <th>Progresso Real</th>
             <th>Ação</th>
           </tr>
         </thead>
@@ -115,7 +120,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyB-KGrSWvIAKW6ZT0SDGUH7LFLzvYsmcJk",
@@ -129,6 +134,8 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+
+    const DIAS_ORDEM = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado', 'Domingo'];
 
     const CATALOGO = {
       "Breno": {
@@ -224,6 +231,8 @@
       }
     };
 
+    let dadosAtuais = {};
+
     window.carregarSetoresDoLider = function() {
       const lider = document.getElementById('selectLider').value;
       const selectSetor = document.getElementById('selectSetor');
@@ -304,17 +313,19 @@
     };
 
     onValue(ref(db, 'produtos'), (snapshot) => {
-      const data = snapshot.val();
+      dadosAtuais = snapshot.val() || {};
       const tabela = document.getElementById('tabelaAgendamentos');
       tabela.innerHTML = '';
 
-      if (data) {
-        Object.keys(data).forEach(id => {
-          const p = data[id];
+      if (dadosAtuais) {
+        Object.keys(dadosAtuais).forEach(id => {
+          const p = dadosAtuais[id];
           const meta = parseFloat(p.qtd) || 0;
           const feito = parseFloat(p.qtdFeita || p.qtdEnviadaEmb || 0);
           const embalado = parseFloat(p.qtdEmbalada || p.qtdRealizada || 0);
-          const pct = Math.min(100, Math.round((embalado / meta) * 100));
+          
+          // Formato Fracionado Exato: Embalado / Meta Total
+          const progressoTexto = `${embalado} / ${meta} ${p.unidade || 'un'}`;
 
           const tr = document.createElement('tr');
           tr.innerHTML = `
@@ -322,13 +333,10 @@
             <td><strong>${p.lider}</strong></td>
             <td>${p.setor || '-'}</td>
             <td>${p.nome || p.produto}</td>
-            <td><span class="badge-qtd">${meta} ${p.unidade}</span></td>
-            <td><span class="badge-produzido">${feito} ${p.unidade}</span></td>
-            <td><span class="badge-embalado">${embalado} ${p.unidade}</span></td>
-            <td style="width: 120px;">
-              <small><strong>${pct}%</strong></small>
-              <div class="barra-progresso-bg"><div class="barra-progresso-fill" style="width: ${pct}%;"></div></div>
-            </td>
+            <td><span class="badge-qtd">${meta} ${p.unidade || 'un'}</span></td>
+            <td><span class="badge-produzido">${feito} ${p.unidade || 'un'}</span></td>
+            <td><span class="badge-embalado">${embalado} ${p.unidade || 'un'}</span></td>
+            <td><span class="badge-progresso">${progressoTexto}</span></td>
             <td><button class="btn-del" onclick="deletarItem('${id}')">🗑️ Excluir</button></td>
           `;
           tabela.appendChild(tr);
@@ -338,6 +346,58 @@
 
     window.deletarItem = function(id) {
       if (confirm("Deseja deletar este item?")) remove(ref(db, `produtos/${id}`));
+    };
+
+    // --- REGRAS DE REPASSE DE PERDAS ---
+    window.processarETransferirPerdas = function() {
+      const diaAtual = document.getElementById('selectDia').value;
+      const idxDiaAtual = DIAS_ORDEM.indexOf(diaAtual);
+      const proximoDia = DIAS_ORDEM[(idxDiaAtual + 1) % 7];
+
+      if (!confirm(`Deseja calcular as perdas de ${diaAtual} e transferir para a meta de ${proximoDia}?`)) return;
+
+      let perdasTransferidas = 0;
+
+      Object.keys(dadosAtuais).forEach(id => {
+        const item = dadosAtuais[id];
+
+        if (item.dia === diaAtual) {
+          const feito = parseFloat(item.qtdFeita || item.qtdEnviadaEmb || 0);
+          const embalado = parseFloat(item.qtdEmbalada || item.qtdRealizada || 0);
+          
+          // Perda = enviado por Elisangela mas não embalado por Jessica
+          const perda = feito - embalado;
+
+          if (perda > 0) {
+            const nomeProd = item.nome || item.produto;
+
+            // Busca se já existe uma ordem do mesmo produto no próximo dia
+            const idProximo = Object.keys(dadosAtuais).find(k => 
+              dadosAtuais[k].dia === proximoDia && (dadosAtuais[k].nome === nomeProd || dadosAtuais[k].produto === nomeProd)
+            );
+
+            if (idProximo) {
+              const metaAtualProximo = parseFloat(dadosAtuais[idProximo].qtd) || 0;
+              update(ref(db, `produtos/${idProximo}`), { qtd: metaAtualProximo + perda });
+            } else {
+              // Se não existir, cria a nova ordem no próximo dia com a perda acumulada
+              push(ref(db, 'produtos'), {
+                dia: proximoDia,
+                lider: item.lider,
+                setor: item.setor || '',
+                nome: nomeProd,
+                qtd: perda,
+                qtdFeita: 0,
+                qtdEmbalada: 0,
+                unidade: item.unidade || 'un'
+              });
+            }
+            perdasTransferidas++;
+          }
+        }
+      });
+
+      alert(`Processamento concluído! ${perdasTransferidas} item(ns) com perda tiveram suas quantidades adicionadas ao dia ${proximoDia}.`);
     };
   </script>
 </body>

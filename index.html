@@ -138,19 +138,21 @@
           const meta = parseFloat(prod.qtd) || 0;
           const feito = parseFloat(prod.qtdFeita || prod.qtdEnviadaEmb || 0);
           const embalado = parseFloat(prod.qtdEmbalada || prod.qtdRealizada || 0);
+          const un = prod.unidade || 'un';
 
           if (liderAtivo === 'Jéssica') {
-            const pendenteEmbalar = Math.max(0, feito - embalado);
+            const disponivelParaEmbalar = Math.max(0, feito - embalado);
 
-            if (pendenteEmbalar > 0) {
+            if (disponivelParaEmbalar > 0) {
               htmlItens += `
                 <div class="item-prod">
                   <div>
                     <strong>${prod.nome || prod.produto}</strong>
-                    <div style="font-size:12px; color:#64748b;">Disponível p/ Embalar: <strong>${pendenteEmbalar} ${prod.unidade}</strong> (Líder: ${prod.lider})</div>
+                    <div style="font-size:12px; color:#64748b;">Disponível p/ Embalar: <strong>${disponivelParaEmbalar} ${un}</strong> (Líder: ${prod.lider})</div>
+                    <div style="font-size:12px; color:#007a33; font-weight:bold;">Status Atual: ${embalado} / ${meta} ${un}</div>
                   </div>
                   <div class="inputs-acao">
-                    <input type="number" id="input_${prod.id}" class="input-qtd" value="${pendenteEmbalar}">
+                    <input type="number" id="input_${prod.id}" class="input-qtd" value="${disponivelParaEmbalar}">
                     <button class="btn-acao" onclick="darBaixaEmbalagem('${prod.id}')">Dar Baixa</button>
                   </div>
                 </div>
@@ -160,17 +162,17 @@
                 <div class="item-prod" style="opacity:0.6; background:#f8fafc;">
                   <div>
                     <span style="text-decoration:line-through;">${prod.nome || prod.produto}</span>
-                    <div style="font-size:12px; color:#15803d;">✓ Concluído (${embalado}/${meta} ${prod.unidade})</div>
+                    <div style="font-size:12px; color:#15803d;">✓ Concluído (${embalado} / ${meta} ${un})</div>
                   </div>
                   <span class="badge-status badge-concluido">Embalado</span>
                 </div>
               `;
             } else {
               htmlItens += `
-                <div class="item-prod" style="opacity:0.5;">
+                <div class="item-prod" style="opacity:0.6;">
                   <div>
                     <span>${prod.nome || prod.produto}</span>
-                    <div style="font-size:12px; color:#b45309;">Aguardando produção de ${prod.lider}...</div>
+                    <div style="font-size:12px; color:#b45309;">Aguardando envio da produção... (${embalado} / ${meta} ${un})</div>
                   </div>
                   <span class="badge-status badge-pendente">Aguardando</span>
                 </div>
@@ -184,7 +186,7 @@
                 <div>
                   <strong>${prod.nome || prod.produto}</strong>
                   <div style="font-size:12px; color:#64748b;">
-                    Meta: <strong>${meta} ${prod.unidade}</strong> | Produzido: <strong>${feito} ${prod.unidade}</strong>
+                    Meta: <strong>${meta} ${un}</strong> | Enviado Emb.: <strong>${feito} ${un}</strong>
                   </div>
                 </div>
                 ${faltaProduzir > 0 ? `
@@ -193,7 +195,7 @@
                     <button class="btn-acao" onclick="enviarParaEmbalagem('${prod.id}')">Enviar Emb.</button>
                   </div>
                 ` : `
-                  <span class="badge-status badge-concluido">✓ Enviado</span>
+                  <span class="badge-status badge-concluido">✓ Enviado (${feito}/${meta})</span>
                 `}
               </div>
             `;
@@ -225,9 +227,16 @@
       if (!val || val <= 0) { alert("Digite a quantidade embalada!"); return; }
 
       const item = dadosGlobais[id];
-      const atual = parseFloat(item.qtdEmbalada || item.qtdRealizada || 0);
-      const novoTotal = atual + val;
+      const feito = parseFloat(item.qtdFeita || item.qtdEnviadaEmb || 0);
+      const atualEmbalado = parseFloat(item.qtdEmbalada || item.qtdRealizada || 0);
+      const disponivel = feito - atualEmbalado;
 
+      if (val > disponivel) {
+        alert(`A quantidade embalada (${val}) não pode ser maior do que a disponível (${disponivel})!`);
+        return;
+      }
+
+      const novoTotal = atualEmbalado + val;
       update(ref(db, `produtos/${id}`), { qtdEmbalada: novoTotal, qtdRealizada: novoTotal }).then(() => input.value = '');
     };
   </script>
