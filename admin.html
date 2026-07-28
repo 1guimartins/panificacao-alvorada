@@ -48,7 +48,12 @@
 
     .btn-del { background: #e11d48; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; }
     .badge-qtd { background-color: #e2e8f0; color: #0f172a; padding: 3px 8px; border-radius: 6px; font-weight: bold; }
+    .badge-progresso { background-color: #dbeafe; color: #1e40af; padding: 3px 8px; border-radius: 6px; font-weight: bold; }
     .badge-pendente { background-color: #fef3c7; color: #92400e; padding: 3px 8px; border-radius: 6px; font-weight: bold; font-size: 12px; }
+    .badge-concluido { background-color: #dcfce7; color: #166534; padding: 3px 8px; border-radius: 6px; font-weight: bold; font-size: 12px; }
+    
+    .barra-progresso-bg { background-color: #e2e8f0; border-radius: 8px; height: 10px; width: 100%; overflow: hidden; margin-top: 4px; }
+    .barra-progresso-fill { background-color: var(--verde-alvorada); height: 100%; transition: width 0.3s ease; }
   </style>
 </head>
 <body>
@@ -117,7 +122,7 @@
   </div>
 
   <div class="card">
-    <h2>📋 Programação e Saldos Pendentes</h2>
+    <h2>📋 Acompanhamento em Tempo Real & Saldos</h2>
     <div style="overflow-x:auto;">
       <table class="tabela-produtos">
         <thead>
@@ -128,6 +133,7 @@
             <th>Produto</th>
             <th>Qtd Pedida</th>
             <th>Qtd Realizada</th>
+            <th>Progresso</th>
             <th>Status</th>
             <th>Ação</th>
           </tr>
@@ -424,45 +430,7 @@
       }
     };
 
-    // FUNÇÃO QUE CALCULA E TRANSFERE O SALDO RESTANTE PARA O PRÓXIMO DIA
-    function obterProximoDia(diaAtual) {
-      const idx = DIAS_SEMANA.indexOf(diaAtual);
-      return DIAS_SEMANA[(idx + 1) % 7];
-    }
-
-    window.verificarETransferirSaldo = function(id, produto) {
-      const saldoPendente = produto.qtd - (produto.qtdRealizada || 0);
-
-      if (saldoPendente > 0) {
-        const proximoDia = obterProximoDia(produto.dia);
-        
-        // Cria a nova ordem para o próximo dia com o saldo restante
-        const novaOrdemSaldo = {
-          dia: proximoDia,
-          lider: produto.lider,
-          setor: produto.setor,
-          nome: produto.nome,
-          qtd: saldoPendente,
-          qtdRealizada: 0,
-          unidade: produto.unidade,
-          status: 'Pendente',
-          concluido: false
-        };
-
-        push(ref(db, 'produtos'), novaOrdemSaldo);
-
-        // Atualiza a ordem atual para fechada com o que foi feito
-        update(ref(db, `produtos/${id}`), {
-          qtd: produto.qtdRealizada || 0,
-          status: 'Concluído Parcial',
-          concluido: true
-        });
-
-        alert(`Saldo de ${saldoPendente} ${produto.unidade} transferido automaticamente para ${proximoDia}!`);
-      }
-    };
-
-    // ESCUTAR O FIREBASE E MONTAR A TABELA
+    // CONSOLIDAÇÃO EM TEMPO REAL NO PAINEL
     onValue(ref(db, 'produtos'), (snapshot) => {
       const data = snapshot.val();
       const tabela = document.getElementById('tabelaAgendamentos');
@@ -471,20 +439,36 @@
       if (data) {
         Object.keys(data).forEach(id => {
           const p = data[id];
-          const realizada = p.qtdRealizada || 0;
-          const restante = p.qtd - realizada;
+          const pedida = parseFloat(p.qtd) || 0;
+          // Lê tanto qtdRealizada quanto valores legados para manter retrocompatibilidade
+          const realizada = parseFloat(p.qtdRealizada || p.qtdFeita || p.qtdEmbalada || 0);
+          const falta = Math.max(0, pedida - realizada);
+          const porcentagem = Math.min(100, Math.round((realizada / pedida) * 100));
+
+          let statusBadge = '';
+          if (realizada >= pedida) {
+            statusBadge = `<span class="badge-concluido">✓ Concluído</span>`;
+          } else if (realizada > 0) {
+            statusBadge = `<span class="badge-pendente">Falta ${falta} ${p.unidade}</span>`;
+          } else {
+            statusBadge = `<span class="badge-pendente">Aguardando</span>`;
+          }
 
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td>${p.dia}</td>
             <td><strong>${p.lider}</strong></td>
             <td>${p.setor || '-'}</td>
-            <td>${p.nome}</td>
-            <td><span class="badge-qtd">${p.qtd} ${p.unidade}</span></td>
-            <td><span class="badge-qtd" style="background:#dcfce7; color:#166534;">${realizada} ${p.unidade}</span></td>
-            <td>
-              ${restante > 0 ? `<span class="badge-pendente">Falta ${restante} ${p.unidade}</span>` : `<span style="color:#16a34a; font-weight:bold;">Zeradão ✓</span>`}
+            <td>${p.nome || p.produto}</td>
+            <td><span class="badge-qtd">${pedida} ${p.unidade}</span></td>
+            <td><span class="badge-progresso">${realizada} ${p.unidade}</span></td>
+            <td style="width: 130px;">
+              <small>${porcentagem}%</small>
+              <div class="barra-progresso-bg">
+                <div class="barra-progresso-fill" style="width: ${porcentagem}%;"></div>
+              </div>
             </td>
+            <td>${statusBadge}</td>
             <td>
               <button class="btn-del" onclick="deletarItem('${id}')">🗑️ Excluir</button>
             </td>
