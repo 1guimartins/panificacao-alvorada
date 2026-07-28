@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Acompanhamento de Produção Semanal - Panificação Alvorada</title>
+  <title>Sistema Panificação Alvorada</title>
   <style>
     :root { 
       --verde-alvorada: #007a33; 
@@ -13,15 +13,25 @@
     }
     * { box-sizing: border-box; font-family: Arial, sans-serif; }
     body { background-color: var(--bg-fundo); margin: 0; padding: 15px; }
-    
+
+    /* Cabeçalho e Menu Superior */
     .header { 
       background: linear-gradient(135deg, var(--verde-alvorada), var(--verde-escuro)); 
       color: white; padding: 15px 20px; border-radius: 8px; 
       display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; 
     }
-    
+    .nav-principal { display: flex; gap: 8px; margin-bottom: 15px; background: #cbd5e1; padding: 8px; border-radius: 8px; }
+    .btn-tab { 
+      padding: 10px 18px; border: none; background: white; 
+      border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; color: #334155; transition: all 0.2s;
+    }
+    .btn-tab.ativo { background: var(--verde-alvorada); color: white; }
+
+    .tab-content { display: none; }
+    .tab-content.ativo { display: block; }
+
     .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #cbd5e1; margin-bottom: 15px; }
-    
+
     /* Indicadores Rápidos (Resumo no topo) */
     .grid-resumo { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 15px; }
     .card-resumo { background: white; padding: 15px; border-radius: 8px; border-left: 5px solid var(--verde-alvorada); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
@@ -42,12 +52,12 @@
     th, td { border: 1px solid #cbd5e1; padding: 10px; }
     th { background-color: #1e293b; color: white; font-size: 12px; }
     tr:nth-child(even) { background-color: #f8fafc; }
-    
-    /* Barra de Progresso Visuai */
+
+    /* Barra de Progresso Visual */
     .progress-bar-container { background-color: #e2e8f0; border-radius: 10px; height: 16px; width: 100%; overflow: hidden; position: relative; }
     .progress-bar-fill { background-color: #0284c7; height: 100%; width: 0%; transition: width 0.4s ease-in-out; border-radius: 10px; }
     .progress-bar-fill.concluido { background-color: #16a34a; }
-    
+
     .status-badge { font-weight: bold; padding: 4px 8px; border-radius: 12px; font-size: 11px; text-align: center; display: inline-block; }
     .status-badge.pendente { background-color: #fef3c7; color: #92400e; }
     .status-badge.concluido { background-color: #dcfce7; color: #166534; }
@@ -56,48 +66,62 @@
 <body>
 
   <div class="header">
-    <h2 style="margin:0;">📊 Painel Geral de Progresso da Produção</h2>
-    <a href="expedicao_lojas.html" style="color:white; text-decoration:none; background:rgba(255,255,255,0.2); padding:6px 12px; border-radius:4px; font-size:13px;">📦 Voltar para Expedição</a>
+    <h2 style="margin:0;">🥐 Panificação Alvorada - Gestão Integrada</h2>
   </div>
 
-  <div class="grid-resumo">
-    <div class="card-resumo" style="border-left-color: #0284c7;">
-      <h4>Total do Pedido Semanal</h4>
-      <div class="valor" id="lblTotalPedidoSemana">0 un</div>
-    </div>
-    <div class="card-resumo" style="border-left-color: #16a34a;">
-      <h4>Já Produzido / Embalado</h4>
-      <div class="valor" id="lblTotalProduzido">0 un</div>
-    </div>
-    <div class="card-resumo" style="border-left-color: #d97706;">
-      <h4>Falta Produzir</h4>
-      <div class="valor" id="lblTotalFalta">0 un</div>
+  <div class="nav-principal">
+    <button class="btn-tab" onclick="mudarAba('expedicao')">📦 Expedição Lojas</button>
+    <button class="btn-tab ativo" onclick="mudarAba('progresso')">📊 Progresso da Produção</button>
+  </div>
+
+  <div id="tab-expedicao" class="tab-content">
+    <div class="card">
+      <h3>Área de Lançamento da Expedição</h3>
+      <p>Utilize esta aba para realizar a distribuição de produção por loja e dia da semana.</p>
     </div>
   </div>
 
-  <div class="nav-categorias" id="containerCategorias">
+  <div id="tab-progresso" class="tab-content ativo">
+
+    <div class="grid-resumo">
+      <div class="card-resumo" style="border-left-color: #0284c7;">
+        <h4>Total do Pedido Semanal</h4>
+        <div class="valor" id="lblTotalPedidoSemana">0 un</div>
+      </div>
+      <div class="card-resumo" style="border-left-color: #16a34a;">
+        <h4>Já Produzido / Embalado</h4>
+        <div class="valor" id="lblTotalProduzido">0 un</div>
+      </div>
+      <div class="card-resumo" style="border-left-color: #d97706;">
+        <h4>Falta Produzir</h4>
+        <div class="valor" id="lblTotalFalta">0 un</div>
+      </div>
     </div>
 
-  <div class="card">
-    <h3 id="tituloCategoria" style="margin-top:0; color: var(--verde-escuro);">191-1 - PÃES / ROSCAS</h3>
-    
-    <div class="container-tabela">
-      <table>
-        <thead>
-          <tr>
-            <th style="width: 80px;">CÓDIGO</th>
-            <th>PRODUTO</th>
-            <th style="width: 120px; text-align: center;">PEDIDO SEMANAL</th>
-            <th style="width: 120px; text-align: center;">PRODUZIDO</th>
-            <th style="width: 120px; text-align: center;">FALTA</th>
-            <th style="width: 180px;">PROGRESSO</th>
-            <th style="width: 110px; text-align: center;">STATUS</th>
-          </tr>
-        </thead>
-        <tbody id="tbodyProgresso">
-          </tbody>
-      </table>
+    <div class="nav-categorias" id="containerCategorias"></div>
+
+    <div class="card">
+      <h3 id="tituloCategoria" style="margin-top:0; color: var(--verde-escuro);">191-1 - PÃES / ROSCAS</h3>
+
+      <div class="container-tabela">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 80px;">CÓDIGO</th>
+              <th>PRODUTO</th>
+              <th style="width: 120px; text-align: center;">PEDIDO SEMANAL</th>
+              <th style="width: 120px; text-align: center;">PRODUZIDO</th>
+              <th style="width: 120px; text-align: center;">FALTA</th>
+              <th style="width: 180px;">PROGRESSO</th>
+              <th style="width: 110px; text-align: center;">STATUS</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyProgresso">
+            </tbody>
+        </table>
+      </div>
     </div>
+
   </div>
 
   <script type="module">
@@ -229,12 +253,12 @@
           { item: "4148", nome: "BOLO REDONDO LIMÃO UN - 280g" },
           { item: "4132", nome: "BOLO REDONDO MILHO UN - 280g" },
           { item: "3915", nome: "BOLO REDONDO NEUTRO UN - 280g" },
-          { item: "2918", name: "BROWNIE DE CHOCOLATE C/ COBERTURA UN" },
-          { item: "2916", name: "BROWNIE DE CHOCOLATE TRADICIONAL UN" },
-          { item: "2182", name: "COOKIES C/ CREME DE AVELÃ UN - 240g" },
-          { item: "2127", name: "COOKIES CHOCOLATE ALVORADA UN - 170g" },
-          { item: "2125", name: "COOKIES TRADICIONAL ALVORADA UN - 120g" },
-          { item: "2195", name: "DONUTS SABORES UN - 70g" }
+          { item: "2918", nome: "BROWNIE DE CHOCOLATE C/ COBERTURA UN" },
+          { item: "2916", nome: "BROWNIE DE CHOCOLATE TRADICIONAL UN" },
+          { item: "2182", nome: "COOKIES C/ CREME DE AVELÃ UN - 240g" },
+          { item: "2127", nome: "COOKIES CHOCOLATE ALVORADA UN - 170g" },
+          { item: "2125", nome: "COOKIES TRADICIONAL ALVORADA UN - 120g" },
+          { item: "2195", nome: "DONUTS SABORES UN - 70g" }
         ]
       },
       "BISCOITOS": {
@@ -258,6 +282,14 @@
 
     let categoriaAtual = 'PAES_ROSCAS';
 
+    window.mudarAba = function(aba) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('ativo'));
+      document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('ativo'));
+      
+      document.getElementById(`tab-${aba}`).classList.add('ativo');
+      event.target.classList.add('ativo');
+    };
+
     function renderizarCategorias() {
       const container = document.getElementById('containerCategorias');
       container.innerHTML = '';
@@ -280,7 +312,6 @@
       const tbody = document.getElementById('tbodyProgresso');
       tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Carregando dados...</td></tr>';
 
-      // Busca Metas e Lançamentos no Firebase
       onValue(ref(db, `expedicao_metas_semana/${categoriaAtual}`), (snapshotMetas) => {
         const metas = snapshotMetas.val() || {};
 
@@ -296,7 +327,6 @@
             const meta = metas[pIdx] || 0;
             let produzido = 0;
 
-            // Somar todos os dias da semana (Segunda a Sábado) e todas as 21 lojas
             const dias = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
             dias.forEach(d => {
               if (lancamentos[d] && lancamentos[d][`PROD_${pIdx}`]) {
@@ -336,7 +366,6 @@
             tbody.appendChild(tr);
           });
 
-          // Atualiza Resumo no Topo
           const faltaCat = Math.max(0, totalMetaCat - totalProduzidoCat);
           document.getElementById('lblTotalPedidoSemana').innerText = `${totalMetaCat.toLocaleString('pt-BR')} un`;
           document.getElementById('lblTotalProduzido').innerText = `${totalProduzidoCat.toLocaleString('pt-BR')} un`;
