@@ -7,64 +7,54 @@
   <style>
     :root { --verde-alvorada: #007a33; --verde-escuro: #005624; --bg-fundo: #f4f6f8; --cinza-escuro: #1e293b; }
     * { box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f4f6f8; margin: 0; padding: 15px; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-fundo); margin: 0; padding: 15px; }
     .header-admin { background: linear-gradient(135deg, #007a33, #005624); color: white; padding: 15px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); margin-bottom: 20px; border: 1px solid #e2e8f0; }
     .card h2 { margin-top: 0; color: #1e293b; font-size: 18px; border-bottom: 2px solid #007a33; padding-bottom: 8px; }
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 15px; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 15px; }
     .form-group { display: flex; flex-direction: column; gap: 6px; }
     .form-group label { font-size: 13px; font-weight: bold; color: #475569; }
-    .form-group select { padding: 11px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; }
-    .tabela-produtos { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
+    .form-group select, .form-group input { padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; }
+    .tabela-produtos { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
     .tabela-produtos th { background-color: #1e293b; color: white; padding: 10px; text-align: left; }
-    .tabela-produtos td { padding: 10px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
-    .chk-prod { width: 20px; height: 20px; cursor: pointer; accent-color: #007a33; }
-    .input-qtd-tabela { width: 90px; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; text-align: center; font-weight: bold; }
-    .select-un-tabela { padding: 6px; border: 1px solid #cbd5e1; border-radius: 6px; }
-    .btn-salvar-lote { background-color: #007a33; color: white; border: none; padding: 14px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; width: 100%; margin-top: 20px; }
-    .btn-del { background: #e11d48; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; }
-    .btn-fechar-dia { background: #e67e22; color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
-    .btn-fechar-dia:hover { background: #d35400; }
-    .badge-qtd { background-color: #e2e8f0; color: #0f172a; padding: 4px 8px; border-radius: 6px; font-weight: bold; }
-    .badge-produzido { background-color: #e0f2fe; color: #0369a1; padding: 4px 8px; border-radius: 6px; font-weight: bold; }
-    .badge-embalado { background-color: #dcfce7; color: #15803d; padding: 4px 8px; border-radius: 6px; font-weight: bold; }
-    .badge-progresso { background-color: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 14px; }
+    .tabela-produtos td { padding: 8px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+    .input-edit { width: 75px; padding: 6px; border: 1px solid #cbd5e1; border-radius: 6px; text-align: center; font-weight: bold; }
+    .btn-salvar-linha { background: #007a33; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .btn-del { background: #e11d48; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .btn-consolida { background: #2563eb; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
+    .btn-imprimir { background: #475569; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
+    
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white; padding: 0; }
+      .card { box-shadow: none; border: none; }
+    }
   </style>
 </head>
 <body>
 
-  <div class="header-admin">
-    <h1 style="margin:0; font-size:20px;">⚙️ Painel do Administrador</h1>
+  <div class="header-admin no-print">
+    <h1 style="margin:0; font-size:20px;">⚙️ Painel do Administrador & Controle Mensal</h1>
     <a href="index.html" style="color:white; text-decoration:none; font-weight:bold; background: rgba(255,255,255,0.2); padding: 8px 14px; border-radius: 6px;">← Ir para Tela Produção</a>
   </div>
 
-  <div class="card">
-    <h2>⚡ Lançar Meta Geral de Produção</h2>
+  <div class="card no-print">
+    <h2>📝 Lançamento / Atualização Manual de Ficha</h2>
     <div class="form-grid">
       <div class="form-group">
-        <label>1. Dia da Semana:</label>
-        <select id="selectDia">
-          <option value="Segunda-feira">Segunda-feira</option>
-          <option value="Terça-feira">Terça-feira</option>
-          <option value="Quarta-feira">Quarta-feira</option>
-          <option value="Quinta-feira">Quinta-feira</option>
-          <option value="Sexta-feira">Sexta-feira</option>
-          <option value="Sábado">Sábado</option>
-          <option value="Domingo">Domingo</option>
-        </select>
+        <label>1. Data da Produção:</label>
+        <input type="date" id="inputDataProducao">
       </div>
-
       <div class="form-group">
-        <label>2. Líder da Produção:</label>
+        <label>2. Líder:</label>
         <select id="selectLider" onchange="carregarSetoresDoLider()">
-          <option value="">Escolha o Líder...</option>
+          <option value="">Escolha...</option>
           <option value="Breno">Breno</option>
           <option value="Elisângela">Elisângela</option>
           <option value="Raynara">Raynara</option>
           <option value="Jonathan">Jonathan</option>
         </select>
       </div>
-
       <div class="form-group">
         <label>3. Setor:</label>
         <select id="selectSetor" onchange="carregarListaDeProdutos()">
@@ -73,44 +63,42 @@
       </div>
     </div>
 
-    <div id="areaProdutosSetor" style="display:none; margin-top:20px;">
-      <h3 style="font-size:15px; color:#334155; margin-bottom:10px;">📋 Defina as metas dos produtos:</h3>
-      <div style="overflow-x:auto;">
-        <table class="tabela-produtos">
-          <thead>
-            <tr>
-              <th style="width: 40px; text-align:center;">✓</th>
-              <th>Nome do Produto</th>
-              <th style="width: 110px;">Meta Total</th>
-              <th style="width: 100px;">Medida</th>
-            </tr>
-          </thead>
-          <tbody id="tbodyListaProdutos"></tbody>
-        </table>
-      </div>
-      <button class="btn-salvar-lote" onclick="lançarProdutosSelecionados()">➕ Lançar Ordem de Produção</button>
+    <div id="areaProdutosSetor" style="display:none;">
+      <table class="tabela-produtos">
+        <thead>
+          <tr>
+            <th style="width: 30px;">✓</th>
+            <th>Produto</th>
+            <th>Meta</th>
+            <th>Feito (Prod)</th>
+            <th>Embalado</th>
+            <th>Perda / Não Feito</th>
+            <th>Medida</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyListaProdutos"></tbody>
+      </table>
+      <button onclick="lançarProdutosSelecionados()" style="background:#007a33; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; width:100%; margin-top:15px; cursor:pointer;">💾 Salvar Lançamentos Manualmente</button>
     </div>
   </div>
 
-  <div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-      <h2 style="margin:0; border:none;">📊 Monitoramento em Tempo Real</h2>
-      <button class="btn-fechar-dia" onclick="processarETransferirPerdas()">🔄 Processar Perdas e Somar ao Próximo Dia</button>
+  <div class="card no-print">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h2>📊 Lançamentos em Aberto (Edição Direta)</h2>
+      <button class="btn-consolida" onclick="acumularNoRelatorioMensal()">📥 Registrar e Acumular no Mês</button>
     </div>
-
     <div style="overflow-x:auto;">
       <table class="tabela-produtos">
         <thead>
           <tr>
-            <th>Dia</th>
-            <th>Líder Produção</th>
-            <th>Setor</th>
+            <th>Data / Dia</th>
+            <th>Líder</th>
             <th>Produto</th>
             <th>Meta Total</th>
-            <th>Feito (Produção)</th>
-            <th>Embalado (Jéssica)</th>
-            <th>Progresso Real</th>
-            <th>Ação</th>
+            <th>Produzido</th>
+            <th>Embalado</th>
+            <th>Perda / Não Feito</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody id="tabelaAgendamentos"></tbody>
@@ -118,9 +106,38 @@
     </div>
   </div>
 
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;" class="no-print">
+      <h2>📈 Relatório Mensal Consolidado (Para Diretoria/Superior)</h2>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <input type="month" id="filtroMesRelatorio" onchange="carregarRelatorioMensal()">
+        <button class="btn-imprimir" onclick="window.print()">🖨️ Imprimir Relatório</button>
+      </div>
+    </div>
+
+    <div id="areaImpressaoHeader" style="margin-bottom:15px; border-bottom:1px solid #ccc; padding-bottom:10px;">
+      <h2 style="margin:0;">🥐 Panificação Alvorada - Relatório Mensal de Produção</h2>
+      <p style="margin:5px 0 0 0; color:#475569; font-size:14px;"><strong>Mês de Referência:</strong> <span id="txtMesReferencia">-</span></p>
+    </div>
+
+    <table class="tabela-produtos">
+      <thead>
+        <tr>
+          <th>Líder / Setor</th>
+          <th>Produto</th>
+          <th>Total Produzido</th>
+          <th>Total Embalado</th>
+          <th>Total Perdas / Não Produzido</th>
+          <th>Aproveitamento</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaRelatorioMensal"></tbody>
+    </table>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, onValue, push, remove, update, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyB-KGrSWvIAKW6ZT0SDGUH7LFLzvYsmcJk",
@@ -135,103 +152,19 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    const DIAS_ORDEM = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado', 'Domingo'];
+    // Inicializa data atual no input
+    const hoje = new Date();
+    document.getElementById('inputDataProducao').value = hoje.toISOString().split('T')[0];
+    document.getElementById('filtroMesRelatorio').value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
 
     const CATALOGO = {
-      "Breno": {
-        "Panificação": [
-          "Brioche", "Pão de Batata", "Pão de Cebola", "Pão de Forma Integral", "Pão de Forma Tradicional",
-          "Pão de Hamburguer c/ Gergelim", "Pão de Hamburguer Tradicional", "Pão de Hot Dog", "Pão de Milho",
-          "Pão Sovado", "Rosca Fazenda c/ Açúcar", "Rosca Fazenda Tradicional", "Rosca de Leite Condensado",
-          "Rosca Lisa", "Rosca Rainha Tradicional", "Rosca Rainha c/ Creme", "Rosquinha c/ Açúcar",
-          "Rosquinha c/ Creme", "Panettone c/ Frutas", "Chocottone", "Colomba Pascal c/ Frutas", "Colomba Pascal c/ Gotas de Chocolate"
-        ]
-      },
-      "Elisângela": {
-        "Bolos Redondos/Brownie": [
-          "Bolo Redondo de Abacaxi", "Bolo Redondo de Cenoura", "Bolo Redondo de Chocolate", "Bolo Redondo de Coco",
-          "Bolo Redondo de Formigueiro", "Bolo Redondo de Fubá", "Bolo Redondo de Laranja", "Bolo Redondo de Leite Condensado",
-          "Bolo Redondo de Limão", "Bolo Redondo de Milho", "Bolo Redondo de Neutro", "Brownie de Chocolate c/ Cobertura", "Brownie de Chocolate Tradicional"
-        ],
-        "Bolo Cremoso/Cobertura": [
-          "Bolo Cremoso de Abacaxi", "Bolo Cremoso de Abóbora c/ Coco", "Bolo Cremoso de Aipim", "Bolo Cremoso de Banana c/ Granola",
-          "Bolo Cremoso de Caçarola", "Bolo Cremoso de Cenoura", "Bolo Cremoso de Chocolate", "Bolo Cremoso de Churros",
-          "Bolo Cremoso de Coco", "Bolo Cremoso de Laranja", "Bolo Cremoso de Leite Condensado", "Bolo Cremoso de Maracujá",
-          "Bolo Cremoso de Milho", "Bolo Cremoso de Quebra Queixo", "Bolo Cremoso de Pamonha", "Bolo Cremoso de Red Velvet c/ Cobertura",
-          "Bolo Redondo de Cenoura c/ Cobertura", "Bolo Redondo de Chocolate c/ Cobertura", "Bolo Redondo de Churros c/ Cobertura",
-          "Bolo Redondo de Coco c/ Cobertura", "Bolo Redondo de Limão c/ Cobertura", "Bolo Redondo de Café c/ Cobertura",
-          "Bolo Redondo de Cappuccino c/ Cobertura", "Bolo Redondo de Nozes c/ Cobertura", "Bolo Redondo de Paçoca c/ Cobertura"
-        ],
-        "Bolo Caseiro/Inglês": [
-          "Bolo Caseiro de Laranja", "Bolo Caseiro de Tangerina", "Bolo Inglês de Chocolate", "Bolo Inglês de Formigueiro",
-          "Bolo Inglês de Laranja", "Bolo Inglês de Mesclado", "Bolo Inglês de Milho"
-        ],
-        "Bolo Placa": [
-          "Bolo Placa de Abacaxi", "Bolo Placa de Cenoura c/ Cobertura", "Bolo Placa de Cenoura", "Bolo Placa de Chocolate c/ Cobertura",
-          "Bolo Placa de Chocolate", "Bolo Placa de Coco c/ Cobertura", "Bolo Placa de Coco", "Bolo Placa de Fubá",
-          "Bolo Placa de Laranja", "Bolo Placa de Leite Condensado", "Bolo Placa de Limão c/ Cobertura", "Bolo Placa de Limão",
-          "Bolo Placa de Milho", "Bolo Placa de Formigueiro", "Bolo Placa de Neutro"
-        ],
-        "Bolos Confeitados/Premium/Gourmet/Tortas": [
-          "Bolo Confeitado de Avelã", "Bolo Confeitado de Doce de Leite", "Bolo Confeitado de Flocos", "Bolo Confeitado de Maracujá",
-          "Bolo Confeitado de Pistache", "Bolo Gourmet de Creme de Avelã", "Bolo Gourmet de Leitinho", "Bolo Premium de 4 Leites",
-          "Bolo Premium de Chocolate", "Bolo Premium de Coco", "Bolo Premium de Nozes", "Torta Gourmet de Bueno",
-          "Torta Gourmet de Creme de Pistache", "Torta Gourmet de Creme de Morango", "Torta Gourmet de Leitinho", "Torta Gourmet de Limão",
-          "Torta Gourmet de Pistache", "Torta Holandesa"
-        ],
-        "Sobremesas": [
-          "Bolo Artesanal de Brigadeiro", "Bolo Gelado de Coco", "Bolo Indiano", "Brigadeirão", "Caçarola Italiana",
-          "Cake de Cenoura Trufado c/ Avelã", "Cake de Pão de Mel", "Creme Holandês", "Manjar de Coco - 150g (PEQUENO)",
-          "Manjar de Coco - 600g (GRANDE)", "Mousse de Chocolate - 150g (PEQUENO)", "Mousse de Chocolate - 600g (GRANDE)",
-          "Mousse de Maracujá - 200g (PEQUENO)", "Mousse de Maracujá - 600g (GRANDE)", "Pudim Grande - 750g", "Pudim Pequeno - 95g",
-          "Quindim", "Rocambole de Prestígio (FATIADO)", "Rocambole de Prestígio (INTEIRO)", "Rocambole de Doce de Leite (FATIADO)",
-          "Rocambole de Doce de Leite (INTEIRO)"
-        ]
-      },
-      "Raynara": {
-        "Pratos Prontos": [
-          "Almondega de Carne", "Caldo de Ervilha", "Caldo de Feijão", "Caldo de Milho", "Caldo Verde", "Coxa e Sobrecoxa c/ Purê",
-          "Escondidinho de Carne", "Escondidinho de Frango", "Feijão Tropeiro", "Feijoada", "Fricassê de Frango", "Lasanha Bolonhesa",
-          "Lasanha de Frango", "Lasanha de 4 Queijos", "Medalhão de Frango", "Pappardelle c/ Almondegas", "Parmegiana de Frango",
-          "Strogonoff de Carne", "Strogonoff de Carne c/ Arroz", "Strogonoff de Frango", "Strogonoff de Frango c/ Arroz"
-        ],
-        "Pão de Queijo/Broa": [
-          "Pão de Queijo 3 Queijos", "Pão de Queijo c/ Frango", "Pão de Queijo Coquetel", "Pão de Queijo Lanche",
-          "Pão de Queijo Tradicional", "Broa Aerosa"
-        ],
-        "Salgados Fritos": [
-          "Bolinha de Milho", "Bolinha de Pizza", "Bolinha de Queijo", "Bolinho de Bacalhau", "Coxinha de Frango Grande",
-          "Coxinha de Frango c/ Requeijão Grande", "Dadinho de Tapioca", "Empada de Carne Seca", "Empada de Frango",
-          "Empada de Palmito", "Mini Empada de Frango c/ 6 und", "Mini Empada Festa", "Mini Coxinha de Frango",
-          "Mini Quibe de Carne", "Mini Quibe de Carne c/ Requeijão", "Quibe de Carne Grande", "Cookies Tradicional", "Cookies Chocolate"
-        ]
-      },
-      "Jonathan": {
-        "Biscoitos": [
-          "Biscoitão", "Biscoito de Polvilho Argola", "Biscoito de Polvilho Bolinha de Queijo", "Biscoito de Polvilho Palito",
-          "Biscoito Amanteigado Beijinho de Freira", "Biscoito Amanteigado Beliscão", "Biscoito Amanteigado Chocofesta",
-          "Biscoito Amanteigado Goiabinha c/ Queijo", "Biscoito Amanteigado Palito de Chocolate", "Biscoito Amanteigado Romeu e Julieta",
-          "Biscoito Amanteigado Sequilho Leite Condensado", "Massa p/ Pizza Alvorada c/ 2 und"
-        ],
-        "Salgados Assados": [
-          "Assado de Salsicha", "Cigarrete", "Doguinho", "Esfiha Aberta de 4 Queijos", "Esfiha Aberta de Carne",
-          "Esfiha Aberta de Frango c/ Requeijão", "Esfiha Fechada de Carne", "Esfiha Fechada de Frango c/ Requeijão",
-          "Misto de Presunto e Queijo", "Pastel Assado de Frango", "Torta de Frango c/ Catupiry"
-        ],
-        "Levain": [
-          "Baguete Italiana UND", "Baguete Levain Calabresa KG", "Baguete Levain Calabresa UND", "Baguete Levain Gergelim UND",
-          "Baguete Levain Tradicional UND", "Ciabatta c/ Azeitona KG", "Ciabatta c/ Azeitona UND", "Ciabatta c/ Calabresa UND",
-          "Ciabatta c/ Tomate Seco KG", "Ciabatta c/ Tomate Seco UND", "Croissant Tradicional", "Croissant de Frango",
-          "Croissant de Presunto e Queijo", "Pão de Grãos Levain UND", "Pão Italiano Levain UND", "Pão Levain Açafrão UND",
-          "Pão Levain Braga UND", "Pão Levain Cacau c/ Laranja UND", "Pão Levain Ciabatta c/ 2 UND", "Pão Levain Cupiac UND",
-          "Pão Levain Focaccia KG", "Pão Levain Focaccia UND", "Pão Levain Italiano Bola c/ 2 UND", "Pão Levain Italiano KG",
-          "Pão Levain Italiano UND", "Pão Levain Mineiroca KG", "Pão Levain Mini Baguete c/ 2 UND", "Pão Levain Nozes c/ Mel KG",
-          "Pão Levain Vinho c/ Uva Passas UND", "Pão Levain Campanha UND", "Pão Levain Nozes c/ Mel UND"
-        ]
-      }
+      "Breno": { "Panificação": ["Brioche", "Pão de Batata", "Pão de Forma Tradicional", "Pão Sovado", "Rosca Fazenda Tradicional"] },
+      "Elisângela": { "Bolos Placa": ["Bolo Placa de Abacaxi", "Bolo Placa de Cenoura", "Bolo Placa de Chocolate"], "Sobremesas": ["Pudim Grande - 750g", "Quindim"] },
+      "Raynara": { "Pratos Prontos": ["Escondidinho de Carne", "Lasanha Bolonhesa"], "Salgados": ["Coxinha de Frango Grande", "Empada de Frango"] },
+      "Jonathan": { "Biscoitos": ["Biscoito Amanteigado Romeu e Julieta"], "Levain": ["Pão Italiano Levain UND", "Croissant Tradicional"] }
     };
 
-    let dadosAtuais = {};
+    let dadosLancados = {};
 
     window.carregarSetoresDoLider = function() {
       const lider = document.getElementById('selectLider').value;
@@ -252,17 +185,19 @@
       tbody.innerHTML = '';
       if (!lider || !setor || !CATALOGO[lider][setor]) { area.style.display = 'none'; return; }
 
-      CATALOGO[lider][setor].forEach((prod, index) => {
+      CATALOGO[lider][setor].forEach((prod, idx) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td style="text-align:center;"><input type="checkbox" id="chk_${index}" class="chk-prod" onchange="toggleQtdInput(${index})"></td>
+          <td><input type="checkbox" id="chk_${idx}"></td>
           <td><strong>${prod}</strong></td>
-          <td><input type="number" id="qtd_${index}" class="input-qtd-tabela" placeholder="0" disabled></td>
+          <td><input type="number" id="meta_${idx}" class="input-edit" placeholder="0"></td>
+          <td><input type="number" id="feito_${idx}" class="input-edit" placeholder="0"></td>
+          <td><input type="number" id="emb_${idx}" class="input-edit" placeholder="0"></td>
+          <td><input type="number" id="perda_${idx}" class="input-edit" placeholder="0"></td>
           <td>
-            <select id="un_${index}" class="select-un-tabela" disabled>
+            <select id="un_${idx}" style="padding:4px;">
               <option value="un">un</option>
               <option value="kg">kg</option>
-              <option value="rec">receita</option>
             </select>
           </td>
         `;
@@ -271,133 +206,145 @@
       area.style.display = 'block';
     };
 
-    window.toggleQtdInput = function(index) {
-      const chk = document.getElementById(`chk_${index}`);
-      const inputQtd = document.getElementById(`qtd_${index}`);
-      const selectUn = document.getElementById(`un_${index}`);
-
-      inputQtd.disabled = !chk.checked;
-      selectUn.disabled = !chk.checked;
-      if (chk.checked) inputQtd.focus(); else inputQtd.value = '';
-    };
-
     window.lançarProdutosSelecionados = function() {
-      const dia = document.getElementById('selectDia').value;
+      const dataStr = document.getElementById('inputDataProducao').value;
       const lider = document.getElementById('selectLider').value;
       const setor = document.getElementById('selectSetor').value;
       const produtos = CATALOGO[lider][setor];
-      let totalLancados = 0;
+      let total = 0;
 
-      produtos.forEach((prod, index) => {
-        const chk = document.getElementById(`chk_${index}`);
-        const qtdInput = document.getElementById(`qtd_${index}`);
-        const unSelect = document.getElementById(`un_${index}`);
+      produtos.forEach((prod, idx) => {
+        const chk = document.getElementById(`chk_${idx}`);
+        if (chk && chk.checked) {
+          const meta = parseFloat(document.getElementById(`meta_${idx}`).value) || 0;
+          const feito = parseFloat(document.getElementById(`feito_${idx}`).value) || 0;
+          const emb = parseFloat(document.getElementById(`emb_${idx}`).value) || 0;
+          const perda = parseFloat(document.getElementById(`perda_${idx}`).value) || (feito > emb ? feito - emb : 0);
+          const un = document.getElementById(`un_${idx}`).value;
 
-        if (chk.checked && qtdInput.value && parseFloat(qtdInput.value) > 0) {
-          push(ref(db, 'produtos'), {
-            dia: dia,
-            lider: lider,
-            setor: setor,
-            nome: prod,
-            qtd: parseFloat(qtdInput.value),
-            qtdFeita: 0,
-            qtdEmbalada: 0,
-            unidade: unSelect.value
+          push(ref(db, 'produtos_diarios'), {
+            data: dataStr,
+            mesAno: dataStr.substring(0, 7), // Ex: "2026-07"
+            lider, setor, nome: prod,
+            qtdMeta: meta,
+            qtdFeita: feito,
+            qtdEmbalada: emb,
+            qtdPerda: perda,
+            unidade: un
           });
-          totalLancados++;
+          total++;
         }
       });
 
-      if (totalLancados === 0) alert("Selecione pelo menos um produto com quantidade!");
-      else { alert(`${totalLancados} meta(s) lançada(s)!`); carregarListaDeProdutos(); }
+      if (total > 0) {
+        alert(`${total} item(ns) salvos com sucesso!`);
+        carregarListaDeProdutos();
+      } else {
+        alert("Marque ao menos um produto!");
+      }
     };
 
-    onValue(ref(db, 'produtos'), (snapshot) => {
-      dadosAtuais = snapshot.val() || {};
-      const tabela = document.getElementById('tabelaAgendamentos');
-      tabela.innerHTML = '';
+    // Monitora os Lançamentos do Dia
+    onValue(ref(db, 'produtos_diarios'), (snapshot) => {
+      dadosLancados = snapshot.val() || {};
+      const tbody = document.getElementById('tabelaAgendamentos');
+      tbody.innerHTML = '';
 
-      if (dadosAtuais) {
-        Object.keys(dadosAtuais).forEach(id => {
-          const p = dadosAtuais[id];
-          const meta = parseFloat(p.qtd) || 0;
-          const feito = parseFloat(p.qtdFeita || p.qtdEnviadaEmb || 0);
-          const embalado = parseFloat(p.qtdEmbalada || p.qtdRealizada || 0);
-          
-          // Formato Fracionado Exato: Embalado / Meta Total
-          const progressoTexto = `${embalado} / ${meta} ${p.unidade || 'un'}`;
+      Object.keys(dadosLancados).forEach(id => {
+        const item = dadosLancados[id];
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><input type="date" value="${item.data}" id="edit_data_${id}" class="input-edit" style="width:130px;"></td>
+          <td><strong>${item.lider}</strong></td>
+          <td>${item.nome}</td>
+          <td><input type="number" value="${item.qtdMeta}" id="edit_meta_${id}" class="input-edit"></td>
+          <td><input type="number" value="${item.qtdFeita}" id="edit_feito_${id}" class="input-edit"></td>
+          <td><input type="number" value="${item.qtdEmbalada}" id="edit_emb_${id}" class="input-edit"></td>
+          <td><input type="number" value="${item.qtdPerda || 0}" id="edit_perda_${id}" class="input-edit"></td>
+          <td>
+            <button class="btn-salvar-linha" onclick="atualizarLinhaManual('${id}')">💾</button>
+            <button class="btn-del" onclick="deletarLinha('${id}')">🗑️</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
 
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${p.dia}</td>
-            <td><strong>${p.lider}</strong></td>
-            <td>${p.setor || '-'}</td>
-            <td>${p.nome || p.produto}</td>
-            <td><span class="badge-qtd">${meta} ${p.unidade || 'un'}</span></td>
-            <td><span class="badge-produzido">${feito} ${p.unidade || 'un'}</span></td>
-            <td><span class="badge-embalado">${embalado} ${p.unidade || 'un'}</span></td>
-            <td><span class="badge-progresso">${progressoTexto}</span></td>
-            <td><button class="btn-del" onclick="deletarItem('${id}')">🗑️ Excluir</button></td>
-          `;
-          tabela.appendChild(tr);
-        });
-      }
+      carregarRelatorioMensal();
     });
 
-    window.deletarItem = function(id) {
-      if (confirm("Deseja deletar este item?")) remove(ref(db, `produtos/${id}`));
+    window.atualizarLinhaManual = function(id) {
+      const dataStr = document.getElementById(`edit_data_${id}`).value;
+      const meta = parseFloat(document.getElementById(`edit_meta_${id}`).value) || 0;
+      const feito = parseFloat(document.getElementById(`edit_feito_${id}`).value) || 0;
+      const emb = parseFloat(document.getElementById(`edit_emb_${id}`).value) || 0;
+      const perda = parseFloat(document.getElementById(`edit_perda_${id}`).value) || 0;
+
+      update(ref(db, `produtos_diarios/${id}`), {
+        data: dataStr,
+        mesAno: dataStr.substring(0, 7),
+        qtdMeta: meta,
+        qtdFeita: feito,
+        qtdEmbalada: emb,
+        qtdPerda: perda
+      }).then(() => alert("Linha atualizada no banco de dados!"));
     };
 
-    // --- REGRAS DE REPASSE DE PERDAS ---
-    window.processarETransferirPerdas = function() {
-      const diaAtual = document.getElementById('selectDia').value;
-      const idxDiaAtual = DIAS_ORDEM.indexOf(diaAtual);
-      const proximoDia = DIAS_ORDEM[(idxDiaAtual + 1) % 7];
+    window.deletarLinha = function(id) {
+      if (confirm("Remover este lançamento?")) remove(ref(db, `produtos_diarios/${id}`));
+    };
 
-      if (!confirm(`Deseja calcular as perdas de ${diaAtual} e transferir para a meta de ${proximoDia}?`)) return;
+    // --- RELATÓRIO MENSAL CONSOLIDADO ---
+    window.carregarRelatorioMensal = function() {
+      const mesFiltro = document.getElementById('filtroMesRelatorio').value;
+      document.getElementById('txtMesReferencia').innerText = mesFiltro;
+      const tbody = document.getElementById('tabelaRelatorioMensal');
+      tbody.innerHTML = '';
 
-      let perdasTransferidas = 0;
+      const consolidado = {};
 
-      Object.keys(dadosAtuais).forEach(id => {
-        const item = dadosAtuais[id];
-
-        if (item.dia === diaAtual) {
-          const feito = parseFloat(item.qtdFeita || item.qtdEnviadaEmb || 0);
-          const embalado = parseFloat(item.qtdEmbalada || item.qtdRealizada || 0);
-          
-          // Perda = enviado por Elisangela mas não embalado por Jessica
-          const perda = feito - embalado;
-
-          if (perda > 0) {
-            const nomeProd = item.nome || item.produto;
-
-            // Busca se já existe uma ordem do mesmo produto no próximo dia
-            const idProximo = Object.keys(dadosAtuais).find(k => 
-              dadosAtuais[k].dia === proximoDia && (dadosAtuais[k].nome === nomeProd || dadosAtuais[k].produto === nomeProd)
-            );
-
-            if (idProximo) {
-              const metaAtualProximo = parseFloat(dadosAtuais[idProximo].qtd) || 0;
-              update(ref(db, `produtos/${idProximo}`), { qtd: metaAtualProximo + perda });
-            } else {
-              // Se não existir, cria a nova ordem no próximo dia com a perda acumulada
-              push(ref(db, 'produtos'), {
-                dia: proximoDia,
-                lider: item.lider,
-                setor: item.setor || '',
-                nome: nomeProd,
-                qtd: perda,
-                qtdFeita: 0,
-                qtdEmbalada: 0,
-                unidade: item.unidade || 'un'
-              });
-            }
-            perdasTransferidas++;
+      Object.keys(dadosLancados).forEach(id => {
+        const item = dadosLancados[id];
+        
+        // Filtra pelo Mês (a partir do dia 1 até o fim do mês)
+        if (item.mesAno === mesFiltro) {
+          const chave = `${item.lider}_${item.nome}`;
+          if (!consolidado[chave]) {
+            consolidado[chave] = {
+              lider: item.lider,
+              nome: item.nome,
+              unidade: item.unidade || 'un',
+              totalFeito: 0,
+              totalEmbalado: 0,
+              totalPerda: 0
+            };
           }
+
+          consolidado[chave].totalFeito += parseFloat(item.qtdFeita) || 0;
+          consolidado[chave].totalEmbalado += parseFloat(item.qtdEmbalada) || 0;
+          consolidado[chave].totalPerda += parseFloat(item.qtdPerda) || 0;
         }
       });
 
-      alert(`Processamento concluído! ${perdasTransferidas} item(ns) com perda tiveram suas quantidades adicionadas ao dia ${proximoDia}.`);
+      if (Object.keys(consolidado).length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#64748b;">Nenhum dado registrado para o mês ${mesFiltro}.</td></tr>`;
+        return;
+      }
+
+      Object.keys(consolidado).forEach(k => {
+        const c = consolidado[k];
+        const aproveitamento = c.totalFeito > 0 ? ((c.totalEmbalado / c.totalFeito) * 100).toFixed(1) : '0.0';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${c.lider}</strong></td>
+          <td>${c.nome}</td>
+          <td><strong style="color:#0369a1;">${c.totalFeito} ${c.unidade}</strong></td>
+          <td><strong style="color:#15803d;">${c.totalEmbalado} ${c.unidade}</strong></td>
+          <td><strong style="color:#e11d48;">${c.totalPerda} ${c.unidade}</strong></td>
+          <td><strong>${aproveitamento}%</strong></td>
+        `;
+        tbody.appendChild(tr);
+      });
     };
   </script>
 </body>
