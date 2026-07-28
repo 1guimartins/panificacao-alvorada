@@ -48,9 +48,10 @@
       <div class="form-group">
         <label>2. Líder:</label>
         <select id="selectLider" onchange="carregarSetoresDoLider()">
-          <option value="">Escolha...</option>
+          <option value="">Escolha o Líder...</option>
           <option value="Breno">Breno</option>
           <option value="Elisângela">Elisângela</option>
+          <option value="Jéssica">Jéssica</option>
           <option value="Raynara">Raynara</option>
           <option value="Jonathan">Jonathan</option>
         </select>
@@ -137,7 +138,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, onValue, push, remove, update, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyB-KGrSWvIAKW6ZT0SDGUH7LFLzvYsmcJk",
@@ -152,16 +153,139 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Inicializa data atual no input
+    // Inicializa datas
     const hoje = new Date();
     document.getElementById('inputDataProducao').value = hoje.toISOString().split('T')[0];
     document.getElementById('filtroMesRelatorio').value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
 
+    // CATALOGO COMPLETO
     const CATALOGO = {
-      "Breno": { "Panificação": ["Brioche", "Pão de Batata", "Pão de Forma Tradicional", "Pão Sovado", "Rosca Fazenda Tradicional"] },
-      "Elisângela": { "Bolos Placa": ["Bolo Placa de Abacaxi", "Bolo Placa de Cenoura", "Bolo Placa de Chocolate"], "Sobremesas": ["Pudim Grande - 750g", "Quindim"] },
-      "Raynara": { "Pratos Prontos": ["Escondidinho de Carne", "Lasanha Bolonhesa"], "Salgados": ["Coxinha de Frango Grande", "Empada de Frango"] },
-      "Jonathan": { "Biscoitos": ["Biscoito Amanteigado Romeu e Julieta"], "Levain": ["Pão Italiano Levain UND", "Croissant Tradicional"] }
+      "Breno": {
+        "Panificação": [
+          "Brioche", "Pão de Batata", "Pão de Cebola", "Pão de Forma Integral", "Pão de Forma Tradicional",
+          "Pão de Hamburguer c/ Gergelim", "Pão de Hamburguer Tradicional", "Pão de Hot Dog", "Pão de Milho",
+          "Pão Sovado", "Rosca Fazenda c/ Açúcar", "Rosca Fazenda Tradicional", "Rosca de Leite Condensado",
+          "Rosca Lisa", "Rosca Rainha Tradicional", "Rosca Rainha c/ Creme", "Rosquinha c/ Açúcar",
+          "Rosquinha c/ Creme", "Panettone c/ Frutas", "Chocottone", "Colomba Pascal c/ Frutas", "Colomba Pascal c/ Gotas de Chocolate"
+        ]
+      },
+      "Elisângela": {
+        "Bolos Redondos/Brownie": [
+          "Bolo Redondo de Abacaxi", "Bolo Redondo de Cenoura", "Bolo Redondo de Chocolate", "Bolo Redondo de Coco",
+          "Bolo Redondo de Formigueiro", "Bolo Redondo de Fubá", "Bolo Redondo de Laranja", "Bolo Redondo de Leite Condensado",
+          "Bolo Redondo de Limão", "Bolo Redondo de Milho", "Bolo Redondo de Neutro", "Brownie de Chocolate c/ Cobertura", "Brownie de Chocolate Tradicional"
+        ],
+        "Bolo Cremoso/Cobertura": [
+          "Bolo Cremoso de Abacaxi", "Bolo Cremoso de Abóbora c/ Coco", "Bolo Cremoso de Aipim", "Bolo Cremoso de Banana c/ Granola",
+          "Bolo Cremoso de Caçarola", "Bolo Cremoso de Cenoura", "Bolo Cremoso de Chocolate", "Bolo Cremoso de Churros",
+          "Bolo Cremoso de Coco", "Bolo Cremoso de Laranja", "Bolo Cremoso de Leite Condensado", "Bolo Cremoso de Maracujá",
+          "Bolo Cremoso de Milho", "Bolo Cremoso de Quebra Queixo", "Bolo Cremoso de Pamonha", "Bolo Cremoso de Red Velvet c/ Cobertura",
+          "Bolo Redondo de Cenoura c/ Cobertura", "Bolo Redondo de Chocolate c/ Cobertura", "Bolo Redondo de Churros c/ Cobertura",
+          "Bolo Redondo de Coco c/ Cobertura", "Bolo Redondo de Limão c/ Cobertura", "Bolo Redondo de Café c/ Cobertura",
+          "Bolo Redondo de Cappuccino c/ Cobertura", "Bolo Redondo de Nozes c/ Cobertura", "Bolo Redondo de Paçoca c/ Cobertura"
+        ],
+        "Bolo Caseiro/Inglês": [
+          "Bolo Caseiro de Laranja", "Bolo Caseiro de Tangerina", "Bolo Inglês de Chocolate", "Bolo Inglês de Formigueiro",
+          "Bolo Inglês de Laranja", "Bolo Inglês de Mesclado", "Bolo Inglês de Milho"
+        ],
+        "Bolo Placa": [
+          "Bolo Placa de Abacaxi", "Bolo Placa de Cenoura c/ Cobertura", "Bolo Placa de Cenoura", "Bolo Placa de Chocolate c/ Cobertura",
+          "Bolo Placa de Chocolate", "Bolo Placa de Coco c/ Cobertura", "Bolo Placa de Coco", "Bolo Placa de Fubá", "Bolo Placa de Laranja",
+          "Bolo Placa de Leite Condensado", "Bolo Placa de Limão c/ Cobertura", "Bolo Placa de Limão", "Bolo Placa de Milho",
+          "Bolo Placa de Formigueiro", "Bolo Placa de Neutro"
+        ],
+        "Bolos Confeitados/Premium/Gourmet/Tortas": [
+          "Bolo Confeitado de Avelã", "Bolo Confeitado de Doce de Leite", "Bolo Confeitado de Flocos", "Bolo Confeitado de Maracujá",
+          "Bolo Confeitado de Pistache", "Bolo Gourmet de Creme de Avelã", "Bolo Gourmet de Leitinho", "Bolo Premium de 4 Leites",
+          "Bolo Premium de Chocolate", "Bolo Premium de Coco", "Bolo Premium de Nozes", "Torta Gourmet de Bueno",
+          "Torta Gourmet de Creme de Pistache", "Torta Gourmet de Creme de Morango", "Torta Gourmet de Leitinho",
+          "Torta Gourmet de Limão", "Torta Gourmet de Pistache", "Torta Holandesa"
+        ],
+        "Sobremesas": [
+          "Bolo Artesanal de Brigadeiro", "Bolo Gelado de Coco", "Bolo Indiano", "Brigadeirão", "Caçarola Italiana",
+          "Cake de Cenoura Trufado c/ Avelã", "Cake de Pão de Mel", "Creme Holandês", "Manjar de Coco - 150g (PEQUENO)",
+          "Manjar de Coco - 600g (GRANDE)", "Mousse de Chocolate - 150g (PEQUENO)", "Mousse de Chocolate - 600g (GRANDE)",
+          "Mousse de Maracujá - 200g (PEQUENO)", "Mousse de Maracujá - 600g (GRANDE)", "Pudim Grande - 750g", "Pudim Pequeno - 95g",
+          "Quindim", "Rocambole de Prestígio (FATIADO)", "Rocambole de Prestígio (INTEIRO)", "Rocambole de Doce de Leite (FATIADO)", "Rocambole de Doce de Leite (INTEIRO)"
+        ]
+      },
+      "Jéssica": {
+        "Embalagem (Pães)": [
+          "Brioche c/ Coco", "Brioche Tadicional", "Pão de Batata", "Pão de Cebola", "Pão de Forma Integral",
+          "Pão de Forma p/ Torta", "Pão de Forma Tradicional", "Pão de Hamburguer c/ Gergelim", "Pão de Hamburguer Tradicional",
+          "Pão de Hot Dog", "Pão de Milho", "Pão Sovado", "Rosca Fazenda c/ Açúcar", "Rosca Fazenda Tradicional",
+          "Rosca de Leite Condensado", "Rosca Lisa", "Rosca Rainha Tradicional", "Rosca Rainha c/ Creme", "Rosquinha c/ Açúcar",
+          "Rosquinha c/ Creme", "Panettone c/ Frutas", "Chocottone", "Colomba Pascal c/ Frutas", "Colomba Pascal c/ Gotas de Chocolate"
+        ],
+        "Embalagem (Bolos Redondos/Brownie)": [
+          "Bolo Redondo de Abacaxi", "Bolo Redondo de Cenoura", "Bolo Redondo de Chocolate", "Bolo Redondo de Coco",
+          "Bolo Redondo de Formigueiro", "Bolo Redondo de Fubá", "Bolo Redondo de Laranja", "Bolo Redondo de Leite Condensado",
+          "Bolo Redondo de Limão", "Bolo Redondo de Milho", "Bolo Redondo de Neutro", "Brownie de Chocolate c/ Cobertura", "Brownie de Chocolate Tradicional"
+        ],
+        "Embalagem (Bolo Cremoso/Cobertura)": [
+          "Bolo Cremoso de Abacaxi", "Bolo Cremoso de Abóbora c/ Coco", "Bolo Cremoso de Aipim", "Bolo Cremoso de Banana c/ Granola",
+          "Bolo Cremoso de Caçarola", "Bolo Cremoso de Cenoura", "Bolo Cremoso de Chocolate", "Bolo Cremoso de Churros",
+          "Bolo Cremoso de Coco", "Bolo Cremoso de Laranja", "Bolo Cremoso de Leite Condensado", "Bolo Cremoso de Maracujá",
+          "Bolo Cremoso de Milho", "Bolo Cremoso de Quebra Queixo", "Bolo Cremoso de Pamonha", "Bolo Cremoso de Red Velvet c/ Cobertura",
+          "Bolo Redondo de Cenoura c/ Cobertura", "Bolo Redondo de Chocolate c/ Cobertura", "Bolo Redondo de Churros c/ Cobertura",
+          "Bolo Redondo de Coco c/ Cobertura", "Bolo Redondo de Limão c/ Cobertura", "Bolo Redondo de Café c/ Cobertura",
+          "Bolo Redondo de Cappuccino c/ Cobertura", "Bolo Redondo de Nozes c/ Cobertura", "Bolo Redondo de Paçoca c/ Cobertura"
+        ],
+        "Embalagem (Bolo Caseiro/Inglês)": [
+          "Bolo Caseiro de Laranja", "Bolo Caseiro de Tangerina", "Bolo Inglês de Chocolate", "Bolo Inglês de Formigueiro",
+          "Bolo Inglês de Laranja", "Bolo Inglês de Mesclado", "Bolo Inglês de Milho"
+        ],
+        "Embalagem (Bolo Placa)": [
+          "Bolo Placa de Abacaxi", "Bolo Placa de Cenoura c/ Cobertura", "Bolo Placa de Cenoura", "Bolo Placa de Chocolate c/ Cobertura",
+          "Bolo Placa de Chocolate", "Bolo Placa de Coco c/ Cobertura", "Bolo Placa de Coco", "Bolo Placa de Fubá", "Bolo Placa de Laranja",
+          "Bolo Placa de Leite Condensado", "Bolo Placa de Limão c/ Cobertura", "Bolo Placa de Limão", "Bolo Placa de Milho",
+          "Bolo Placa de Formigueiro", "Bolo Placa de Neutro"
+        ],
+        "Embalagem (Biscoitos)": [
+          "Biscoito Amanteigado Beijinho de Freira", "Biscoito Amanteigado Beliscão", "Biscoito Amanteigado Chocofesta",
+          "Biscoito Amanteigado Goiabinha c/ Queijo", "Biscoito Amanteigado Palito de Chocolate", "Biscoito Amanteigado Romeu e Julieta",
+          "Biscoito Amanteigado Sequilho Leite Condensado", "Biscoito de Polvilho Argola", "Biscoito de Polvilho Bolinha de Queijo",
+          "Biscoito de Polvilho KG", "Biscoito de Polvilho Palito", "Massa p/ Pizza Alvorada c/ 2 und"
+        ]
+      },
+      "Raynara": {
+        "Pratos Prontos": [
+          "Almondega de Carne", "Caldo de Ervilha", "Caldo de Feijão", "Caldo de Milho", "Caldo Verde", "Coxa e Sobrecoxa c/ Purê",
+          "Escondidinho de Carne", "Escondidinho de Frango", "Feijão Tropeiro", "Feijoada", "Fricassê de Frango", "Lasanha Bolonhesa",
+          "Lasanha de Frango", "Lasanha de 4 Queijos", "Medalhão de Frango", "Pappardelle c/ Almondegas", "Parmegiana de Frango",
+          "Strogonoff de Carne", "Strogonoff de Carne c/ Arroz", "Strogonoff de Frango", "Strogonoff de Frango c/ Arroz"
+        ],
+        "Pão de Queijo/Broa": [
+          "Pão de Queijo 3 Queijos", "Pão de Queijo c/ Frango", "Pão de Queijo Coquetel", "Pão de Queijo Lanche",
+          "Pão de Queijo Tradicional", "Broa Aerosa"
+        ],
+        "Salgados Fritos": [
+          "Bolinha de Milho", "Bolinha de Pizza", "Bolinha de Queijo", "Bolinho de Bacalhau", "Coxinha de Frango Grande",
+          "Coxinha de Frango c/ Requeijão Grande", "Dadinho de Tapioca", "Empada de Carne Seca", "Empada de Frango",
+          "Empada de Palmito", "Mini Empada de Frango c/ 6 und", "Mini Empada Festa", "Mini Coxinha de Frango",
+          "Mini Quibe de Carne", "Mini Quibe de Carne c/ Requeijão", "Quibe de Carne Grande", "Cookies Tradicional", "Cookies Chocolate"
+        ]
+      },
+      "Jonathan": {
+        "Biscoitos": [
+          "Biscoitão", "Biscoito de Polvilho Argola", "Biscoito de Polvilho Bolinha de Queijo", "Biscoito de Polvilho Palito"
+        ],
+        "Salgados Assados": [
+          "Assado de Salsicha", "Cigarrete", "Doguinho", "Esfiha Aberta de 4 Queijos", "Esfiha Aberta de Carne",
+          "Esfiha Aberta de Frango c/ Requeijão", "Esfiha Fechada de Carne", "Esfiha Fechada de Frango c/ Requeijão",
+          "Misto de Presunto e Queijo", "Pastel Assado de Frango", "Torta de Frango c/ Catupiry"
+        ],
+        "Levain": [
+          "Baguete Italiana UND", "Baguete Levain Calabresa KG", "Baguete Levain Calabresa UND", "Baguete Levain Gergelim UND",
+          "Baguete Levain Tradicional UND", "Ciabatta c/ Azeitona KG", "Ciabatta c/ Azeitona UND", "Ciabatta c/ Calabresa UND",
+          "Ciabatta c/ Tomate Seco KG", "Ciabatta c/ Tomate Seco UND", "Croissant Tradicional", "Croissant de Frango",
+          "Croissant de Presunto e Queijo", "Pão de Grãos Levain UND", "Pão Italiano Levain UND", "Pão Levain Açafrão UND",
+          "Pão Levain Braga UND", "Pão Levain Cacau c/ Laranja UND", "Pão Levain Ciabatta c/ 2 UND", "Pão Levain Cupiac UND",
+          "Pão Levain Focaccia KG", "Pão Levain Focaccia UND", "Pão Levain Italiano Bola c/ 2 UND", "Pão Levain Italiano KG",
+          "Pão Levain Italiano UND", "Pão Levain Mineiroca KG", "Pão Levain Mini Baguete c/ 2 UND", "Pão Levain Nozes c/ Mel KG",
+          "Pão Levain Vinho c/ Uva Passas UND", "Pão Levain Campanha UND", "Pão Levain Nozes c/ Mel UND"
+        ]
+      }
     };
 
     let dadosLancados = {};
@@ -224,7 +348,7 @@
 
           push(ref(db, 'produtos_diarios'), {
             data: dataStr,
-            mesAno: dataStr.substring(0, 7), // Ex: "2026-07"
+            mesAno: dataStr.substring(0, 7),
             lider, setor, nome: prod,
             qtdMeta: meta,
             qtdFeita: feito,
@@ -244,7 +368,7 @@
       }
     };
 
-    // Monitora os Lançamentos do Dia
+    // Monitora os Lançamentos do Dia no Banco
     onValue(ref(db, 'produtos_diarios'), (snapshot) => {
       dadosLancados = snapshot.val() || {};
       const tbody = document.getElementById('tabelaAgendamentos');
@@ -305,7 +429,6 @@
       Object.keys(dadosLancados).forEach(id => {
         const item = dadosLancados[id];
         
-        // Filtra pelo Mês (a partir do dia 1 até o fim do mês)
         if (item.mesAno === mesFiltro) {
           const chave = `${item.lider}_${item.nome}`;
           if (!consolidado[chave]) {
