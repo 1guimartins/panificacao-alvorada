@@ -5,74 +5,112 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Expedição por Loja - Panificação Alvorada</title>
   <style>
-    :root { --verde-alvorada: #007a33; --verde-escuro: #005624; --bg-fundo: #f4f6f8; }
-    * { box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; background-color: var(--bg-fundo); margin: 0; padding: 15px; }
-    
-    .header { background: linear-gradient(135deg, #007a33, #005624); color: white; padding: 15px 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 1px solid #ccc; margin-bottom: 20px; }
-    
-    .controles { display: flex; gap: 15px; align-items: center; margin-bottom: 15px; flex-wrap: wrap; }
-    .controles select { padding: 8px 12px; border-radius: 6px; border: 1px solid #888; font-size: 14px; font-weight: bold; }
-
-    /* Estilo da Tabela Idêntica à Folha Física */
-    .container-tabela { overflow-x: auto; max-height: 75vh; }
-    table.tabela-expedicao { width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; }
-    table.tabela-expedicao th, table.tabela-expedicao td { border: 1px solid #444; padding: 4px; }
-    
-    /* Cabeçalho na vertical como na folha */
-    table.tabela-expedicao th.col-prod { 
-      height: 160px; 
-      white-space: nowrap; 
-      vertical-align: bottom;
-      padding-bottom: 10px;
-      background-color: #e2e8f0;
+    :root { 
+      --verde-alvorada: #007a33; 
+      --verde-escuro: #005624; 
+      --bg-fundo: #f4f6f8; 
+      --texto-dark: #1e293b;
     }
-    table.tabela-expedicao th.col-prod div {
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background-color: var(--bg-fundo); margin: 0; padding: 15px; }
+    
+    .header { 
+      background: linear-gradient(135deg, var(--verde-alvorada), var(--verde-escuro)); 
+      color: white; padding: 15px 20px; border-radius: 8px; 
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; 
+    }
+    .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #cbd5e1; margin-bottom: 15px; }
+    
+    /* Abas dos Dias da Semana */
+    .nav-dias { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
+    .btn-dia { 
+      padding: 10px 18px; border: 1px solid #cbd5e1; background: #e2e8f0; 
+      border-radius: 20px; font-weight: bold; cursor: pointer; color: #475569; transition: all 0.2s;
+    }
+    .btn-dia.ativo { background: var(--verde-alvorada); color: white; border-color: var(--verde-escuro); box-shadow: 0 2px 6px rgba(0,122,51,0.3); }
+
+    /* Painel de Cadastro de Metas Semanais (Segunda-Feira) */
+    .painel-metas { display: none; background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px dashed #94a3b8; margin-bottom: 15px; }
+    .grid-metas { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-top: 10px; }
+    .item-meta-input { display: flex; flex-direction: column; font-size: 11px; font-weight: bold; }
+    .item-meta-input input { padding: 5px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; margin-top: 3px; }
+
+    /* Estilo da Tabela com Cabeçalho Rotacionado e Contadores */
+    .container-tabela { overflow-x: auto; max-height: 70vh; border: 1px solid #cbd5e1; border-radius: 6px; }
+    table.tabela-expedicao { width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; }
+    table.tabela-expedicao th, table.tabela-expedicao td { border: 1px solid #cbd5e1; padding: 4px; }
+    
+    /* Cabeçalho do Produto */
+    table.tabela-expedicao th.col-prod { 
+      height: 190px; 
+      vertical-align: bottom;
+      padding-bottom: 8px;
+      background-color: #f1f5f9;
+      min-width: 65px;
+    }
+    .box-header-prod {
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%;
+    }
+    .badge-progresso {
+      background: #0284c7; color: white; font-size: 10px; font-weight: bold;
+      padding: 3px 5px; border-radius: 10px; margin-bottom: 6px; white-space: nowrap;
+    }
+    .badge-progresso.concluido { background: #16a34a; }
+    .badge-progresso.pendente { background: #d97706; }
+    
+    .nome-prod-vert {
       writing-mode: vertical-rl;
       transform: rotate(180deg);
-      font-weight: bold;
-      font-size: 12px;
+      font-weight: bold; font-size: 11px; color: var(--texto-dark);
+      max-height: 110px; text-overflow: ellipsis; white-space: nowrap;
     }
     
-    .col-loja { width: 80px; font-weight: bold; background-color: #f1f5f9; position: sticky; left: 0; z-index: 2; }
+    .col-loja { width: 90px; font-weight: bold; background-color: #f8fafc; position: sticky; left: 0; z-index: 2; }
     .linha-reforma { background-color: #fef08a !important; color: #854d0e; }
-    .linha-total { background-color: #cbd5e1; font-weight: bold; font-size: 12px; }
+    .linha-total { background-color: #1e293b; color: white; font-weight: bold; font-size: 12px; }
     
     input.qtd-loja {
-      width: 45px;
-      text-align: center;
-      padding: 3px;
-      border: 1px solid #999;
-      border-radius: 4px;
-      font-weight: bold;
+      width: 48px; text-align: center; padding: 4px; border: 1px solid #94a3b8; border-radius: 4px; font-weight: bold;
     }
-    input.qtd-loja:focus { background-color: #e0f2fe; border-color: #0284c7; }
+    input.qtd-loja:focus { background-color: #e0f2fe; border-color: #0284c7; outline: none; }
     
-    .btn-salvar { background-color: var(--verde-alvorada); color: white; border: none; padding: 10px 20px; font-size: 14px; font-weight: bold; border-radius: 6px; cursor: pointer; }
-    .btn-salvar:hover { background-color: var(--verde-escuro); }
+    .btn-acao { background-color: var(--verde-alvorada); color: white; border: none; padding: 8px 16px; font-weight: bold; border-radius: 6px; cursor: pointer; }
+    .btn-acao:hover { background-color: var(--verde-escuro); }
+    .btn-secundario { background-color: #64748b; color: white; border: none; padding: 8px 16px; font-weight: bold; border-radius: 6px; cursor: pointer; }
   </style>
 </head>
 <body>
 
   <div class="header">
-    <h2 style="margin:0;">📦 Ficha de Expedição e Lançamento por Loja</h2>
-    <a href="admin.html" style="color:white; text-decoration:none; background:rgba(255,255,255,0.2); padding:6px 12px; border-radius:4px; font-size:13px;">⚙️ Ir para Painel Admin</a>
+    <h2 style="margin:0;">📦 Ficha de Expedição e Controle Semanal por Loja</h2>
+    <a href="admin.html" style="color:white; text-decoration:none; background:rgba(255,255,255,0.2); padding:6px 12px; border-radius:4px; font-size:13px;">⚙️ Admin</a>
+  </div>
+
+  <div class="nav-dias">
+    <button class="btn-dia ativo" onclick="mudarDia('Segunda-feira', this)">Segunda-feira</button>
+    <button class="btn-dia" onclick="mudarDia('Terça-feira', this)">Terça-feira</button>
+    <button class="btn-dia" onclick="mudarDia('Quarta-feira', this)">Quarta-feira</button>
+    <button class="btn-dia" onclick="mudarDia('Quinta-feira', this)">Quinta-feira</button>
+    <button class="btn-dia" onclick="mudarDia('Sexta-feira', this)">Sexta-feira</button>
+    <button class="btn-dia" onclick="mudarDia('Sábado', this)">Sábado</button>
   </div>
 
   <div class="card">
-    <div class="controles">
-      <label><strong>Dia do Lançamento:</strong></label>
-      <select id="selectDiaSemana" onchange="carregarDadosExpedicao()">
-        <option value="Segunda-feira">Segunda-feira</option>
-        <option value="Terça-feira">Terça-feira</option>
-        <option value="Quarta-feira">Quarta-feira</option>
-        <option value="Quinta-feira">Quinta-feira</option>
-        <option value="Sexta-feira">Sexta-feira</option>
-        <option value="Sábado">Sábado</option>
-      </select>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+      <span id="labelDiaSelecionado" style="font-size:16px; font-weight:bold; color:var(--verde-escuro);">Lançamento: Segunda-feira</span>
+      <div>
+        <button class="btn-secundario" id="btnToggleMetas" onclick="togglePainelMetas()">📋 Definir Pedidos da Semana</button>
+        <button class="btn-acao" onclick="salvarExpedicaoDia()">💾 Salvar Lançamentos do Dia</button>
+      </div>
+    </div>
 
-      <button class="btn-salvar" onclick="salvarExpedicaoDia()">💾 Salvar Lançamentos do Dia</button>
+    <div class="painel-metas" id="painelMetasSemana">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <strong>🎯 Pedido Total da Semana por Produto (Chega na Segunda-feira):</strong>
+        <button class="btn-acao" style="padding:4px 10px; font-size:12px;" onclick="salvarMetasSemana()">Salvar Metas</button>
+      </div>
+      <div class="grid-metas" id="containerInputsMetas">
+        </div>
     </div>
 
     <div class="container-tabela">
@@ -86,7 +124,7 @@
           </tbody>
         <tfoot>
           <tr class="linha-total" id="trTotalDia">
-            <td class="col-loja">TOTAL DIA</td>
+            <td class="col-loja" style="color:white;">TOTAL DIA</td>
             </tr>
         </tfoot>
       </table>
@@ -110,7 +148,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Produtos idênticos aos da folha enviada
     const LISTA_PRODUTOS = [
       "BRIOCHE C/ COCO", "BRIOCHE TRADICIONAL", "PÃO DE BATATA", "PÃO DE CEBOLA",
       "PÃO DE FORMA 52% INTEGRAL", "PÃO DE FORMA P/ TORTA", "PÃO DE FORMA TRADICIONAL",
@@ -120,116 +157,205 @@
       "ROSCA RAINHA", "ROSCA RAINHA C/ CREME", "ROSQUINHA C/ AÇÚCAR", "ROSQUINHA C/ CREME"
     ];
 
-    let dadosDiaAtual = {};
+    let diaAtual = 'Segunda-feira';
+    let metasSemanais = {}; // Ex: { 11: 2188 } (Sovado)
+    let todosLancamentosSemana = {}; // Armazena dados de todos os dias da semana para somar
 
-    // 1. Monta o Cabeçalho da Tabela
-    function renderizarTabela() {
+    // 1. Renderiza a Estrutura Básica da Tabela
+    function inicializarTabela() {
       const trCab = document.getElementById('trCabecalhoProdutos');
       const trTot = document.getElementById('trTotalDia');
       const tbody = document.getElementById('tbodyLojas');
+      const containerMetas = document.getElementById('containerInputsMetas');
+
+      trCab.innerHTML = '<th class="col-loja">LOJA / ITEM</th>';
+      trTot.innerHTML = '<td class="col-loja" style="color:white;">TOTAL DIA</td>';
+      tbody.innerHTML = '';
+      containerMetas.innerHTML = '';
 
       LISTA_PRODUTOS.forEach((prod, pIdx) => {
-        // Coluna Produto (Rotacionada)
+        // Cabeçalho da Tabela com Nome e Indicador (Embalado / Total)
         const th = document.createElement('th');
         th.className = 'col-prod';
-        th.innerHTML = `<div>${prod}</div>`;
+        th.innerHTML = `
+          <div class="box-header-prod">
+            <div class="badge-progresso" id="badge_p${pIdx}">0 / 0</div>
+            <div class="nome-prod-vert">${prod}</div>
+          </div>
+        `;
         trCab.appendChild(th);
 
-        // Coluna Rodapé Total
+        // Rodapé (Total do Dia)
         const tdTot = document.createElement('td');
-        tdTot.id = `total_prod_${pIdx}`;
+        tdTot.id = `total_dia_p${pIdx}`;
         tdTot.innerText = '0';
         trTot.appendChild(tdTot);
+
+        // Input de Meta Semanal no Painel de Segunda
+        containerMetas.innerHTML += `
+          <div class="item-meta-input">
+            <label>${prod}</label>
+            <input type="number" id="meta_input_p${pIdx}" placeholder="Total Pedido Semanal (ex: 2188)">
+          </div>
+        `;
       });
 
-      // Renderiza as 21 Lojas
+      // Linhas das 21 Lojas
       for (let i = 1; i <= 21; i++) {
         const numLoja = String(i).padStart(2, '0');
         const tr = document.createElement('tr');
-        
-        if (i === 5) tr.className = 'linha-reforma'; // Destaque para Loja 05 (Reforma)
+        if (i === 5) tr.className = 'linha-reforma';
 
         let html = `<td class="col-loja">LOJA ${numLoja} ${i === 5 ? '(Ref.)' : ''}</td>`;
-
         LISTA_PRODUTOS.forEach((_, pIdx) => {
           html += `
             <td>
               <input type="number" class="qtd-loja" id="input_L${numLoja}_P${pIdx}" 
-                placeholder="0" oninput="window.calcularTotaisColunas()" min="0">
+                placeholder="0" oninput="window.calcularTotais()" min="0">
             </td>
           `;
         });
-
         tr.innerHTML = html;
         tbody.appendChild(tr);
       }
     }
 
-    // 2. Calcula Totais por Coluna em tempo real
-    window.calcularTotaisColunas = function() {
-      LISTA_PRODUTOS.forEach((_, pIdx) => {
-        let soma = 0;
-        for (let i = 1; i <= 21; i++) {
-          const numLoja = String(i).padStart(2, '0');
-          const input = document.getElementById(`input_L${numLoja}_P${pIdx}`);
-          if (input && input.value) {
-            soma += parseInt(input.value) || 0;
-          }
-        }
-        document.getElementById(`total_prod_${pIdx}`).innerText = soma;
-      });
+    // 2. Troca de Aba por Dia da Semana
+    window.mudarDia = function(dia, btnElement) {
+      diaAtual = dia;
+      document.getElementById('labelDiaSelecionado').innerText = `Lançamento: ${dia}`;
+      document.querySelectorAll('.btn-dia').forEach(b => b.classList.remove('ativo'));
+      btnElement.classList.add('ativo');
+      carregarDadosSemana();
     };
 
-    // 3. Salva Lançamentos do Dia Selecionado no Firebase
-    window.salvarExpedicaoDia = function() {
-      const dia = document.getElementById('selectDiaSemana').value;
-      const pacoteSalvar = {};
+    // 3. Ocultar/Exibir Painel de Metas
+    window.togglePainelMetas = function() {
+      const p = document.getElementById('painelMetasSemana');
+      p.style.display = p.style.display === 'block' ? 'none' : 'block';
+    };
 
+    // 4. Salvar Metas da Semana no Firebase
+    window.salvarMetasSemana = function() {
+      const pacoteMetas = {};
+      LISTA_PRODUTOS.forEach((_, pIdx) => {
+        const val = parseInt(document.getElementById(`meta_input_p${pIdx}`).value) || 0;
+        pacoteMetas[pIdx] = val;
+      });
+
+      set(ref(db, `expedicao_metas_semana`), pacoteMetas)
+        .then(() => {
+          alert('Metas da semana salvas com sucesso!');
+          document.getElementById('painelMetasSemana').style.display = 'none';
+          carregarDadosSemana();
+        })
+        .catch(err => alert("Erro ao salvar metas: " + err.message));
+    };
+
+    // 5. Salvar Lançamento do Dia Atual
+    window.salvarExpedicaoDia = function() {
+      const pacoteSalvar = {};
       for (let i = 1; i <= 21; i++) {
         const numLoja = String(i).padStart(2, '0');
         pacoteSalvar[`LOJA_${numLoja}`] = {};
-
-        LISTA_PRODUTOS.forEach((prod, pIdx) => {
+        LISTA_PRODUTOS.forEach((_, pIdx) => {
           const input = document.getElementById(`input_L${numLoja}_P${pIdx}`);
           pacoteSalvar[`LOJA_${numLoja}`][pIdx] = parseInt(input.value) || 0;
         });
       }
 
-      set(ref(db, `expedicao_lojas/${dia}`), pacoteSalvar)
-        .then(() => alert(`Lançamentos de ${dia} salvos com sucesso!`))
-        .catch((err) => alert("Erro ao salvar: " + err.message));
+      set(ref(db, `expedicao_lojas/${diaAtual}`), pacoteSalvar)
+        .then(() => alert(`Lançamentos de ${diaAtual} salvos!`))
+        .catch(err => alert("Erro ao salvar: " + err.message));
     };
 
-    // 4. Carrega os Dados do Dia do Banco de Dados
-    window.carregarDadosExpedicao = function() {
-      const dia = document.getElementById('selectDiaSemana').value;
+    // 6. Calcula Totais do Dia + Soma Todos os Dias da Semana para Atualizar o Cabeçalho
+    window.calcularTotais = function() {
+      const somaHoje = {};
 
-      // Limpa inputs
-      document.querySelectorAll('.qtd-loja').forEach(inp => inp.value = '');
-
-      onValue(ref(db, `expedicao_lojas/${dia}`), (snapshot) => {
-        const data = snapshot.val() || {};
-        
+      // Soma o que está digitado na tela agora
+      LISTA_PRODUTOS.forEach((_, pIdx) => {
+        let totalDia = 0;
         for (let i = 1; i <= 21; i++) {
           const numLoja = String(i).padStart(2, '0');
-          const lojaKey = `LOJA_${numLoja}`;
+          const input = document.getElementById(`input_L${numLoja}_P${pIdx}`);
+          if (input && input.value) {
+            totalDia += parseInt(input.value) || 0;
+          }
+        }
+        somaHoje[pIdx] = totalDia;
+        document.getElementById(`total_dia_p${pIdx}`).innerText = totalDia;
+      });
 
-          if (data[lojaKey]) {
+      // Calcula Acumulado de Todos os Dias (Segunda a Sábado)
+      LISTA_PRODUTOS.forEach((_, pIdx) => {
+        let acumuladoSemana = 0;
+        const dias = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+
+        dias.forEach(d => {
+          if (d === diaAtual) {
+            acumuladoSemana += somaHoje[pIdx] || 0;
+          } else if (todosLancamentosSemana[d]) {
+            for (let i = 1; i <= 21; i++) {
+              const numLoja = String(i).padStart(2, '0');
+              if (todosLancamentosSemana[d][`LOJA_${numLoja}`]) {
+                acumuladoSemana += todosLancamentosSemana[d][`LOJA_${numLoja}`][pIdx] || 0;
+              }
+            }
+          }
+        });
+
+        // Atualiza a Badge do Cabeçalho no formato (Embalado / Meta)
+        const metaTotal = metasSemanais[pIdx] || 0;
+        const badge = document.getElementById(`badge_p${pIdx}`);
+        
+        badge.innerText = `${acumuladoSemana} / ${metaTotal}`;
+
+        if (metaTotal > 0 && acumuladoSemana >= metaTotal) {
+          badge.className = 'badge-progresso concluido';
+        } else if (acumuladoSemana > 0) {
+          badge.className = 'badge-progresso pendente';
+        } else {
+          badge.className = 'badge-progresso';
+        }
+      });
+    };
+
+    // 7. Carrega os Dados Gerais do Banco de Dados
+    function carregarDadosSemana() {
+      // Carrega Metas
+      onValue(ref(db, `expedicao_metas_semana`), (snapshot) => {
+        metasSemanais = snapshot.val() || {};
+        LISTA_PRODUTOS.forEach((_, pIdx) => {
+          const inp = document.getElementById(`meta_input_p${pIdx}`);
+          if (inp) inp.value = metasSemanais[pIdx] || '';
+        });
+
+        // Carrega Lançamentos de Todos os Dias
+        onValue(ref(db, `expedicao_lojas`), (snapLojas) => {
+          todosLancamentosSemana = snapLojas.val() || {};
+          
+          // Preenche a tabela com o dia selecionado
+          const dadosDia = todosLancamentosSemana[diaAtual] || {};
+          for (let i = 1; i <= 21; i++) {
+            const numLoja = String(i).padStart(2, '0');
+            const lojaKey = `LOJA_${numLoja}`;
             LISTA_PRODUTOS.forEach((_, pIdx) => {
               const input = document.getElementById(`input_L${numLoja}_P${pIdx}`);
-              if (input && data[lojaKey][pIdx] !== undefined) {
-                input.value = data[lojaKey][pIdx] > 0 ? data[lojaKey][pIdx] : '';
+              if (input) {
+                const val = (dadosDia[lojaKey] && dadosDia[lojaKey][pIdx]) ? dadosDia[lojaKey][pIdx] : '';
+                input.value = val > 0 ? val : '';
               }
             });
           }
-        }
-        window.calcularTotaisColunas();
-      }, { onlyOnce: true });
-    };
+          window.calcularTotais();
+        }, { onlyOnce: true });
 
-    // Inicialização
-    renderizarTabela();
-    window.carregarDadosExpedicao();
+      }, { onlyOnce: true });
+    }
+
+    inicializarTabela();
+    carregarDadosSemana();
   </script>
 </body>
 </html>
