@@ -3,107 +3,99 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panificação Alvorada - Visão Geral de Produção</title>
+  <title>Acompanhamento de Produção Semanal - Panificação Alvorada</title>
   <style>
-    :root {
-      --verde-alvorada: #007a33;
-      --verde-escuro: #005624;
-      --bg-fundo: #f4f6f8;
-      --cinza-escuro: #1e293b;
+    :root { 
+      --verde-alvorada: #007a33; 
+      --verde-escuro: #005624; 
+      --bg-fundo: #f4f6f8; 
+      --texto-dark: #1e293b;
     }
-    * { box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: var(--bg-fundo);
-      margin: 0;
-      padding: 15px;
-    }
-    .header {
-      background: linear-gradient(135deg, var(--verde-alvorada), var(--verde-escuro));
-      color: white;
-      padding: 15px 20px;
-      border-radius: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    .header h1 { margin: 0; font-size: 20px; display: flex; align-items: center; gap: 10px; }
-    .btn-admin {
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-      padding: 8px 16px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: bold;
-      transition: 0.2s;
-    }
-    .btn-admin:hover { background: rgba(255, 255, 255, 0.3); }
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-      margin-bottom: 20px;
-      border: 1px solid #e2e8f0;
-    }
-    .card h2 { margin-top: 0; color: var(--cinza-escuro); font-size: 18px; border-bottom: 2px solid var(--verde-alvorada); padding-bottom: 8px; }
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background-color: var(--bg-fundo); margin: 0; padding: 15px; }
     
-    .tabela-producao {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-      font-size: 14px;
+    .header { 
+      background: linear-gradient(135deg, var(--verde-alvorada), var(--verde-escuro)); 
+      color: white; padding: 15px 20px; border-radius: 8px; 
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; 
     }
-    .tabela-producao th {
-      background-color: var(--cinza-escuro);
-      color: white;
-      padding: 12px;
-      text-align: left;
-    }
-    .tabela-producao td {
-      padding: 10px 12px;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    .tabela-producao tr:nth-child(even) { background-color: #f8fafc; }
     
-    .badge {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: bold;
+    .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #cbd5e1; margin-bottom: 15px; }
+    
+    /* Indicadores Rápidos (Resumo no topo) */
+    .grid-resumo { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 15px; }
+    .card-resumo { background: white; padding: 15px; border-radius: 8px; border-left: 5px solid var(--verde-alvorada); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    .card-resumo h4 { margin: 0; font-size: 12px; color: #64748b; text-transform: uppercase; }
+    .card-resumo .valor { font-size: 22px; font-weight: bold; color: var(--texto-dark); margin-top: 5px; }
+
+    /* Seletor de Categoria */
+    .nav-categorias { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; background: #e2e8f0; padding: 8px; border-radius: 8px; }
+    .btn-cat { 
+      padding: 8px 14px; border: 1px solid #cbd5e1; background: white; 
+      border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; color: #334155; transition: all 0.2s;
     }
-    .badge-sucesso { background: #dcfce7; color: #15803d; }
-    .badge-perda { background: #ffe4e6; color: #be123c; }
+    .btn-cat.ativo { background: #1e293b; color: white; border-color: #0f172a; }
+
+    /* Tabela de Progresso */
+    .container-tabela { overflow-x: auto; border: 1px solid #cbd5e1; border-radius: 6px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    th, td { border: 1px solid #cbd5e1; padding: 10px; }
+    th { background-color: #1e293b; color: white; font-size: 12px; }
+    tr:nth-child(even) { background-color: #f8fafc; }
+    
+    /* Barra de Progresso Visuai */
+    .progress-bar-container { background-color: #e2e8f0; border-radius: 10px; height: 16px; width: 100%; overflow: hidden; position: relative; }
+    .progress-bar-fill { background-color: #0284c7; height: 100%; width: 0%; transition: width 0.4s ease-in-out; border-radius: 10px; }
+    .progress-bar-fill.concluido { background-color: #16a34a; }
+    
+    .status-badge { font-weight: bold; padding: 4px 8px; border-radius: 12px; font-size: 11px; text-align: center; display: inline-block; }
+    .status-badge.pendente { background-color: #fef3c7; color: #92400e; }
+    .status-badge.concluido { background-color: #dcfce7; color: #166534; }
   </style>
 </head>
 <body>
 
   <div class="header">
-    <h1>🥐 Panificação Alvorada — Monitoramento Geral</h1>
-    <a href="admin.html" class="btn-admin">⚙️ Painel Admin</a>
+    <h2 style="margin:0;">📊 Painel Geral de Progresso da Produção</h2>
+    <a href="expedicao_lojas.html" style="color:white; text-decoration:none; background:rgba(255,255,255,0.2); padding:6px 12px; border-radius:4px; font-size:13px;">📦 Voltar para Expedição</a>
   </div>
 
+  <div class="grid-resumo">
+    <div class="card-resumo" style="border-left-color: #0284c7;">
+      <h4>Total do Pedido Semanal</h4>
+      <div class="valor" id="lblTotalPedidoSemana">0 un</div>
+    </div>
+    <div class="card-resumo" style="border-left-color: #16a34a;">
+      <h4>Já Produzido / Embalado</h4>
+      <div class="valor" id="lblTotalProduzido">0 un</div>
+    </div>
+    <div class="card-resumo" style="border-left-color: #d97706;">
+      <h4>Falta Produzir</h4>
+      <div class="valor" id="lblTotalFalta">0 un</div>
+    </div>
+  </div>
+
+  <div class="nav-categorias" id="containerCategorias">
+    </div>
+
   <div class="card">
-    <h2>📋 Acompanhamento Diário de Produção</h2>
-    <div style="overflow-x: auto;">
-      <table class="tabela-producao">
+    <h3 id="tituloCategoria" style="margin-top:0; color: var(--verde-escuro);">191-1 - PÃES / ROSCAS</h3>
+    
+    <div class="container-tabela">
+      <table>
         <thead>
           <tr>
-            <th>Data</th>
-            <th>Líder Responsável</th>
-            <th>Produto</th>
-            <th>Meta</th>
-            <th>Produzido</th>
-            <th>Embalado</th>
-            <th>Perda / Dif.</th>
+            <th style="width: 80px;">CÓDIGO</th>
+            <th>PRODUTO</th>
+            <th style="width: 120px; text-align: center;">PEDIDO SEMANAL</th>
+            <th style="width: 120px; text-align: center;">PRODUZIDO</th>
+            <th style="width: 120px; text-align: center;">FALTA</th>
+            <th style="width: 180px;">PROGRESSO</th>
+            <th style="width: 110px; text-align: center;">STATUS</th>
           </tr>
         </thead>
-        <tbody id="tabelaGeralProducao">
-          <tr><td colspan="7" style="text-align:center; color:#64748b;">Carregando dados...</td></tr>
-        </tbody>
+        <tbody id="tbodyProgresso">
+          </tbody>
       </table>
     </div>
   </div>
@@ -125,36 +117,237 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Carrega todos os registros diários em tempo real
-    onValue(ref(db, 'produtos_diarios'), (snapshot) => {
-      const dados = snapshot.val();
-      const tbody = document.getElementById('tabelaGeralProducao');
-      tbody.innerHTML = '';
-
-      if (!dados) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#64748b;">Nenhum registro encontrado. Cadastre no Painel Admin.</td></tr>';
-        return;
+    const CATEGORIAS_DADOS = {
+      "PAES_ROSCAS": {
+        nome: "191-1 - PÃES / ROSCAS",
+        produtos: [
+          { item: "2171", nome: "BRIOCHE C/ COCO UN - 275g" },
+          { item: "2172", nome: "BRIOCHE TRADICIONAL UN - 225g" },
+          { item: "2175", nome: "PÃO DE BATATA ALVORADA C/ 4UN - 200g" },
+          { item: "5370", nome: "PÃO DE CEBOLA ALVORADA UN - 200g" },
+          { item: "2555", nome: "PÃO DE FORMA 52% INTEGRAL UN - 400g" },
+          { item: "5170", nome: "PÃO DE FORMA P/ TORTA UN - 400g" },
+          { item: "2916", nome: "PÃO DE FORMA TRADICIONAL UN - 500g" },
+          { item: "2250", nome: "PÃO DE HAMBÚRGUER C/ GERGELIM C/ 4UN - 260g" },
+          { item: "2252", nome: "PÃO DE HAMBÚRGUER TRADICIONAL C/ 4UN - 260g" },
+          { item: "2598", nome: "PÃO DE HOT DOG C/ 4UN - 270g" },
+          { item: "2558", nome: "PÃO DE MILHO TRADICIONAL C/ 4UN - 260g" },
+          { item: "2173", nome: "PÃO SOVADO ALVORADA UN - 475g" },
+          { item: "2906", nome: "PAULISTINHA CD C/ 5UN - 200g" },
+          { item: "3932", nome: "ROSCA DA FAZENDA C/ AÇÚCAR UN - 300g" },
+          { item: "2391", nome: "ROSCA DA FAZENDA UN - 300g" },
+          { item: "2494", nome: "ROSCA DE LEITE CONDENSADO CD C/ 3UN - 180g" },
+          { item: "2824", nome: "ROSCA LISA C/ 4UN - 200g" },
+          { item: "2174", nome: "ROSCA RAINHA ALVORADA UN - 300g" },
+          { item: "4350", nome: "ROSCA RAINHA C/ CREME UN - 300g" },
+          { item: "4491", nome: "ROSQUINHA C/ AÇÚCAR C/ 4UN - 250g" },
+          { item: "4467", nome: "ROSQUINHA C/ CREME C/ 4UN - 300g" }
+        ]
+      },
+      "PANETONES": {
+        nome: "191-18 - PANETONES",
+        produtos: [
+          { item: "4525", nome: "COLOMBA PASCAL FRUTAS CRISTALIZADAS 400G" },
+          { item: "4526", nome: "COLOMBA PASCAL GOTAS DE CHOCOLATE 400G" },
+          { item: "7008", nome: "PANETTONE ALVORADA UN 400G" },
+          { item: "8134", nome: "PANETTONE GOTAS DE CHOC. ALVORADA 400G" }
+        ]
+      },
+      "BOLOS_PLACA": {
+        nome: "191-4 - BOLOS PLACA",
+        produtos: [
+          { item: "1796", nome: "BOLO DE ABACAXI UN - 1800g" },
+          { item: "1138", nome: "BOLO DE CENOURA C/ COBERTURA UN - 1800g" },
+          { item: "1141", nome: "BOLO DE CENOURA UN - 1800g" },
+          { item: "1140", nome: "BOLO DE CHOCOLATE C/ COBERTURA UN - 1800g" },
+          { item: "1109", nome: "BOLO DE CHOCOLATE UN - 1800g" },
+          { item: "1782", nome: "BOLO DE COCO C/ COBERTURA UN - 1800g" },
+          { item: "1110", nome: "BOLO DE COCO UN - 1800g" },
+          { item: "1106", nome: "BOLO DE FUBÁ UN - 1800g" },
+          { item: "1783", nome: "BOLO DE LARANJA UN - 1800g" },
+          { item: "1115", nome: "BOLO DE LEITE CONDENSADO UN - 1800g" },
+          { item: "1779", nome: "BOLO DE LIMÃO C/ COBERTURA UN - 1800g" },
+          { item: "1773", nome: "BOLO DE LIMÃO UN - 1800g" },
+          { item: "1776", nome: "BOLO DE MILHO UN - 1800g" },
+          { item: "1778", nome: "BOLO FORMIGUEIRO UN - 1800g" },
+          { item: "1785", nome: "BOLO NEUTRO UN - 1800g" }
+        ]
+      },
+      "BOLOS_CASEIROS": {
+        nome: "191-4 - BOLOS CASEIROS / INGLÊS",
+        produtos: [
+          { item: "5028", nome: "BOLO CASEIRO LARANJA UN - 250g" },
+          { item: "6553", nome: "BOLO CASEIRO TAMEGUEIRA CD - 150g" },
+          { item: "4114", nome: "BOLO INGLÊS CHOCOLATE UN - 200g" },
+          { item: "4116", nome: "BOLO INGLÊS FORMIGUEIRO UN - 200g" },
+          { item: "4117", nome: "BOLO INGLÊS LARANJA UN - 200g" },
+          { item: "3036", nome: "BOLO INGLÊS MESCLADO UN - 200g" },
+          { item: "4457", nome: "BOLO INGLÊS MILHO UN - 200g" },
+          { item: "4118", nome: "BOLO INGLÊS CENOURA C/ LARANJA UN - 200g" }
+        ]
+      },
+      "BOLOS_CREMOSOS": {
+        nome: "191-4 - BOLOS CREMOSOS / COBERTURA",
+        produtos: [
+          { item: "2176", nome: "BOLO CREMOSO ABACAXI UN - 300g" },
+          { item: "2496", nome: "BOLO CREMOSO ADOCICA C/ COCO UN - 300g" },
+          { item: "2177", nome: "BOLO CREMOSO AIPIM UN - 300g" },
+          { item: "2498", nome: "BOLO CREMOSO BANANA C/ GRANOLA UN - 300g" },
+          { item: "2178", nome: "BOLO CREMOSO C/ CUCA UN - 300g" },
+          { item: "2488", nome: "BOLO CREMOSO DOS DEUS UN - 300g" },
+          { item: "2192", nome: "BOLO CREMOSO CHOCOLATE UN - 300g" },
+          { item: "2184", nome: "BOLO CREMOSO CHURROS UN - 300g" },
+          { item: "2187", nome: "BOLO CREMOSO COCO UN - 300g" },
+          { item: "2186", nome: "BOLO CREMOSO GOIABADA UN - 300g" },
+          { item: "1942", nome: "BOLO CREMOSO LEITE CONDENSADO UN - 300g" },
+          { item: "1939", nome: "BOLO CREMOSO MARACUJÁ UN - 300g" },
+          { item: "2190", nome: "BOLO CREMOSO MILHO UN - 300g" },
+          { item: "5155", nome: "BOLO CREMOSO QUEIJADINHA UN - 300g" },
+          { item: "1933", nome: "BOLO CREMOSO DE PAÇOCA UN - 300g" },
+          { item: "2197", nome: "BOLO CREMOSO RED VELVET C/ COBERTURA" },
+          { item: "2193", nome: "BOLO REDONDO CENOURA C/ COBERTURA" },
+          { item: "4406", nome: "BOLO REDONDO CHOCOLATE C/ COBERTURA" },
+          { item: "2132", nome: "BOLO REDONDO CHURROS C/ COBERTURA" },
+          { item: "4103", nome: "BOLO REDONDO COCO C/ COBERTURA UN - 300g" },
+          { item: "2009", nome: "BOLO REDONDO LIMÃO C/ COBERTURA UN - 300g" },
+          { item: "4100", nome: "BOLO REDONDO CAFÉ C/ COBERTURA UN - 300g" },
+          { item: "4446", nome: "BOLO REDONDO CAPPUCCINO C/ COBERTURA" },
+          { item: "4945", nome: "BOLO REDONDO NOZES C/ COBERTURA UN - 300g" },
+          { item: "4905", nome: "BOLO REDONDO PAÇOCA C/ COBERTURA UN - 300g" }
+        ]
+      },
+      "BOLOS_REDONDOS": {
+        nome: "191-4 - BOLOS REDONDOS / BROWNIE / COOKIES",
+        produtos: [
+          { item: "4127", nome: "BOLO REDONDO ABACAXI UN - 280g" },
+          { item: "4126", nome: "BOLO REDONDO CENOURA UN - 280g" },
+          { item: "4036", nome: "BOLO REDONDO CHOCOLATE UN - 280g" },
+          { item: "4098", nome: "BOLO REDONDO FORMIGUEIRO UN - 280g" },
+          { item: "4093", nome: "BOLO REDONDO FUBÁ UN - 280g" },
+          { item: "4133", nome: "BOLO REDONDO LARANJA UN - 280g" },
+          { item: "4047", nome: "BOLO REDONDO LEITE CONDENSADO UN - 280g" },
+          { item: "4148", nome: "BOLO REDONDO LIMÃO UN - 280g" },
+          { item: "4132", nome: "BOLO REDONDO MILHO UN - 280g" },
+          { item: "3915", nome: "BOLO REDONDO NEUTRO UN - 280g" },
+          { item: "2918", name: "BROWNIE DE CHOCOLATE C/ COBERTURA UN" },
+          { item: "2916", name: "BROWNIE DE CHOCOLATE TRADICIONAL UN" },
+          { item: "2182", name: "COOKIES C/ CREME DE AVELÃ UN - 240g" },
+          { item: "2127", name: "COOKIES CHOCOLATE ALVORADA UN - 170g" },
+          { item: "2125", name: "COOKIES TRADICIONAL ALVORADA UN - 120g" },
+          { item: "2195", name: "DONUTS SABORES UN - 70g" }
+        ]
+      },
+      "BISCOITOS": {
+        nome: "191-5 - BISCOITOS / MASSAS",
+        produtos: [
+          { item: "267041", nome: "BISC. AMANTEIGADO BEIJINHO DE FREIRA" },
+          { item: "267141", nome: "BISC. AMANTEIGADO BELISCÃO UN - 150g" },
+          { item: "267241", nome: "BISC. AMANTEIGADO CHOCOCHIP UN - 120g" },
+          { item: "273241", nome: "BISC. AMANTEIGADO GOIABINHA C/ AÇÚCAR" },
+          { item: "267341", nome: "BISC. AMANTEIGADO PRATO DE CHOCOLATE" },
+          { item: "271571", nome: "BISC. AMANTEIGADO ROMEU E JULIETA UN" },
+          { item: "267541", nome: "BISC. AMANTEIGADO SEQUILHO DE LEITE" },
+          { item: "5164", nome: "BISCOITO DE POLVILHO ARGOLA UN - 100g" },
+          { item: "5330", nome: "BISCOITO DE POLVILHO RAINHA QUEIJO UN" },
+          { item: "5166", nome: "BISCOITO DE POLVILHO UN - 100g" },
+          { item: "5367", nome: "BISCOITO DE POLVILHO PALITO UN - 200g" },
+          { item: "2195", nome: "MASSA P/ PIZZA ALVORADA C/ 2UN - 400g" }
+        ]
       }
+    };
 
-      // Converte em lista e ordena pela data mais recente
-      const lista = Object.values(dados).sort((a, b) => new Date(b.data) - new Date(a.data));
+    let categoriaAtual = 'PAES_ROSCAS';
 
-      lista.forEach(item => {
-        const tr = document.createElement('tr');
-        const un = item.unidade || 'un';
-        
-        tr.innerHTML = `
-          <td><strong>${item.data || '-'}</strong></td>
-          <td>${item.lider || '-'}</td>
-          <td><strong>${item.nome}</strong></td>
-          <td>${item.qtdMeta || 0} ${un}</td>
-          <td><span class="badge badge-sucesso">${item.qtdFeita || 0} ${un}</span></td>
-          <td>${item.qtdEmbalada || 0} ${un}</td>
-          <td><span class="badge badge-perda">${item.qtdPerda || 0} ${un}</span></td>
-        `;
-        tbody.appendChild(tr);
+    function renderizarCategorias() {
+      const container = document.getElementById('containerCategorias');
+      container.innerHTML = '';
+      Object.keys(CATEGORIAS_DADOS).forEach(catKey => {
+        const btn = document.createElement('button');
+        btn.className = `btn-cat ${catKey === categoriaAtual ? 'ativo' : ''}`;
+        btn.innerText = CATEGORIAS_DADOS[catKey].nome;
+        btn.onclick = () => {
+          categoriaAtual = catKey;
+          document.querySelectorAll('.btn-cat').forEach(b => b.classList.remove('ativo'));
+          btn.classList.add('ativo');
+          document.getElementById('tituloCategoria').innerText = CATEGORIAS_DADOS[catKey].nome;
+          carregarDadosPainel();
+        };
+        container.appendChild(btn);
       });
-    });
+    }
+
+    function carregarDadosPainel() {
+      const tbody = document.getElementById('tbodyProgresso');
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Carregando dados...</td></tr>';
+
+      // Busca Metas e Lançamentos no Firebase
+      onValue(ref(db, `expedicao_metas_semana/${categoriaAtual}`), (snapshotMetas) => {
+        const metas = snapshotMetas.val() || {};
+
+        onValue(ref(db, `expedicao_lojas/${categoriaAtual}`), (snapshotLojas) => {
+          const lancamentos = snapshotLojas.val() || {};
+          const prods = CATEGORIAS_DADOS[categoriaAtual].produtos;
+          tbody.innerHTML = '';
+
+          let totalMetaCat = 0;
+          let totalProduzidoCat = 0;
+
+          prods.forEach((prod, pIdx) => {
+            const meta = metas[pIdx] || 0;
+            let produzido = 0;
+
+            // Somar todos os dias da semana (Segunda a Sábado) e todas as 21 lojas
+            const dias = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+            dias.forEach(d => {
+              if (lancamentos[d] && lancamentos[d][`PROD_${pIdx}`]) {
+                for (let i = 1; i <= 21; i++) {
+                  const numLoja = String(i).padStart(2, '0');
+                  produzido += lancamentos[d][`PROD_${pIdx}`][`LOJA_${numLoja}`] || 0;
+                }
+              }
+            });
+
+            const falta = Math.max(0, meta - produzido);
+            const porc = meta > 0 ? Math.min(100, Math.round((produzido / meta) * 100)) : 0;
+            const concluido = meta > 0 && produzido >= meta;
+
+            totalMetaCat += meta;
+            totalProduzidoCat += produzido;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td><strong>${prod.item}</strong></td>
+              <td><strong>${prod.nome}</strong></td>
+              <td style="text-align: center;"><strong>${meta}</strong></td>
+              <td style="text-align: center; color: #16a34a; font-weight: bold;">${produzido}</td>
+              <td style="text-align: center; color: #d97706; font-weight: bold;">${falta}</td>
+              <td>
+                <div class="progress-bar-container">
+                  <div class="progress-bar-fill ${concluido ? 'concluido' : ''}" style="width: ${porc}%;"></div>
+                </div>
+                <div style="font-size: 10px; text-align: right; margin-top: 2px; font-weight: bold;">${porc}%</div>
+              </td>
+              <td style="text-align: center;">
+                <span class="status-badge ${concluido ? 'concluido' : 'pendente'}">
+                  ${concluido ? '✓ CONCLUÍDO' : '⏳ EM PRODUÇÃO'}
+                </span>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+
+          // Atualiza Resumo no Topo
+          const faltaCat = Math.max(0, totalMetaCat - totalProduzidoCat);
+          document.getElementById('lblTotalPedidoSemana').innerText = `${totalMetaCat.toLocaleString('pt-BR')} un`;
+          document.getElementById('lblTotalProduzido').innerText = `${totalProduzidoCat.toLocaleString('pt-BR')} un`;
+          document.getElementById('lblTotalFalta').innerText = `${faltaCat.toLocaleString('pt-BR')} un`;
+
+        }, { onlyOnce: true });
+      }, { onlyOnce: true });
+    }
+
+    renderizarCategorias();
+    carregarDadosPainel();
   </script>
 </body>
 </html>
