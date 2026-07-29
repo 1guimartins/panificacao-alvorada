@@ -163,17 +163,37 @@
       cursor: pointer;
     }
 
-    /* Checklist Estilos */
-    .checklist-grid {
+    /* Checklist Estilos - Duas Colunas */
+    .checklist-colunas-wrapper {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 20px;
+    }
+    .coluna-checklist {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 15px;
+    }
+    .coluna-checklist h4 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--verde-alvorada);
+      color: #1e293b;
+      font-size: 16px;
+      text-align: center;
+    }
+    .checklist-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
     .checklist-card {
       background: #f8fafc;
       border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      padding: 12px 15px;
+      border-radius: 6px;
+      padding: 10px 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -189,16 +209,16 @@
     }
     .checklist-loja {
       font-weight: bold;
-      font-size: 13px;
+      font-size: 12px;
       color: var(--texto-dark);
     }
     .checklist-rua {
-      font-size: 11px;
+      font-size: 10px;
       color: #64748b;
     }
     .checkbox-custom {
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
       accent-color: var(--verde-alvorada);
       cursor: pointer;
     }
@@ -221,22 +241,31 @@
     <div class="card">
       <h3 style="margin-top: 0; color: var(--verde-escuro);">Conferência de Pedidos no Sistema (ERP)</h3>
       <p style="font-size: 13px; color: #64748b;">
-        Marque a caixa correspondente assim que o pedido de reabastecimento de cada loja for verificado/confirmado no sistema.
+        Marque a caixa correspondente assim que o pedido de reabastecimento de cada loja for verificado/confirmado (Nuvem / E-mail).
       </p>
 
       <div class="grid-resumo" style="margin-bottom: 20px;">
         <div class="card-resumo" style="border-left-color: #16a34a;">
-          <h4>Confirmados</h4>
-          <div class="valor" id="lblChecklistConfirmados">0 / 0</div>
+          <h4>Confirmados (Total)</h4>
+          <div class="valor" id="lblChecklistConfirmados">0 / 42</div>
         </div>
         <div class="card-resumo" style="border-left-color: #d97706;">
           <h4>Pendentes</h4>
-          <div class="valor" id="lblChecklistPendentes">0</div>
+          <div class="valor" id="lblChecklistPendentes">42</div>
         </div>
       </div>
 
-      <div class="checklist-grid" id="containerChecklist">
+      <div class="checklist-colunas-wrapper">
+        <div class="coluna-checklist">
+          <h4>☁️ NUVEM</h4>
+          <div class="checklist-list" id="containerChecklistNuvem"></div>
         </div>
+
+        <div class="coluna-checklist">
+          <h4>✉️ EMAIL</h4>
+          <div class="checklist-list" id="containerChecklistEmail"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -351,24 +380,27 @@
     const db = getDatabase(app);
 
     const LISTA_LOJAS_ERP = [
-      { id: "DELFIM", nome: "DELFIM" },
-      { id: "IMIGRANTES", nome: "IMIGRANTES" },
-      { id: "PLINIO_SALGADO", nome: "PLINIO SALGADO" },
-      { id: "STO_ANTONIO", nome: "STO ANTONIO" },
-      { id: "PADRE_LOURENCO", nome: "PADRE LOURENÇO" },
-      { id: "MONSIEUR_REBOURGEON", nome: "MONSIEUR REBOURGEON" },
-      { id: "JOAO_OLIVO", nome: "JOÃO OLIVO" },
-      { id: "ALAGOAS", nome: "ALAGOAS" },
-      { id: "GOVERNADOR", nome: "GOVERNADOR" },
-      { id: "SILVIANO", nome: "SILVIANO" },
-      { id: "GETULIO", nome: "GETULIO" },
-      { id: "CESARIO", nome: "CESARIO" },
-      { id: "GUARDA", nome: "GUARDA" },
-      { id: "COMERCIAL", nome: "COMERCIAL" },
-      { id: "CAPITAO", nome: "CAPITÃO" },
-      { id: "WENCESLAU", nome: "WENCESLAU" },
-      { id: "PRINCESA", nome: "PRINCESA" },
-      { id: "ANTONIO", nome: "ANTONIO" }
+      { id: "LOJA_01", nome: "Loja 01 - Comendador (Santa Rita)" },
+      { id: "LOJA_02", nome: "Loja 02 - Guarda Mor (Ouro Fino)" },
+      { id: "LOJA_03", nome: "Loja 03 - Cesário (Itajubá)" },
+      { id: "LOJA_04", nome: "Loja 04 - Silviano (Pouso Alegre)" },
+      { id: "LOJA_05", nome: "Loja 05 - Vicente (Pouso Alegre)" },
+      { id: "LOJA_06", nome: "Loja 06 - Getúlio (Itajubá)" },
+      { id: "LOJA_07", nome: "Loja 07 - Capitão (Itajubá)" },
+      { id: "LOJA_08", nome: "Loja 08 - Antônio (Machado)" },
+      { id: "LOJA_09", nome: "Loja 09 - José (Alfenas)" },
+      { id: "LOJA_10", nome: "Loja 10 - Princesa (Varginha)" },
+      { id: "LOJA_11", nome: "Loja 11 - Wanceslau Braz (Varginha)" },
+      { id: "LOJA_12", nome: "Loja 12 - Olavo Gomes - Foch (Pouso Alegre)" },
+      { id: "LOJA_13", nome: "Loja 13 - Alagoas (Machado)" },
+      { id: "LOJA_14", nome: "Loja 14 - Governador (Alfenas)" },
+      { id: "LOJA_15", nome: "Loja 15 - João Olivio (Borda da Mata)" },
+      { id: "LOJA_16", nome: "Loja 16 - Monsieur (Itajubá)" },
+      { id: "LOJA_17", nome: "Loja 17 - Padre Lourenço (Itajubá)" },
+      { id: "LOJA_18", nome: "Loja 18 - José Custódio - Santo Antônio (Pouso Alegre)" },
+      { id: "LOJA_19", nome: "Loja 19 - Plinio Salgado (Varginha)" },
+      { id: "LOJA_20", nome: "Loja 20 - Imigrantes (Varginha)" },
+      { id: "LOJA_21", nome: "Loja 21 - Delfim Moreira (Ouro Fino)" }
     ];
 
     const CATEGORIAS_DADOS = {
@@ -523,43 +555,62 @@
       if(e && e.target) e.target.classList.add('ativo');
     };
 
-    // --- CHECKLIST DE PEDIDOS CONFIRMADOS NO ERP ---
+    // --- CHECKLIST DE PEDIDOS CONFIRMADOS NO ERP (NUVEM x EMAIL) ---
     function carregarChecklistERP() {
-      const container = document.getElementById('containerChecklist');
+      const containerNuvem = document.getElementById('containerChecklistNuvem');
+      const containerEmail = document.getElementById('containerChecklistEmail');
       
       onValue(ref(db, 'checklist_pedidos_erp'), (snapshot) => {
         const dados = snapshot.val() || {};
-        container.innerHTML = '';
+        const dadosNuvem = dados.nuvem || {};
+        const dadosEmail = dados.email || {};
+
+        containerNuvem.innerHTML = '';
+        containerEmail.innerHTML = '';
 
         let confirmadosCount = 0;
-        const totalLojas = LISTA_LOJAS_ERP.length;
+        const totalItens = LISTA_LOJAS_ERP.length * 2; // 21 NUVEM + 21 EMAIL = 42
 
         LISTA_LOJAS_ERP.forEach(loja => {
-          const estaConfirmado = !!dados[loja.id];
-          if (estaConfirmado) confirmadosCount++;
+          // 1. Renderizar NUVEM
+          const confNuvem = !!dadosNuvem[loja.id];
+          if (confNuvem) confirmadosCount++;
 
-          const divCard = document.createElement('div');
-          divCard.className = `checklist-card ${estaConfirmado ? 'confirmado' : ''}`;
-          
-          divCard.innerHTML = `
+          const divNuvem = document.createElement('div');
+          divNuvem.className = `checklist-card ${confNuvem ? 'confirmado' : ''}`;
+          divNuvem.innerHTML = `
             <div class="checklist-info">
-              <span class="checklist-loja">MAGLIONI RIBEIRO (${loja.nome})</span>
+              <span class="checklist-loja">${loja.nome}</span>
               <span class="checklist-rua">RUA 53 - SEPARAÇÃO: EMBALAGEM</span>
             </div>
-            <input type="checkbox" class="checkbox-custom" ${estaConfirmado ? 'checked' : ''} onchange="alternarChecklistLoja('${loja.id}', this.checked)">
+            <input type="checkbox" class="checkbox-custom" ${confNuvem ? 'checked' : ''} onchange="alternarChecklistLoja('nuvem', '${loja.id}', this.checked)">
           `;
+          containerNuvem.appendChild(divNuvem);
 
-          container.appendChild(divCard);
+          // 2. Renderizar EMAIL
+          const confEmail = !!dadosEmail[loja.id];
+          if (confEmail) confirmadosCount++;
+
+          const divEmail = document.createElement('div');
+          divEmail.className = `checklist-card ${confEmail ? 'confirmado' : ''}`;
+          divEmail.innerHTML = `
+            <div class="checklist-info">
+              <span class="checklist-loja">${loja.nome}</span>
+              <span class="checklist-rua">RUA 53 - SEPARAÇÃO: EMBALAGEM</span>
+            </div>
+            <input type="checkbox" class="checkbox-custom" ${confEmail ? 'checked' : ''} onchange="alternarChecklistLoja('email', '${loja.id}', this.checked)">
+          `;
+          containerEmail.appendChild(divEmail);
         });
 
-        document.getElementById('lblChecklistConfirmados').innerText = `${confirmadosCount} / ${totalLojas}`;
-        document.getElementById('lblChecklistPendentes').innerText = totalLojas - confirmadosCount;
+        document.getElementById('lblChecklistConfirmados').innerText = `${confirmadosCount} / ${totalItens}`;
+        document.getElementById('lblChecklistPendentes').innerText = totalItens - confirmadosCount;
       });
     }
 
-    window.alternarChecklistLoja = async function(lojaId, status) {
+    window.alternarChecklistLoja = async function(tipo, lojaId, status) {
       try {
-        await set(ref(db, `checklist_pedidos_erp/${lojaId}`), status);
+        await set(ref(db, `checklist_pedidos_erp/${tipo}/${lojaId}`), status);
       } catch (err) {
         alert('Erro ao atualizar status: ' + err.message);
       }
