@@ -758,21 +758,24 @@
           }
 
           // Grava as novas metas no Firebase
-          for (const catKey of Object.keys(metasPorCategoria)) {
-            await set(ref(db, `expedicao_metas_semana/${catKey}`), metasPorCategoria[catKey]);
-          }
+          const promises = Object.keys(metasPorCategoria).map(catKey => {
+            return set(ref(db, `expedicao_metas_semana/${catKey}`), metasPorCategoria[catKey]);
+          });
+
+          await Promise.all(promises);
 
           divStatus.style.color = '#16a34a';
-          divStatus.innerText = `✅ Sucesso! ${totalIdentificados} produtos foram lidos da planilha e atualizados no banco de dados.`;
+          divStatus.innerText = `✅ Sucesso! ${totalIdentificados} produtos identificados e atualizados no banco de dados.`;
         } catch (err) {
           divStatus.style.color = '#dc2626';
-          divStatus.innerText = '❌ Erro ao ler a planilha Excel: ' + err.message;
+          divStatus.innerText = '❌ Erro ao ler a planilha: ' + err.message;
         }
       };
 
       reader.readAsArrayBuffer(file);
     };
 
+    // Inicialização do Sistema
     renderizarCategorias();
     carregarDadosPainelRealtime();
     inicializarAbaExpedicao();
