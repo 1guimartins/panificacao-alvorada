@@ -45,7 +45,7 @@
     .nav-categorias { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; background: #e2e8f0; padding: 8px; border-radius: 8px; }
     .btn-cat { 
       padding: 8px 14px; border: 1px solid #cbd5e1; background: white; 
-      border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; color: #334155; transition: all 0.2s;
+      border-radius: 6px; font-weight: bold; font-size: 11px; cursor: pointer; color: #334155; transition: all 0.2s;
     }
     .btn-cat.ativo { background: #1e293b; color: white; border-color: #0f172a; }
 
@@ -127,6 +127,21 @@
     .btn-salvar { background: var(--verde-alvorada); color: white; border: none; padding: 12px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 15px; width: 100%; font-size: 14px; }
     .btn-salvar:hover { background: var(--verde-escuro); }
 
+    .btn-limpar-checklist {
+      background-color: #dc2626;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.2s;
+    }
+    .btn-limpar-checklist:hover {
+      background-color: #b91c1c;
+    }
+
     /* Tabela de Progresso */
     .container-tabela { overflow-x: auto; border: 1px solid #cbd5e1; border-radius: 6px; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
@@ -163,7 +178,7 @@
       cursor: pointer;
     }
 
-    /* Checklist Estilos - Duas Colunas */
+    /* Checklist Estilos */
     .checklist-colunas-wrapper {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -239,10 +254,15 @@
 
   <div id="tab-checklist" class="tab-content">
     <div class="card">
-      <h3 style="margin-top: 0; color: var(--verde-escuro);">Conferência de Pedidos no Sistema (ERP)</h3>
-      <p style="font-size: 13px; color: #64748b;">
-        Marque a caixa correspondente assim que o pedido de reabastecimento de cada loja for verificado/confirmado (Nuvem / E-mail).
-      </p>
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+        <div>
+          <h3 style="margin: 0; color: var(--verde-escuro);">Conferência de Pedidos no Sistema (ERP)</h3>
+          <p style="font-size: 13px; color: #64748b; margin: 5px 0 0 0;">
+            Marque a caixa correspondente assim que o pedido de reabastecimento de cada loja for verificado/confirmado.
+          </p>
+        </div>
+        <button class="btn-limpar-checklist" onclick="limparChecklistERP()">🧹 Limpar / Desmarcar Todos</button>
+      </div>
 
       <div class="grid-resumo" style="margin-bottom: 20px;">
         <div class="card-resumo" style="border-left-color: #16a34a;">
@@ -539,6 +559,183 @@
           { item: "5367", nome: "BISCOITO DE POLVILHO PALITO UN - 200g" },
           { item: "2195", nome: "MASSA P/ PIZZA ALVORADA C/ 2UN - 400g" }
         ]
+      },
+      "CONFEITARIA_CONGELADOS": {
+        nome: "14.77.196 - CONFEITARIA CONGELADOS",
+        produtos: [
+          { item: "4729", nome: "BOLO CONFEITADO AVELA UN - 900g" },
+          { item: "9955", nome: "BOLO CONFEITADO DOCE DE LEITE UN - 900g" },
+          { item: "7223", nome: "BOLO CONFEITADO FLOCOS UN - 900g" },
+          { item: "2840", nome: "BOLO CONFEITADO MARACUJÁ UN - 900g" },
+          { item: "2519", nome: "BOLO CONFEITADO PISTACHE UN - 900g" },
+          { item: "2533", nome: "BOLO GOURMET CHOCOLATE C/CREME AVELA - 600g" },
+          { item: "3988", nome: "BOLO GOURMET LETINHO C/NOZES ALVORADA UN - 600g" },
+          { item: "4973", nome: "BOLO PREMIUM 4 LEITES UN - 800g" },
+          { item: "5579", nome: "BOLO PREMIUM CHOCOLATE UN - 800g" },
+          { item: "3522", nome: "BOLO PREMIUM COCO UN - 800g" },
+          { item: "9828", nome: "BOLO PREMIUM NOZES UN - 800g" },
+          { item: "5318", nome: "CAROLINA DE LIMAO KG - 1" },
+          { item: "5328", nome: "CAROLINA DE MARACUJA KG - 1" },
+          { item: "4379", nome: "CHURROS DOCE DE LEITE KG - 1" },
+          { item: "5329", nome: "DONUTS CHOCOLATE - 70g" },
+          { item: "5353", nome: "DONUTS CREME - 75g" },
+          { item: "5401", nome: "DONUTS DOCE DE LEITE C/COBERTURA - 70g" },
+          { item: "5389", nome: "DONUTS FRUTAS VERMELHAS - 70g" },
+          { item: "9371", nome: "PASTEL DE NATA UN - 75g" },
+          { item: "5452", nome: "RING BLUEBERRY KG - 75g" },
+          { item: "5454", nome: "RING BRIGADEIRO - 75g" },
+          { item: "5474", nome: "RING BRIGADEIRO PISTACHE - 75g" },
+          { item: "5434", nome: "RING CHOCOLATE - 75g" },
+          { item: "5544", nome: "RING CREME C/COBERTURA - 75g" },
+          { item: "5492", nome: "RING DOCE DE LEITE C/COBERTURA CROC - 75g" },
+          { item: "5494", nome: "RING FRUTAS VERMELHAS C/COBERTURA - 75g" },
+          { item: "5554", nome: "RING LEITINHO - 75g" },
+          { item: "2911", nome: "TORTA GOURMET BUENO ALVORADA UN - 450g" },
+          { item: "2727", nome: "TORTA GOURMET CREME DE PISTACHE - 500g" },
+          { item: "2909", nome: "TORTA GOURMET DE CREME MORANGO UN - 500g" },
+          { item: "2919", nome: "TORTA GOURMET LETINHO C/COOKIES - 500g" },
+          { item: "5597", nome: "TORTA GOURMET LIMÃO UN - 450g" },
+          { item: "4953", nome: "TORTA GOURMET PISTACHE UN - 500g" },
+          { item: "2544", nome: "TORTA HOLANDESA ALVORADA UN - 400g" }
+        ]
+      },
+      "CONGELADOS": {
+        nome: "14.77.200 - CONGELADOS",
+        produtos: [
+          { item: "7826", nome: "ALMONDEGA DE CARNE ALVORADA CONG. - 450g" },
+          { item: "8807", nome: "CALDO DE ERVILHA UN - 500g" },
+          { item: "8380", nome: "CALDO DE FEIJAO UN - 500g" },
+          { item: "5912", nome: "CALDO DE MILHO UN - 500g" },
+          { item: "8382", nome: "CALDO VERDE UN - 500g" },
+          { item: "2825", nome: "COXA E SOBRECOXA C/PURE ALVORADA - 600g" },
+          { item: "2838", nome: "ESCONDIDINHO DE CARNE ALVORADA CONG 600G - 600g" },
+          { item: "2839", nome: "ESCONDIDINHO DE FRANGO ALVORADA CONG. - 600g" },
+          { item: "2554", nome: "FEIJAO TROPEIRO ALVORADA CONGELADO UN - 450g" },
+          { item: "8435", nome: "FEIJOADA ALVORADA UN - 700g" },
+          { item: "7695", nome: "FRICASSE DE FRANGO ALVORADA CONG. 600G - 600g" },
+          { item: "7506", nome: "LASANHA BOLONHESA ALVORADA CONG. - 600g" },
+          { item: "7510", nome: "LASANHA FRANGO ALVORADA CONG. 600G - 600g" },
+          { item: "7513", nome: "LASANHA QUATRO QUEIJO ALVORADA CONG - 600g" },
+          { item: "7776", nome: "MEDALHAO DE FRANGO ALVORADA CONG. - 300g" },
+          { item: "2836", nome: "PAPPARDELLE C/ALMONDEGA ALVORADA CONG. - 600g" },
+          { item: "1920", nome: "PARMEGIANA DE FRANGO CONG. ALVORADA - 400g" },
+          { item: "7636", nome: "PIZZA CALABRESA ALVORADA CONG. 500G - 500g" },
+          { item: "7645", nome: "PIZZA DA CASA ALVORADA CONG 500G - 500g" },
+          { item: "7637", nome: "PIZZA FRANGO C/REQUEIJAO ALVO CONG 500G - 500g" },
+          { item: "7639", nome: "PIZZA PRESUNTO E QUEIJO CONG. ALVORADA - 500g" },
+          { item: "7822", nome: "STROGONOFF DE CARNE ALVORADA CONG. - 600g" },
+          { item: "7926", nome: "STROGONOFF DE CARNE E ARROZ CONG. 450G - 450g" },
+          { item: "7824", nome: "STROGONOFF DE FRANGO ALVORADA CONG. 600G - 600g" },
+          { item: "7927", nome: "STROGONOFF DE FRANGO E ARROZ CONG. 450G - 450g" }
+        ]
+      },
+      "GELO": {
+        nome: "14.77.318 - GELO",
+        produtos: [
+          { item: "1933", nome: "GELO EM CUBOS / TRITURADO ALVORADA 3 KG - 3kg" },
+          { item: "2379", nome: "GELO EM CUBOS /TRITURADO ALVORADA 1,5 KG - 1,5kg" }
+        ]
+      },
+      "PAO_QUEIJO_MINI_SALGADO": {
+        nome: "14.77.487 - PÃO QUEIJO / MINI SALGADO",
+        produtos: [
+          { item: "2583", nome: "BISCOITAO TRADICIONAL KG - 1" },
+          { item: "1901", nome: "BOLINHA DE MILHO MINI KG - 1" },
+          { item: "8805", nome: "BOLINHA DE PIZZA MINI BDJ CONG - 300g" },
+          { item: "1885", nome: "BOLINHA DE PIZZA MINI KG - 1" },
+          { item: "5336", nome: "BOLINHA DE QUEIJO ALVORADA CONG - 1kg" },
+          { item: "1903", nome: "BOLINHA DE QUEIJO KG - 1" },
+          { item: "8121", nome: "BOLINHO DE BACALHAU BANDEJA ALVORADA UND - 400g" },
+          { item: "2135", nome: "BOLINHO DE BACALHAU KG - 1" },
+          { item: "9753", nome: "BOLINHO DE QUEIJO MINI BDJ CONG - 300g" },
+          { item: "4380", nome: "BROA AEROSA KG - 1" },
+          { item: "2542", nome: "COXINHA DE FRANGO C/REQUEIJAO GRANDE UN - 100g" },
+          { item: "5337", nome: "COXINHA DE FRANGO MINI ALVORADA CONG 1KG - 1kg" },
+          { item: "7202", nome: "COXINHA DE FRANGO MINI BDJ CONG - 300g" },
+          { item: "1904", nome: "COXINHA DE FRANGO MINI KG - 1" },
+          { item: "8966", nome: "KIT PETISCO (COXINHA+BOLINHO QUEIJO) BDJ - 300g" },
+          { item: "8808", nome: "KIT PETISCO(QUIBE+BOLINHA PIZZA)BDJ CONG - 300g" },
+          { item: "5695", nome: "MINI SALGADINHO ASSADO/FRITO ALVORADA KG - 1" },
+          { item: "2833", nome: "PALITINHO DE TAPIOCA ALVORADA KG - 1" },
+          { item: "1873", nome: "PAO DE QUEIJO 3 QUEIJOS ALVORADA KG - 1" },
+          { item: "1966", nome: "PAO DE QUEIJO 3 QUEIJOS C. ALVORADA 400G - 400g" },
+          { item: "2572", nome: "PAO DE QUEIJO C/FRANGO BANDEJA UN - 570g" },
+          { item: "2248", nome: "PAO DE QUEIJO COQUETEL ALVORADA CONG400G - 400g" },
+          { item: "1967", nome: "PAO DE QUEIJO LANCHE ALVORADA CONG 1KG - 1kg" },
+          { item: "1868", nome: "PAO DE QUEIJO LANCHE ALVORADA KG - 1" },
+          { item: "2570", nome: "PAO DE QUEIJO RECH. C/FRANGO ALVORADA KG - 1" },
+          { item: "1978", nome: "PAO DE QUEIJO TRAD ALVORADA CONG 800G - 800g" },
+          { item: "1959", nome: "PAO DE QUEIJO TRAD. ALVORADA CONG 400G - 400g" },
+          { item: "1864", nome: "PAO DE QUEIJO TRADICIONAL ALVORADA KG - 1" },
+          { item: "1923", nome: "QUIBE DE CARNE C/ REQUEIJAO MINI KG - 1" },
+          { item: "1875", nome: "QUIBE DE CARNE MINI KG - 1" },
+          { item: "5338", nome: "QUIBE DE CARNE MINI ALVORADA CONG - 1KG - 1kg" },
+          { item: "8803", nome: "QUIBE DE CARNE MINI BDJ CONG - 300g" }
+        ]
+      },
+      "PAES_LEVAIN": {
+        nome: "14.77.467 - PÃES DE LEVAIN",
+        produtos: [
+          { item: "5378", nome: "BAGUETE ITALIANA UN - 350g" },
+          { item: "7733", nome: "BAGUETE LEVAIN CALABRESA KG - 1" },
+          { item: "2004", nome: "BAGUETE LEVAIN CALABRESA UN - 200g" },
+          { item: "7746", nome: "BAGUETE LEVAIN GERGELIM UN - 200g" },
+          { item: "7735", nome: "BAGUETE LEVAIN TRADICIONAL UN - 200g" },
+          { item: "3976", nome: "CIABATTA C/AZEITONA KG - 1" },
+          { item: "2032", nome: "CIABATTA C/AZEITONA UN - 200g" },
+          { item: "3968", nome: "CIABATTA C/CALABRESA UN - 200g" },
+          { item: "3966", nome: "CIABATTA C/TOMATE SECO KG - 1" },
+          { item: "2034", nome: "CIABATTA C/TOMATE SECO UN - 200g" },
+          { item: "2917", nome: "CROISSANT ALVORADA UN - 60g" },
+          { item: "2383", nome: "CROISSANT DE FRANGO UN - 100g" },
+          { item: "2900", nome: "CROISSANT PRESUNTO E QUEIJO ALVORADA UN - 120g" },
+          { item: "3531", nome: "PAO DE GRAOS LEVAIN UN CD - 200g" },
+          { item: "6980", nome: "PAO ITALIANO LEVAIN UN CD - 200g" },
+          { item: "4231", nome: "PAO LEVAIN AÇAFRAO UN - 200g" },
+          { item: "3978", nome: "PAO LEVAIN BRAGA UN - 200g" },
+          { item: "1936", nome: "PAO LEVAIN CACAU C/ LARANJA UN - 200g" },
+          { item: "2532", nome: "PAO LEVAIN CIABATTA C/2 CONG. ALVORADA - 200g" },
+          { item: "3970", nome: "PAO LEVAIN CUPIAC UN - 200g" },
+          { item: "2061", nome: "PAO LEVAIN FOCACCIA CONG. KG - 1" },
+          { item: "2535", nome: "PAO LEVAIN FOCACCIA CONG.UN - 200g" },
+          { item: "2499", nome: "PAO LEVAIN ITALIANO BOLA C/2 CONG.UN - 200g" },
+          { item: "3980", nome: "PAO LEVAIN ITALIANO KG - 1" },
+          { item: "2059", nome: "PAO LEVAIN ITALIANO UN - 200g" },
+          { item: "3977", nome: "PAO LEVAIN MINEIROCA KG - 1" },
+          { item: "2060", nome: "PAO LEVAIN MINEIROCA UN - 200g" },
+          { item: "2581", nome: "PAO LEVAIN MINI BAGUETE C/2UN CONG - 200g" },
+          { item: "2080", nome: "PAO LEVAIN NOZES C/MEL KG - 1" },
+          { item: "4219", nome: "PAO LEVAIN VINHO C/UVA PASSAS UN - 200g" },
+          { item: "3969", nome: "PÃO LEVAIN CAMPANHA UN - 200g" },
+          { item: "2524", nome: "PÃO LEVAIN NOZES C/ MEL UN - 200g" }
+        ]
+      },
+      "ROTISERIA_SALGADOS": {
+        nome: "14.77.543 - ROTISERIA / SALGADOS",
+        produtos: [
+          { item: "2691", nome: "ASSADO DE SALSICHA ALVORADA UN - 100g" },
+          { item: "4562", nome: "CIGARRETE UN CD - 130g" },
+          { item: "1902", nome: "COXINHA DE FRANGO GRANDE UN - 100g" },
+          { item: "8607", nome: "DADINHO DE TAPIOCA KG - 1" },
+          { item: "2515", nome: "DOGUINHO C.D. ALVORADA KG - 1" },
+          { item: "2394", nome: "EMPADA DE CARNE SECA UN - 100g" },
+          { item: "1886", nome: "EMPADA DE FRANGO UN - 100g" },
+          { item: "2393", nome: "EMPADA DE PALMITO UN - 100g" },
+          { item: "4819", nome: "ESFIHA ABERTA 4 QUEIJOS UN - 200g" },
+          { item: "4818", nome: "ESFIHA ABERTA DE CARNE UN - 200g" },
+          { item: "2629", nome: "ESFIHA ABERTA DE FRANGO C/REQUEIJAO UN - 200g" },
+          { item: "2599", nome: "ESFIHA FECHADA DE CARNE UN - 100g" },
+          { item: "2624", nome: "ESFIHA FECHADA DE FRANGO C/REQUEIJAO UN - 100g" },
+          { item: "5352", nome: "MINI EMPADA DE FRANGO ALVORADA C/6 UN - 280g" },
+          { item: "2198", nome: "MINI EMPADINHA ALVORADA KG - 1" },
+          { item: "5369", nome: "MISTO PRESUNTO E QUEIJO UN - 200g" },
+          { item: "2678", nome: "PASTEL ASSADO DE FRANGO UN - 1un" },
+          { item: "8406", nome: "PASTEL DE MILHO CARNE KG - 1" },
+          { item: "8408", nome: "PASTEL DE MILHO PIZZA KG - 1" },
+          { item: "8407", nome: "PASTEL DE MILHO QUEIJO KG - 1" },
+          { item: "2496", nome: "QUIBE DE CARNE GRANDE UN - 100g" },
+          { item: "5291", nome: "TORTA DE FRANGO C/CATUPIRY KG - 1" }
+        ]
       }
     };
 
@@ -546,7 +743,7 @@
     let unsubMetas = null;
     let unsubLojas = null;
 
-    // Alternar entre as Abas
+    // Alternar entre as Abas Principais
     window.mudarAba = function(aba, e) {
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('ativo'));
       document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('ativo'));
@@ -616,7 +813,17 @@
       }
     };
 
-    // Renderizar Categoria do Progresso
+    window.limparChecklistERP = async function() {
+      if (confirm("Tem certeza de que deseja desmarcar todas as lojas das colunas NUVEM e EMAIL de uma só vez?")) {
+        try {
+          await set(ref(db, 'checklist_pedidos_erp'), { nuvem: {}, email: {} });
+        } catch (err) {
+          alert('Erro ao limpar checklist: ' + err.message);
+        }
+      }
+    };
+
+    // Renderizar Botões de Categorias
     function renderizarCategorias() {
       const container = document.getElementById('containerCategorias');
       container.innerHTML = '';
