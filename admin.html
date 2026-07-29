@@ -162,6 +162,46 @@
       color: var(--verde-alvorada);
       cursor: pointer;
     }
+
+    /* Checklist Estilos */
+    .checklist-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 12px;
+    }
+    .checklist-card {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 12px 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s;
+    }
+    .checklist-card.confirmado {
+      background: #dcfce7;
+      border-color: #16a34a;
+    }
+    .checklist-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .checklist-loja {
+      font-weight: bold;
+      font-size: 13px;
+      color: var(--texto-dark);
+    }
+    .checklist-rua {
+      font-size: 11px;
+      color: #64748b;
+    }
+    .checkbox-custom {
+      width: 22px;
+      height: 22px;
+      accent-color: var(--verde-alvorada);
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -173,7 +213,31 @@
   <div class="nav-principal">
     <button class="btn-tab" onclick="mudarAba('expedicao', event)">📦 Expedição Lojas</button>
     <button class="btn-tab ativo" onclick="mudarAba('progresso', event)">📊 Progresso da Produção</button>
+    <button class="btn-tab" onclick="mudarAba('checklist', event)">✅ Checklist Pedidos ERP</button>
     <button class="btn-tab" onclick="mudarAba('importar', event)">📂 Importar Planilha Excel</button>
+  </div>
+
+  <div id="tab-checklist" class="tab-content">
+    <div class="card">
+      <h3 style="margin-top: 0; color: var(--verde-escuro);">Conferência de Pedidos no Sistema (ERP)</h3>
+      <p style="font-size: 13px; color: #64748b;">
+        Marque a caixa correspondente assim que o pedido de reabastecimento de cada loja for verificado/confirmado no sistema.
+      </p>
+
+      <div class="grid-resumo" style="margin-bottom: 20px;">
+        <div class="card-resumo" style="border-left-color: #16a34a;">
+          <h4>Confirmados</h4>
+          <div class="valor" id="lblChecklistConfirmados">0 / 0</div>
+        </div>
+        <div class="card-resumo" style="border-left-color: #d97706;">
+          <h4>Pendentes</h4>
+          <div class="valor" id="lblChecklistPendentes">0</div>
+        </div>
+      </div>
+
+      <div class="checklist-grid" id="containerChecklist">
+        </div>
+    </div>
   </div>
 
   <div id="tab-importar" class="tab-content">
@@ -285,6 +349,27 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+
+    const LISTA_LOJAS_ERP = [
+      { id: "DELFIM", nome: "DELFIM" },
+      { id: "IMIGRANTES", nome: "IMIGRANTES" },
+      { id: "PLINIO_SALGADO", nome: "PLINIO SALGADO" },
+      { id: "STO_ANTONIO", nome: "STO ANTONIO" },
+      { id: "PADRE_LOURENCO", nome: "PADRE LOURENÇO" },
+      { id: "MONSIEUR_REBOURGEON", nome: "MONSIEUR REBOURGEON" },
+      { id: "JOAO_OLIVO", nome: "JOÃO OLIVO" },
+      { id: "ALAGOAS", nome: "ALAGOAS" },
+      { id: "GOVERNADOR", nome: "GOVERNADOR" },
+      { id: "SILVIANO", nome: "SILVIANO" },
+      { id: "GETULIO", nome: "GETULIO" },
+      { id: "CESARIO", nome: "CESARIO" },
+      { id: "GUARDA", nome: "GUARDA" },
+      { id: "COMERCIAL", nome: "COMERCIAL" },
+      { id: "CAPITAO", nome: "CAPITÃO" },
+      { id: "WENCESLAU", nome: "WENCESLAU" },
+      { id: "PRINCESA", nome: "PRINCESA" },
+      { id: "ANTONIO", nome: "ANTONIO" }
+    ];
 
     const CATEGORIAS_DADOS = {
       "PAES_ROSCAS": {
@@ -436,6 +521,48 @@
       
       document.getElementById(`tab-${aba}`).classList.add('ativo');
       if(e && e.target) e.target.classList.add('ativo');
+    };
+
+    // --- CHECKLIST DE PEDIDOS CONFIRMADOS NO ERP ---
+    function carregarChecklistERP() {
+      const container = document.getElementById('containerChecklist');
+      
+      onValue(ref(db, 'checklist_pedidos_erp'), (snapshot) => {
+        const dados = snapshot.val() || {};
+        container.innerHTML = '';
+
+        let confirmadosCount = 0;
+        const totalLojas = LISTA_LOJAS_ERP.length;
+
+        LISTA_LOJAS_ERP.forEach(loja => {
+          const estaConfirmado = !!dados[loja.id];
+          if (estaConfirmado) confirmadosCount++;
+
+          const divCard = document.createElement('div');
+          divCard.className = `checklist-card ${estaConfirmado ? 'confirmado' : ''}`;
+          
+          divCard.innerHTML = `
+            <div class="checklist-info">
+              <span class="checklist-loja">MAGLIONI RIBEIRO (${loja.nome})</span>
+              <span class="checklist-rua">RUA 53 - SEPARAÇÃO: EMBALAGEM</span>
+            </div>
+            <input type="checkbox" class="checkbox-custom" ${estaConfirmado ? 'checked' : ''} onchange="alternarChecklistLoja('${loja.id}', this.checked)">
+          `;
+
+          container.appendChild(divCard);
+        });
+
+        document.getElementById('lblChecklistConfirmados').innerText = `${confirmadosCount} / ${totalLojas}`;
+        document.getElementById('lblChecklistPendentes').innerText = totalLojas - confirmadosCount;
+      });
+    }
+
+    window.alternarChecklistLoja = async function(lojaId, status) {
+      try {
+        await set(ref(db, `checklist_pedidos_erp/${lojaId}`), status);
+      } catch (err) {
+        alert('Erro ao atualizar status: ' + err.message);
+      }
     };
 
     // Renderizar Categoria do Progresso
@@ -712,7 +839,6 @@
             jsonLinhas.forEach(linha => {
               if (!linha || linha.length < 2) return;
 
-              // Procura o código do item no array da linha
               let codigoItem = null;
               for (let i = 0; i < Math.min(5, linha.length); i++) {
                 const celula = String(linha[i] || '').trim();
@@ -724,7 +850,6 @@
 
               if (!codigoItem) return;
 
-              // Identifica o produto no sistema
               Object.keys(CATEGORIAS_DADOS).forEach(catKey => {
                 const prods = CATEGORIAS_DADOS[catKey].produtos;
                 const indexProd = prods.findIndex(p => p.item === codigoItem);
@@ -732,7 +857,6 @@
                 if (indexProd !== -1) {
                   totalIdentificados++;
 
-                  // Procura o valor Total do Pedido na linha (geralmente a última coluna numérica)
                   let totalMeta = 0;
                   for (let col = linha.length - 1; col >= 0; col--) {
                     const val = parseFloat(linha[col]);
@@ -757,7 +881,6 @@
             return;
           }
 
-          // Grava as novas metas no Firebase
           const promises = Object.keys(metasPorCategoria).map(catKey => {
             return set(ref(db, `expedicao_metas_semana/${catKey}`), metasPorCategoria[catKey]);
           });
@@ -778,6 +901,7 @@
     // Inicialização do Sistema
     renderizarCategorias();
     carregarDadosPainelRealtime();
+    carregarChecklistERP();
     inicializarAbaExpedicao();
   </script>
 </body>
