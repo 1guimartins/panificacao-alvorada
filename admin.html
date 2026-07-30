@@ -331,3 +331,266 @@
   </script>
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panificação Alvorada - Gestão Integrada</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f4f6f9;
+      color: #333;
+    }
+
+    /* Header Principal */
+    header {
+      background-color: #0d5c2e;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    header h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    /* Navegação por Abas */
+    nav.nav-abas {
+      background-color: #dce4ec;
+      padding: 10px 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid #cbd5e1;
+    }
+
+    .btn-aba {
+      background-color: #ffffff;
+      border: 1px solid #cbd5e1;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      color: #475569;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-aba:hover {
+      background-color: #f1f5f9;
+    }
+
+    .btn-aba.ativo {
+      background-color: #0d5c2e;
+      color: white;
+      border-color: #0d5c2e;
+    }
+
+    /* Conteúdo das Abas */
+    .aba-conteudo {
+      display: none;
+      padding: 20px;
+    }
+
+    .aba-conteudo.ativa {
+      display: block;
+    }
+
+    /* Estilos da Nova Aba: Painel de Produção */
+    .painel-header {
+      margin-bottom: 20px;
+    }
+
+    .painel-header h2 {
+      color: #0d5c2e;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    .painel-header p {
+      color: #64748b;
+    }
+
+    .grid-dias {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .card-dia {
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e2e8f0;
+      overflow: hidden;
+    }
+
+    .card-dia-header {
+      background-color: #1976d2;
+      color: #ffffff;
+      padding: 12px 16px;
+      font-weight: bold;
+      text-align: center;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tabela-itens {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .tabela-itens tr {
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .tabela-itens tr:last-child {
+      border-bottom: none;
+    }
+
+    .tabela-itens td {
+      padding: 10px 14px;
+      font-size: 0.9rem;
+    }
+
+    .col-qtd {
+      width: 90px;
+      font-weight: bold;
+      color: #1e293b;
+      background-color: #f8fafc;
+      text-align: right;
+      border-right: 1px solid #e2e8f0;
+    }
+
+    .col-item {
+      text-transform: uppercase;
+      color: #334155;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <span>🥐</span>
+    <h1>Panificação Alvorada - Gestão Integrada</h1>
+  </header>
+
+  <nav class="nav-abas">
+    <button class="btn-aba ativo" onclick="alternarAba('expedicao', this)">📦 Expedição Lojas</button>
+    <button class="btn-aba" onclick="alternarAba('progresso', this)">📊 Progresso da Produção</button>
+    <button class="btn-aba" onclick="alternarAba('checklist', this)">☑️ Checklist Pedidos ERP</button>
+    <button class="btn-aba" onclick="alternarAba('prepesagem', this)">⚖️ Programação Pré-Pesagem</button>
+    <button class="btn-aba" onclick="alternarAba('importar', this)">📁 Importar Planilha Excel</button>
+  </nav>
+
+  <div id="aba-expedicao" class="aba-conteudo ativa">
+    <h2>Conferência de Pedidos no Sistema (ERP)</h2>
+    <p style="margin-top: 10px; color: #666;">Conteúdo da expedição de lojas...</p>
+  </div>
+
+  <div id="aba-progresso" class="aba-conteudo">
+    <h2>Progresso da Produção</h2>
+    <p style="margin-top: 10px; color: #666;">Acompanhamento de produção em tempo real...</p>
+  </div>
+
+  <div id="aba-checklist" class="aba-conteudo">
+    <h2>Checklist de Pedidos ERP</h2>
+    <p style="margin-top: 10px; color: #666;">Checklist das lojas ativas...</p>
+  </div>
+
+  <div id="aba-prepesagem" class="aba-conteudo">
+    <div class="painel-header">
+      <h2>Programação de Pré-Pesagem e Recheio</h2>
+      <p>Acompanhamento semanal de produção e receitas por dia</p>
+    </div>
+    <div class="grid-dias" id="gridDias">
+      </div>
+  </div>
+
+  <div id="aba-importar" class="aba-conteudo">
+    <h2>Importar Planilha Excel</h2>
+    <p style="margin-top: 10px; color: #666;">Selecione um arquivo de planilha para atualizar o sistema...</p>
+    <div id="divStatus" style="margin-top: 15px; font-weight: bold;"></div>
+  </div>
+
+  <script type="module">
+       // Renderizar o Painel de Pré-Pesagem
+    function renderizarPainel() {
+      const container = document.getElementById("gridDias");
+      if (!container) return;
+
+      container.innerHTML = "";
+
+      programacaoSemanal.forEach((diaData) => {
+        const card = document.createElement("div");
+        card.className = "card-dia";
+
+        const linhasHtml = diaData.itens
+          .map(
+            (item) => `
+          <tr>
+            <td class="col-qtd">${item.qtd}</td>
+            <td class="col-item">${item.nome}</td>
+          </tr>
+        `
+          )
+          .join("");
+
+        card.innerHTML = `
+          <div class="card-dia-header">${diaData.dia}</div>
+          <table class="tabela-itens">
+            <tbody>
+              ${linhasHtml}
+            </tbody>
+          </table>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    // Função global para alternar abas
+    window.alternarAba = function(nomeAba, elementoBotao) {
+      // Esconder todas as abas
+      const abas = document.querySelectorAll('.aba-conteudo');
+      abas.forEach(aba => aba.classList.remove('ativa'));
+
+      // Desativar botões
+      const botoes = document.querySelectorAll('.btn-aba');
+      botoes.forEach(btn => btn.classList.remove('ativo'));
+
+      // Mostrar aba selecionada
+      const abaAlvo = document.getElementById(`aba-${nomeAba}`);
+      if (abaAlvo) {
+        abaAlvo.classList.add('ativa');
+      }
+
+      // Ativar botão clicado
+      if (elementoBotao) {
+        elementoBotao.classList.add('ativo');
+      }
+    };
+
+    // Inicialização ao carregar a página
+    document.addEventListener("DOMContentLoaded", () => {
+      renderizarPainel();
+    });
+  </script>
+</body>
+</html>
