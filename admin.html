@@ -1,1166 +1,333 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema Panificação Alvorada</title>
-
-  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panificação Alvorada - Gestão Integrada</title>
   <style>
-    :root { 
-      --verde-alvorada: #007a33; 
-      --verde-escuro: #005624; 
-      --bg-fundo: #f4f6f8; 
-      --texto-dark: #1e293b;
-    }
-    * { box-sizing: border-box; font-family: Arial, sans-serif; }
-    body { background-color: var(--bg-fundo); margin: 0; padding: 15px; }
-
-    /* Cabeçalho e Menu Superior */
-    .header { 
-      background: linear-gradient(135deg, var(--verde-alvorada), var(--verde-escuro)); 
-      color: white; padding: 15px 20px; border-radius: 8px; 
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; 
-    }
-    .nav-principal { display: flex; gap: 8px; margin-bottom: 15px; background: #cbd5e1; padding: 8px; border-radius: 8px; flex-wrap: wrap; }
-    .btn-tab { 
-      padding: 10px 18px; border: none; background: white; 
-      border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; color: #334155; transition: all 0.2s;
-    }
-    .btn-tab.ativo { background: var(--verde-alvorada); color: white; }
-
-    .tab-content { display: none; }
-    .tab-content.ativo { display: block; }
-
-    .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #cbd5e1; margin-bottom: 15px; }
-
-    /* Indicadores Rápidos */
-    .grid-resumo { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 15px; }
-    .card-resumo { background: white; padding: 15px; border-radius: 8px; border-left: 5px solid var(--verde-alvorada); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
-    .card-resumo h4 { margin: 0; font-size: 12px; color: #64748b; text-transform: uppercase; }
-    .card-resumo .valor { font-size: 22px; font-weight: bold; color: var(--texto-dark); margin-top: 5px; }
-
-    /* Seletor de Categoria */
-    .nav-categorias { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; background: #e2e8f0; padding: 8px; border-radius: 8px; }
-    .btn-cat { 
-      padding: 8px 14px; border: 1px solid #cbd5e1; background: white; 
-      border-radius: 6px; font-weight: bold; font-size: 11px; cursor: pointer; color: #334155; transition: all 0.2s;
-    }
-    .btn-cat.ativo { background: #1e293b; color: white; border-color: #0f172a; }
-
-    /* Estilos do Formulário de Lista */
-    .form-group { margin-bottom: 12px; }
-    .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 13px; color: var(--texto-dark); }
-    .form-control { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; }
-
-    .card-produto-item {
-      background: #f8fafc;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      padding: 12px 15px;
-      margin-bottom: 12px;
-      transition: all 0.2s;
-    }
-    .card-produto-item.selecionado {
-      border-color: var(--verde-alvorada);
-      background: #ffffff;
-      box-shadow: 0 2px 8px rgba(0, 122, 51, 0.12);
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    .header-prod-check {
+    body {
+      background-color: #f4f6f9;
+      color: #333;
+    }
+
+    /* Header Principal */
+    header {
+      background-color: #0d5c2e;
+      color: white;
+      padding: 15px 20px;
       display: flex;
       align-items: center;
       gap: 12px;
-      cursor: pointer;
-    }
-    .header-prod-check input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
-      accent-color: var(--verde-alvorada);
-      cursor: pointer;
-    }
-    .header-prod-check .prod-titulo {
-      font-weight: bold;
-      font-size: 14px;
-      color: var(--texto-dark);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
 
-    .grid-lojas-expedicao {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
-      gap: 8px;
-      margin-top: 12px;
-      padding-top: 10px;
-      border-top: 1px dashed #cbd5e1;
+    header h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
     }
 
-    .box-loja {
-      background: #f1f5f9;
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      padding: 5px;
-      text-align: center;
-    }
-    .box-loja label {
-      font-size: 10px;
-      font-weight: bold;
-      color: #475569;
-      display: block;
-      margin-bottom: 3px;
-    }
-    .box-loja input {
-      width: 100%;
-      text-align: center;
-      padding: 5px;
-      border: 1px solid #cbd5e1;
-      border-radius: 4px;
-      font-weight: bold;
-      font-size: 12px;
-    }
-    .box-loja input:disabled {
-      background: #e2e8f0;
-      color: #94a3b8;
-      cursor: not-allowed;
-    }
-
-    .btn-salvar { background: var(--verde-alvorada); color: white; border: none; padding: 12px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 15px; width: 100%; font-size: 14px; }
-    .btn-salvar:hover { background: var(--verde-escuro); }
-
-    .btn-limpar-checklist {
-      background-color: #dc2626;
-      color: white;
-      border: none;
-      padding: 10px 18px;
-      font-weight: bold;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 13px;
-      transition: background 0.2s;
-    }
-    .btn-limpar-checklist:hover {
-      background-color: #b91c1c;
-    }
-
-    /* Tabela de Progresso */
-    .container-tabela { overflow-x: auto; border: 1px solid #cbd5e1; border-radius: 6px; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
-    th, td { border: 1px solid #cbd5e1; padding: 10px; }
-    th { background-color: #1e293b; color: white; font-size: 12px; }
-    tr:nth-child(even) { background-color: #f8fafc; }
-
-    /* Barra de Progresso Visual */
-    .progress-bar-container { background-color: #e2e8f0; border-radius: 10px; height: 16px; width: 100%; overflow: hidden; position: relative; }
-    .progress-bar-fill { background-color: #0284c7; height: 100%; width: 0%; transition: width 0.4s ease-in-out; border-radius: 10px; }
-    .progress-bar-fill.concluido { background-color: #16a34a; }
-
-    .status-badge { font-weight: bold; padding: 4px 8px; border-radius: 12px; font-size: 11px; text-align: center; display: inline-block; }
-    .status-badge.pendente { background-color: #fef3c7; color: #92400e; }
-    .status-badge.concluido { background-color: #dcfce7; color: #166534; }
-
-    /* Área de Upload de Arquivo */
-    .upload-box {
-      border: 2px dashed #007a33;
-      border-radius: 8px;
-      padding: 30px;
-      text-align: center;
-      background: #f8fafc;
-      margin-bottom: 15px;
-      cursor: pointer;
-    }
-    .upload-box input[type="file"] {
-      display: none;
-    }
-    .upload-label {
-      font-size: 15px;
-      font-weight: bold;
-      color: var(--verde-alvorada);
-      cursor: pointer;
-    }
-
-    /* Checklist Estilos */
-    .checklist-colunas-wrapper {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 20px;
-    }
-    .coluna-checklist {
-      background: #ffffff;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      padding: 15px;
-    }
-    .coluna-checklist h4 {
-      margin-top: 0;
-      margin-bottom: 12px;
-      padding-bottom: 8px;
-      border-bottom: 2px solid var(--verde-alvorada);
-      color: #1e293b;
-      font-size: 16px;
-      text-align: center;
-    }
-    .checklist-list {
+    /* Navegação por Abas */
+    nav.nav-abas {
+      background-color: #dce4ec;
+      padding: 10px 20px;
       display: flex;
-      flex-direction: column;
-      gap: 8px;
+      gap: 10px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid #cbd5e1;
     }
-    .checklist-card {
-      background: #f8fafc;
+
+    .btn-aba {
+      background-color: #ffffff;
       border: 1px solid #cbd5e1;
+      padding: 8px 16px;
       border-radius: 6px;
-      padding: 10px 12px;
+      cursor: pointer;
+      font-weight: 600;
+      color: #475569;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      transition: all 0.2s;
+      gap: 6px;
+      transition: all 0.2s ease;
     }
-    .checklist-card.confirmado {
-      background: #dcfce7;
-      border-color: #16a34a;
+
+    .btn-aba:hover {
+      background-color: #f1f5f9;
     }
-    .checklist-info {
-      display: flex;
-      flex-direction: column;
+
+    .btn-aba.ativo {
+      background-color: #0d5c2e;
+      color: white;
+      border-color: #0d5c2e;
     }
-    .checklist-loja {
-      font-weight: bold;
-      font-size: 12px;
-      color: var(--texto-dark);
+
+    /* Conteúdo das Abas */
+    .aba-conteudo {
+      display: none;
+      padding: 20px;
     }
-    .checklist-rua {
-      font-size: 10px;
+
+    .aba-conteudo.ativa {
+      display: block;
+    }
+
+    /* Estilos da Nova Aba: Painel de Produção */
+    .painel-header {
+      margin-bottom: 20px;
+    }
+
+    .painel-header h2 {
+      color: #0d5c2e;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    .painel-header p {
       color: #64748b;
     }
-    .checkbox-custom {
-      width: 20px;
-      height: 20px;
-      accent-color: var(--verde-alvorada);
-      cursor: pointer;
+
+    .grid-dias {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .card-dia {
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e2e8f0;
+      overflow: hidden;
+    }
+
+    .card-dia-header {
+      background-color: #1976d2;
+      color: #ffffff;
+      padding: 12px 16px;
+      font-weight: bold;
+      text-align: center;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tabela-itens {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .tabela-itens tr {
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .tabela-itens tr:last-child {
+      border-bottom: none;
+    }
+
+    .tabela-itens td {
+      padding: 10px 14px;
+      font-size: 0.9rem;
+    }
+
+    .col-qtd {
+      width: 90px;
+      font-weight: bold;
+      color: #1e293b;
+      background-color: #f8fafc;
+      text-align: right;
+      border-right: 1px solid #e2e8f0;
+    }
+
+    .col-item {
+      text-transform: uppercase;
+      color: #334155;
     }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <h2 style="margin:0;">🥐 Panificação Alvorada - Gestão Integrada</h2>
+  <header>
+    <span>🥐</span>
+    <h1>Panificação Alvorada - Gestão Integrada</h1>
+  </header>
+
+  <nav class="nav-abas">
+    <button class="btn-aba ativo" onclick="alternarAba('expedicao', this)">📦 Expedição Lojas</button>
+    <button class="btn-aba" onclick="alternarAba('progresso', this)">📊 Progresso da Produção</button>
+    <button class="btn-aba" onclick="alternarAba('checklist', this)">☑️ Checklist Pedidos ERP</button>
+    <button class="btn-aba" onclick="alternarAba('prepesagem', this)">⚖️ Programação Pré-Pesagem</button>
+    <button class="btn-aba" onclick="alternarAba('importar', this)">📁 Importar Planilha Excel</button>
+  </nav>
+
+  <div id="aba-expedicao" class="aba-conteudo ativa">
+    <h2>Conferência de Pedidos no Sistema (ERP)</h2>
+    <p style="margin-top: 10px; color: #666;">Conteúdo da expedição de lojas...</p>
   </div>
 
-  <div class="nav-principal">
-    <button class="btn-tab" onclick="mudarAba('expedicao', event)">📦 Expedição Lojas</button>
-    <button class="btn-tab ativo" onclick="mudarAba('progresso', event)">📊 Progresso da Produção</button>
-    <button class="btn-tab" onclick="mudarAba('checklist', event)">✅ Checklist Pedidos ERP</button>
-    <button class="btn-tab" onclick="mudarAba('importar', event)">📂 Importar Planilha Excel</button>
+  <div id="aba-progresso" class="aba-conteudo">
+    <h2>Progresso da Produção</h2>
+    <p style="margin-top: 10px; color: #666;">Acompanhamento de produção em tempo real...</p>
   </div>
 
-  <div id="tab-checklist" class="tab-content">
-    <div class="card">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
-        <div>
-          <h3 style="margin: 0; color: var(--verde-escuro);">Conferência de Pedidos no Sistema (ERP)</h3>
-          <p style="font-size: 13px; color: #64748b; margin: 5px 0 0 0;">
-            Marque a caixa correspondente assim que o pedido de reabastecimento de cada loja for verificado/confirmado.
-          </p>
-        </div>
-        <button class="btn-limpar-checklist" onclick="limparChecklistERP()">🧹 Limpar / Desmarcar Todos</button>
-      </div>
-
-      <div class="grid-resumo" style="margin-bottom: 20px;">
-        <div class="card-resumo" style="border-left-color: #16a34a;">
-          <h4>Confirmados (Total)</h4>
-          <div class="valor" id="lblChecklistConfirmados">0 / 42</div>
-        </div>
-        <div class="card-resumo" style="border-left-color: #d97706;">
-          <h4>Pendentes</h4>
-          <div class="valor" id="lblChecklistPendentes">42</div>
-        </div>
-      </div>
-
-      <div class="checklist-colunas-wrapper">
-        <div class="coluna-checklist">
-          <h4>☁️ NUVEM</h4>
-          <div class="checklist-list" id="containerChecklistNuvem"></div>
-        </div>
-
-        <div class="coluna-checklist">
-          <h4>✉️ EMAIL</h4>
-          <div class="checklist-list" id="containerChecklistEmail"></div>
-        </div>
-      </div>
-    </div>
+  <div id="aba-checklist" class="aba-conteudo">
+    <h2>Checklist de Pedidos ERP</h2>
+    <p style="margin-top: 10px; color: #666;">Checklist das lojas ativas...</p>
   </div>
 
-  <div id="tab-importar" class="tab-content">
-    <div class="card">
-      <h3 style="margin-top: 0; color: var(--verde-escuro);">📁 Upload do Arquivo Excel (.xlsx)</h3>
-      <p style="font-size: 13px; color: #64748b;">
-        Selecione o arquivo da planilha recebido no início da semana para atualizar o sistema de forma 100% automática.
-      </p>
-
-      <div class="upload-box" onclick="document.getElementById('inputArquivoExcel').click()">
-        <span class="upload-label" id="lblNomeArquivo">📄 Clique aqui para escolher o arquivo da Planilha (.xlsx)</span>
-        <input type="file" id="inputArquivoExcel" accept=".xlsx, .xls" onchange="atualizarNomeArquivo(this)">
-      </div>
-
-      <button class="btn-salvar" onclick="processarArquivoExcel()">⚡ Processar Planilha e Salvar Metas</button>
-      
-      <div id="msgStatusImportacao" style="margin-top: 15px; font-weight: bold; font-size: 13px;"></div>
+  <div id="aba-prepesagem" class="aba-conteudo">
+    <div class="painel-header">
+      <h2>Programação de Pré-Pesagem e Recheio</h2>
+      <p>Acompanhamento semanal de produção e receitas por dia</p>
     </div>
+    <div class="grid-dias" id="gridDias">
+      </div>
   </div>
 
-  <div id="tab-expedicao" class="tab-content">
-    <div class="card">
-      <h3 style="margin-top: 0; color: var(--verde-escuro);">Lançamento de Expedição por Lista de Produtos</h3>
-      
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px;">
-        <div class="form-group">
-          <label>Categoria:</label>
-          <select id="selExpCategoria" class="form-control"></select>
-        </div>
-        <div class="form-group">
-          <label>Dia da Semana:</label>
-          <select id="selExpDia" class="form-control">
-            <option value="Segunda-feira">Segunda-feira</option>
-            <option value="Terça-feira">Terça-feira</option>
-            <option value="Quarta-feira">Quarta-feira</option>
-            <option value="Quinta-feira">Quinta-feira</option>
-            <option value="Sexta-feira">Sexta-feira</option>
-            <option value="Sábado">Sábado</option>
-          </select>
-        </div>
-      </div>
-
-      <p style="font-size: 13px; color: #64748b; margin-top: 0;">
-        📌 <strong>Instrução:</strong> Selecione os produtos que serão produzidos marcando a caixa correspondente. Em seguida, digite as quantidades enviadas para cada loja.
-      </p>
-
-      <div id="containerListaProdutosExpedicao"></div>
-
-      <button class="btn-salvar" onclick="salvarTodaExpedicao()">💾 Salvar Lançamentos no Banco</button>
-    </div>
-  </div>
-
-  <div id="tab-progresso" class="tab-content ativo">
-
-    <div class="grid-resumo">
-      <div class="card-resumo" style="border-left-color: #0284c7;">
-        <h4>Total do Pedido Semanal</h4>
-        <div class="valor" id="lblTotalPedidoSemana">0 un</div>
-      </div>
-      <div class="card-resumo" style="border-left-color: #16a34a;">
-        <h4>Já Produzido / Embalado</h4>
-        <div class="valor" id="lblTotalProduzido">0 un</div>
-      </div>
-      <div class="card-resumo" style="border-left-color: #d97706;">
-        <h4>Falta Produzir</h4>
-        <div class="valor" id="lblTotalFalta">0 un</div>
-      </div>
-    </div>
-
-    <div class="nav-categorias" id="containerCategorias"></div>
-
-    <div class="card">
-      <h3 id="tituloCategoria" style="margin-top:0; color: var(--verde-escuro);">191-1 - PÃES / ROSCAS</h3>
-
-      <div class="container-tabela">
-        <table>
-          <thead>
-            <tr>
-              <th style="width: 80px;">CÓDIGO</th>
-              <th>PRODUTO</th>
-              <th style="width: 120px; text-align: center;">PEDIDO SEMANAL</th>
-              <th style="width: 120px; text-align: center;">PRODUZIDO</th>
-              <th style="width: 120px; text-align: center;">FALTA</th>
-              <th style="width: 180px;">PROGRESSO</th>
-              <th style="width: 110px; text-align: center;">STATUS</th>
-            </tr>
-          </thead>
-          <tbody id="tbodyProgresso">
-          </tbody>
-        </table>
-      </div>
-    </div>
-
+  <div id="aba-importar" class="aba-conteudo">
+    <h2>Importar Planilha Excel</h2>
+    <p style="margin-top: 10px; color: #666;">Selecione um arquivo de planilha para atualizar o sistema...</p>
+    <div id="divStatus" style="margin-top: 15px; font-weight: bold;"></div>
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyB-KGrSWvIAKW6ZT0SDGUH7LFLzvYsmcJk",
-      authDomain: "panificacao-alvorada.firebaseapp.com",
-      databaseURL: "https://panificacao-alvorada-default-rtdb.firebaseio.com",
-      projectId: "panificacao-alvorada",
-      storageBucket: "panificacao-alvorada.firebasestorage.app",
-      messagingSenderId: "537626588403",
-      appId: "1:537626588403:web:8bd808f903fe33b422f386"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    const LISTA_LOJAS_ERP = [
-      { id: "LOJA_01", nome: "Loja 01 - Comendador (Santa Rita)" },
-      { id: "LOJA_02", nome: "Loja 02 - Guarda Mor (Ouro Fino)" },
-      { id: "LOJA_03", nome: "Loja 03 - Cesário (Itajubá)" },
-      { id: "LOJA_04", nome: "Loja 04 - Silviano (Pouso Alegre)" },
-      { id: "LOJA_05", nome: "Loja 05 - Vicente (Pouso Alegre)" },
-      { id: "LOJA_06", nome: "Loja 06 - Getúlio (Itajubá)" },
-      { id: "LOJA_07", nome: "Loja 07 - Capitão (Itajubá)" },
-      { id: "LOJA_08", nome: "Loja 08 - Antônio (Machado)" },
-      { id: "LOJA_09", nome: "Loja 09 - José (Alfenas)" },
-      { id: "LOJA_10", nome: "Loja 10 - Princesa (Varginha)" },
-      { id: "LOJA_11", nome: "Loja 11 - Wanceslau Braz (Varginha)" },
-      { id: "LOJA_12", nome: "Loja 12 - Olavo Gomes - Foch (Pouso Alegre)" },
-      { id: "LOJA_13", nome: "Loja 13 - Alagoas (Machado)" },
-      { id: "LOJA_14", nome: "Loja 14 - Governador (Alfenas)" },
-      { id: "LOJA_15", nome: "Loja 15 - João Olivio (Borda da Mata)" },
-      { id: "LOJA_16", nome: "Loja 16 - Monsieur (Itajubá)" },
-      { id: "LOJA_17", nome: "Loja 17 - Padre Lourenço (Itajubá)" },
-      { id: "LOJA_18", nome: "Loja 18 - José Custódio - Santo Antônio (Pouso Alegre)" },
-      { id: "LOJA_19", nome: "Loja 19 - Plinio Salgado (Varginha)" },
-      { id: "LOJA_20", nome: "Loja 20 - Imigrantes (Varginha)" },
-      { id: "LOJA_21", nome: "Loja 21 - Delfim Moreira (Ouro Fino)" }
+    // Dados da Programação de Pré-Pesagem e Recheio
+    const programacaoSemanal = [
+      {
+        dia: "Segunda-Feira 20/07/2026",
+        itens: [
+          { qtd: "120 Kg", nome: "MASSA DE PIZZA" },
+          { qtd: "3 rec", nome: "CIGARRETE" },
+          { qtd: "2 rec", nome: "COOKIES TRADICIONAL" },
+          { qtd: "2 rec", nome: "MINI EMPADINHA FESTA" },
+          { qtd: "16 rec", nome: "BROA AEROSA" },
+          { qtd: "2 rec", nome: "STROGONOFF DE CARNE C/ ARROZ" }
+        ]
+      },
+      {
+        dia: "Terça-Feira 21/07/2026",
+        itens: [
+          { qtd: "6 rec", nome: "CIGARRETE" },
+          { qtd: "8 rec", nome: "BOLINHA DE MILHO" },
+          { qtd: "8 rec", nome: "BOLINHA DE PIZZA" },
+          { qtd: "6 rec", nome: "PÃO DE QUEIJO LANCHE" },
+          { qtd: "30 kg", nome: "CROISSANT DE PRESUNTO E QUEIJO" }
+        ]
+      },
+      {
+        dia: "Quarta-Feira 22/07/2026",
+        itens: [
+          { qtd: "120 kg", nome: "MASSA DE PIZZA" },
+          { qtd: "5 rec", nome: "ESFIHA ABERTA DE 4 QUEIJOS" },
+          { qtd: "2 rec", nome: "MINI EMPADINHA FESTA" },
+          { qtd: "4 rec", nome: "MINI EMPADA DE FRANGO C/ 6" },
+          { qtd: "6 rec", nome: "PÃO DE QUEIJO TRADICIONAL" },
+          { qtd: "2 rec", nome: "FEIJOADA" },
+          { qtd: "200 kg", nome: "BISCOITINHO DE QUEIJO" }
+        ]
+      },
+      {
+        dia: "Quinta-Feira 23/07/2026",
+        itens: [
+          { qtd: "120 kg", nome: "MASSA DE PIZZA" },
+          { qtd: "5 rec", nome: "ESFIHA FECHADA DE FRANGO C/ CATUPIRY" },
+          { qtd: "16 rec", nome: "MINI COXINHA DE FRANGO" },
+          { qtd: "2 rec", nome: "MINI EMPADINHA FESTA" },
+          { qtd: "3 rec", nome: "PÃO DE QUEIJO LANCHE" },
+          { qtd: "3 rec", nome: "PÃO DE QUEIJO 3 QUEIJOS" }
+        ]
+      },
+      {
+        dia: "Sexta-Feira 24/07/2026",
+        itens: [
+          { qtd: "4 rec", nome: "DOGUINHO" },
+          { qtd: "5 rec", nome: "MISTO DE PRESUNTO E QUEIJO" },
+          { qtd: "16 rec", nome: "BOLINHA DE QUEIJO" },
+          { qtd: "16 rec", nome: "BROA AEROSA" },
+          { qtd: "20 kg", nome: "CROISSANT DE FRANGO" }
+        ]
+      },
+      {
+        dia: "Sábado 25/07/2026",
+        itens: [
+          { qtd: "120 kg", nome: "MASSA DE PIZZA" },
+          { qtd: "3 rec", nome: "CIGARRETE" }
+        ]
+      },
+      {
+        dia: "Domingo 26/07/2025",
+        itens: [
+          { qtd: "120 kg", nome: "MASSA DE PIZZA" }
+        ]
+      }
     ];
 
-    const CATEGORIAS_DADOS = {
-      "PAES_ROSCAS": {
-        nome: "191-1 - PÃES / ROSCAS",
-        produtos: [
-          { item: "2171", nome: "BRIOCHE C/ COCO UN - 275g" },
-          { item: "2172", nome: "BRIOCHE TRADICIONAL UN - 225g" },
-          { item: "2175", nome: "PÃO DE BATATA ALVORADA C/ 4UN - 200g" },
-          { item: "5370", nome: "PÃO DE CEBOLA ALVORADA UN - 200g" },
-          { item: "2555", nome: "PÃO DE FORMA 52% INTEGRAL UN - 400g" },
-          { item: "5170", nome: "PÃO DE FORMA P/ TORTA UN - 400g" },
-          { item: "2916", nome: "PÃO DE FORMA TRADICIONAL UN - 500g" },
-          { item: "2250", nome: "PÃO DE HAMBÚRGUER C/ GERGELIM C/ 4UN - 260g" },
-          { item: "2252", nome: "PÃO DE HAMBÚRGUER TRADICIONAL C/ 4UN - 260g" },
-          { item: "2598", nome: "PÃO DE HOT DOG C/ 4UN - 270g" },
-          { item: "2558", nome: "PÃO DE MILHO TRADICIONAL C/ 4UN - 260g" },
-          { item: "2173", nome: "PÃO SOVADO ALVORADA UN - 475g" },
-          { item: "2906", nome: "PAULISTINHA CD C/ 5UN - 200g" },
-          { item: "3932", nome: "ROSCA DA FAZENDA C/ AÇÚCAR UN - 300g" },
-          { item: "2391", nome: "ROSCA DA FAZENDA UN - 300g" },
-          { item: "2494", nome: "ROSCA DE LEITE CONDENSADO CD C/ 3UN - 180g" },
-          { item: "2824", nome: "ROSCA LISA C/ 4UN - 200g" },
-          { item: "2174", nome: "ROSCA RAINHA ALVORADA UN - 300g" },
-          { item: "4350", nome: "ROSCA RAINHA C/ CREME UN - 300g" },
-          { item: "4491", nome: "ROSQUINHA C/ AÇÚCAR C/ 4UN - 250g" },
-          { item: "4467", nome: "ROSQUINHA C/ CREME C/ 4UN - 300g" }
-        ]
-      },
-      "PANETONES": {
-        nome: "191-18 - PANETONES",
-        produtos: [
-          { item: "4525", nome: "COLOMBA PASCAL FRUTAS CRISTALIZADAS 400G" },
-          { item: "4526", nome: "COLOMBA PASCAL GOTAS DE CHOCOLATE 400G" },
-          { item: "7008", nome: "PANETTONE ALVORADA UN 400G" },
-          { item: "8134", nome: "PANETTONE GOTAS DE CHOC. ALVORADA 400G" }
-        ]
-      },
-      "BOLOS_PLACA": {
-        nome: "191-4 - BOLOS PLACA",
-        produtos: [
-          { item: "1796", nome: "BOLO DE ABACAXI UN - 1800g" },
-          { item: "1138", nome: "BOLO DE CENOURA C/ COBERTURA UN - 1800g" },
-          { item: "1141", nome: "BOLO DE CENOURA UN - 1800g" },
-          { item: "1140", nome: "BOLO DE CHOCOLATE C/ COBERTURA UN - 1800g" },
-          { item: "1109", nome: "BOLO DE CHOCOLATE UN - 1800g" },
-          { item: "1782", nome: "BOLO DE COCO C/ COBERTURA UN - 1800g" },
-          { item: "1110", nome: "BOLO DE COCO UN - 1800g" },
-          { item: "1106", nome: "BOLO DE FUBÁ UN - 1800g" },
-          { item: "1783", nome: "BOLO DE LARANJA UN - 1800g" },
-          { item: "1115", nome: "BOLO DE LEITE CONDENSADO UN - 1800g" },
-          { item: "1779", nome: "BOLO DE LIMÃO C/ COBERTURA UN - 1800g" },
-          { item: "1773", nome: "BOLO DE LIMÃO UN - 1800g" },
-          { item: "1776", nome: "BOLO DE MILHO UN - 1800g" },
-          { item: "1778", nome: "BOLO FORMIGUEIRO UN - 1800g" },
-          { item: "1785", nome: "BOLO NEUTRO UN - 1800g" }
-        ]
-      },
-      "BOLOS_CASEIROS": {
-        nome: "191-4 - BOLOS CASEIROS / INGLÊS",
-        produtos: [
-          { item: "5028", nome: "BOLO CASEIRO LARANJA UN - 250g" },
-          { item: "6553", nome: "BOLO CASEIRO TAMEGUEIRA CD - 150g" },
-          { item: "4114", nome: "BOLO INGLÊS CHOCOLATE UN - 200g" },
-          { item: "4116", nome: "BOLO INGLÊS FORMIGUEIRO UN - 200g" },
-          { item: "4117", nome: "BOLO INGLÊS LARANJA UN - 200g" },
-          { item: "3036", nome: "BOLO INGLÊS MESCLADO UN - 200g" },
-          { item: "4457", nome: "BOLO INGLÊS MILHO UN - 200g" },
-          { item: "4118", nome: "BOLO INGLÊS CENOURA C/ LARANJA UN - 200g" }
-        ]
-      },
-      "BOLOS_CREMOSOS": {
-        nome: "191-4 - BOLOS CREMOSOS / COBERTURA",
-        produtos: [
-          { item: "2176", nome: "BOLO CREMOSO ABACAXI UN - 300g" },
-          { item: "2496", nome: "BOLO CREMOSO ADOCICA C/ COCO UN - 300g" },
-          { item: "2177", nome: "BOLO CREMOSO AIPIM UN - 300g" },
-          { item: "2498", nome: "BOLO CREMOSO BANANA C/ GRANOLA UN - 300g" },
-          { item: "2178", nome: "BOLO CREMOSO C/ CUCA UN - 300g" },
-          { item: "2488", nome: "BOLO CREMOSO DOS DEUS UN - 300g" },
-          { item: "2192", nome: "BOLO CREMOSO CHOCOLATE UN - 300g" },
-          { item: "2184", nome: "BOLO CREMOSO CHURROS UN - 300g" },
-          { item: "2187", nome: "BOLO CREMOSO COCO UN - 300g" },
-          { item: "2186", nome: "BOLO CREMOSO GOIABADA UN - 300g" },
-          { item: "1942", nome: "BOLO CREMOSO LEITE CONDENSADO UN - 300g" },
-          { item: "1939", nome: "BOLO CREMOSO MARACUJÁ UN - 300g" },
-          { item: "2190", nome: "BOLO CREMOSO MILHO UN - 300g" },
-          { item: "5155", nome: "BOLO CREMOSO QUEIJADINHA UN - 300g" },
-          { item: "1933", nome: "BOLO CREMOSO DE PAÇOCA UN - 300g" },
-          { item: "2197", nome: "BOLO CREMOSO RED VELVET C/ COBERTURA" },
-          { item: "2193", nome: "BOLO REDONDO CENOURA C/ COBERTURA" },
-          { item: "4406", nome: "BOLO REDONDO CHOCOLATE C/ COBERTURA" },
-          { item: "2132", nome: "BOLO REDONDO CHURROS C/ COBERTURA" },
-          { item: "4103", nome: "BOLO REDONDO COCO C/ COBERTURA UN - 300g" },
-          { item: "2009", nome: "BOLO REDONDO LIMÃO C/ COBERTURA UN - 300g" },
-          { item: "4100", nome: "BOLO REDONDO CAFÉ C/ COBERTURA UN - 300g" },
-          { item: "4446", nome: "BOLO REDONDO CAPPUCCINO C/ COBERTURA" },
-          { item: "4945", nome: "BOLO REDONDO NOZES C/ COBERTURA UN - 300g" },
-          { item: "4905", nome: "BOLO REDONDO PAÇOCA C/ COBERTURA UN - 300g" }
-        ]
-      },
-      "BOLOS_REDONDOS": {
-        nome: "191-4 - BOLOS REDONDOS / BROWNIE / COOKIES",
-        produtos: [
-          { item: "4127", nome: "BOLO REDONDO ABACAXI UN - 280g" },
-          { item: "4126", nome: "BOLO REDONDO CENOURA UN - 280g" },
-          { item: "4036", nome: "BOLO REDONDO CHOCOLATE UN - 280g" },
-          { item: "4098", nome: "BOLO REDONDO FORMIGUEIRO UN - 280g" },
-          { item: "4093", nome: "BOLO REDONDO FUBÁ UN - 280g" },
-          { item: "4133", nome: "BOLO REDONDO LARANJA UN - 280g" },
-          { item: "4047", nome: "BOLO REDONDO LEITE CONDENSADO UN - 280g" },
-          { item: "4148", nome: "BOLO REDONDO LIMÃO UN - 280g" },
-          { item: "4132", nome: "BOLO REDONDO MILHO UN - 280g" },
-          { item: "3915", nome: "BOLO REDONDO NEUTRO UN - 280g" },
-          { item: "2918", nome: "BROWNIE DE CHOCOLATE C/ COBERTURA UN" },
-          { item: "2916", nome: "BROWNIE DE CHOCOLATE TRADICIONAL UN" },
-          { item: "2182", nome: "COOKIES C/ CREME DE AVELÃ UN - 240g" },
-          { item: "2127", nome: "COOKIES CHOCOLATE ALVORADA UN - 170g" },
-          { item: "2125", nome: "COOKIES TRADICIONAL ALVORADA UN - 120g" },
-          { item: "2195", nome: "DONUTS SABORES UN - 70g" }
-        ]
-      },
-      "BISCOITOS": {
-        nome: "191-5 - BISCOITOS / MASSAS",
-        produtos: [
-          { item: "267041", nome: "BISC. AMANTEIGADO BEIJINHO DE FREIRA" },
-          { item: "267141", nome: "BISC. AMANTEIGADO BELISCÃO UN - 150g" },
-          { item: "267241", nome: "BISC. AMANTEIGADO CHOCOCHIP UN - 120g" },
-          { item: "273241", nome: "BISC. AMANTEIGADO GOIABINHA C/ AÇÚCAR" },
-          { item: "267341", nome: "BISC. AMANTEIGADO PRATO DE CHOCOLATE" },
-          { item: "271571", nome: "BISC. AMANTEIGADO ROMEU E JULIETA UN" },
-          { item: "267541", nome: "BISC. AMANTEIGADO SEQUILHO DE LEITE" },
-          { item: "5164", nome: "BISCOITO DE POLVILHO ARGOLA UN - 100g" },
-          { item: "5330", nome: "BISCOITO DE POLVILHO RAINHA QUEIJO UN" },
-          { item: "5166", nome: "BISCOITO DE POLVILHO UN - 100g" },
-          { item: "5367", nome: "BISCOITO DE POLVILHO PALITO UN - 200g" },
-          { item: "2195", nome: "MASSA P/ PIZZA ALVORADA C/ 2UN - 400g" }
-        ]
-      },
-      "CONFEITARIA_CONGELADOS": {
-        nome: "14.77.196 - CONFEITARIA CONGELADOS",
-        produtos: [
-          { item: "4729", nome: "BOLO CONFEITADO AVELA UN - 900g" },
-          { item: "9955", nome: "BOLO CONFEITADO DOCE DE LEITE UN - 900g" },
-          { item: "7223", nome: "BOLO CONFEITADO FLOCOS UN - 900g" },
-          { item: "2840", nome: "BOLO CONFEITADO MARACUJÁ UN - 900g" },
-          { item: "2519", nome: "BOLO CONFEITADO PISTACHE UN - 900g" },
-          { item: "2533", nome: "BOLO GOURMET CHOCOLATE C/CREME AVELA - 600g" },
-          { item: "3988", nome: "BOLO GOURMET LETINHO C/NOZES ALVORADA UN - 600g" },
-          { item: "4973", nome: "BOLO PREMIUM 4 LEITES UN - 800g" },
-          { item: "5579", nome: "BOLO PREMIUM CHOCOLATE UN - 800g" },
-          { item: "3522", nome: "BOLO PREMIUM COCO UN - 800g" },
-          { item: "9828", nome: "BOLO PREMIUM NOZES UN - 800g" },
-          { item: "5318", nome: "CAROLINA DE LIMAO KG - 1" },
-          { item: "5328", nome: "CAROLINA DE MARACUJA KG - 1" },
-          { item: "4379", nome: "CHURROS DOCE DE LEITE KG - 1" },
-          { item: "5329", nome: "DONUTS CHOCOLATE - 70g" },
-          { item: "5353", nome: "DONUTS CREME - 75g" },
-          { item: "5401", nome: "DONUTS DOCE DE LEITE C/COBERTURA - 70g" },
-          { item: "5389", nome: "DONUTS FRUTAS VERMELHAS - 70g" },
-          { item: "9371", nome: "PASTEL DE NATA UN - 75g" },
-          { item: "5452", nome: "RING BLUEBERRY KG - 75g" },
-          { item: "5454", nome: "RING BRIGADEIRO - 75g" },
-          { item: "5474", nome: "RING BRIGADEIRO PISTACHE - 75g" },
-          { item: "5434", nome: "RING CHOCOLATE - 75g" },
-          { item: "5544", nome: "RING CREME C/COBERTURA - 75g" },
-          { item: "5492", nome: "RING DOCE DE LEITE C/COBERTURA CROC - 75g" },
-          { item: "5494", nome: "RING FRUTAS VERMELHAS C/COBERTURA - 75g" },
-          { item: "5554", nome: "RING LEITINHO - 75g" },
-          { item: "2911", nome: "TORTA GOURMET BUENO ALVORADA UN - 450g" },
-          { item: "2727", nome: "TORTA GOURMET CREME DE PISTACHE - 500g" },
-          { item: "2909", nome: "TORTA GOURMET DE CREME MORANGO UN - 500g" },
-          { item: "2919", nome: "TORTA GOURMET LETINHO C/COOKIES - 500g" },
-          { item: "5597", nome: "TORTA GOURMET LIMÃO UN - 450g" },
-          { item: "4953", nome: "TORTA GOURMET PISTACHE UN - 500g" },
-          { item: "2544", nome: "TORTA HOLANDESA ALVORADA UN - 400g" }
-        ]
-      },
-      "CONGELADOS": {
-        nome: "14.77.200 - CONGELADOS",
-        produtos: [
-          { item: "7826", nome: "ALMONDEGA DE CARNE ALVORADA CONG. - 450g" },
-          { item: "8807", nome: "CALDO DE ERVILHA UN - 500g" },
-          { item: "8380", nome: "CALDO DE FEIJAO UN - 500g" },
-          { item: "5912", nome: "CALDO DE MILHO UN - 500g" },
-          { item: "8382", nome: "CALDO VERDE UN - 500g" },
-          { item: "2825", nome: "COXA E SOBRECOXA C/PURE ALVORADA - 600g" },
-          { item: "2838", nome: "ESCONDIDINHO DE CARNE ALVORADA CONG 600G - 600g" },
-          { item: "2839", nome: "ESCONDIDINHO DE FRANGO ALVORADA CONG. - 600g" },
-          { item: "2554", nome: "FEIJAO TROPEIRO ALVORADA CONGELADO UN - 450g" },
-          { item: "8435", nome: "FEIJOADA ALVORADA UN - 700g" },
-          { item: "7695", nome: "FRICASSE DE FRANGO ALVORADA CONG. 600G - 600g" },
-          { item: "7506", nome: "LASANHA BOLONHESA ALVORADA CONG. - 600g" },
-          { item: "7510", nome: "LASANHA FRANGO ALVORADA CONG. 600G - 600g" },
-          { item: "7513", nome: "LASANHA QUATRO QUEIJO ALVORADA CONG - 600g" },
-          { item: "7776", nome: "MEDALHAO DE FRANGO ALVORADA CONG. - 300g" },
-          { item: "2836", nome: "PAPPARDELLE C/ALMONDEGA ALVORADA CONG. - 600g" },
-          { item: "1920", nome: "PARMEGIANA DE FRANGO CONG. ALVORADA - 400g" },
-          { item: "7636", nome: "PIZZA CALABRESA ALVORADA CONG. 500G - 500g" },
-          { item: "7645", nome: "PIZZA DA CASA ALVORADA CONG 500G - 500g" },
-          { item: "7637", nome: "PIZZA FRANGO C/REQUEIJAO ALVO CONG 500G - 500g" },
-          { item: "7639", nome: "PIZZA PRESUNTO E QUEIJO CONG. ALVORADA - 500g" },
-          { item: "7822", nome: "STROGONOFF DE CARNE ALVORADA CONG. - 600g" },
-          { item: "7926", nome: "STROGONOFF DE CARNE E ARROZ CONG. 450G - 450g" },
-          { item: "7824", nome: "STROGONOFF DE FRANGO ALVORADA CONG. 600G - 600g" },
-          { item: "7927", nome: "STROGONOFF DE FRANGO E ARROZ CONG. 450G - 450g" }
-        ]
-      },
-      "GELO": {
-        nome: "14.77.318 - GELO",
-        produtos: [
-          { item: "1933", nome: "GELO EM CUBOS / TRITURADO ALVORADA 3 KG - 3kg" },
-          { item: "2379", nome: "GELO EM CUBOS /TRITURADO ALVORADA 1,5 KG - 1,5kg" }
-        ]
-      },
-      "PAO_QUEIJO_MINI_SALGADO": {
-        nome: "14.77.487 - PÃO QUEIJO / MINI SALGADO",
-        produtos: [
-          { item: "2583", nome: "BISCOITAO TRADICIONAL KG - 1" },
-          { item: "1901", nome: "BOLINHA DE MILHO MINI KG - 1" },
-          { item: "8805", nome: "BOLINHA DE PIZZA MINI BDJ CONG - 300g" },
-          { item: "1885", nome: "BOLINHA DE PIZZA MINI KG - 1" },
-          { item: "5336", nome: "BOLINHA DE QUEIJO ALVORADA CONG - 1kg" },
-          { item: "1903", nome: "BOLINHA DE QUEIJO KG - 1" },
-          { item: "8121", nome: "BOLINHO DE BACALHAU BANDEJA ALVORADA UND - 400g" },
-          { item: "2135", nome: "BOLINHO DE BACALHAU KG - 1" },
-          { item: "9753", nome: "BOLINHO DE QUEIJO MINI BDJ CONG - 300g" },
-          { item: "4380", nome: "BROA AEROSA KG - 1" },
-          { item: "2542", nome: "COXINHA DE FRANGO C/REQUEIJAO GRANDE UN - 100g" },
-          { item: "5337", nome: "COXINHA DE FRANGO MINI ALVORADA CONG 1KG - 1kg" },
-          { item: "7202", nome: "COXINHA DE FRANGO MINI BDJ CONG - 300g" },
-          { item: "1904", nome: "COXINHA DE FRANGO MINI KG - 1" },
-          { item: "8966", nome: "KIT PETISCO (COXINHA+BOLINHO QUEIJO) BDJ - 300g" },
-          { item: "8808", nome: "KIT PETISCO(QUIBE+BOLINHA PIZZA)BDJ CONG - 300g" },
-          { item: "5695", nome: "MINI SALGADINHO ASSADO/FRITO ALVORADA KG - 1" },
-          { item: "2833", nome: "PALITINHO DE TAPIOCA ALVORADA KG - 1" },
-          { item: "1873", nome: "PAO DE QUEIJO 3 QUEIJOS ALVORADA KG - 1" },
-          { item: "1966", nome: "PAO DE QUEIJO 3 QUEIJOS C. ALVORADA 400G - 400g" },
-          { item: "2572", nome: "PAO DE QUEIJO C/FRANGO BANDEJA UN - 570g" },
-          { item: "2248", nome: "PAO DE QUEIJO COQUETEL ALVORADA CONG400G - 400g" },
-          { item: "1967", nome: "PAO DE QUEIJO LANCHE ALVORADA CONG 1KG - 1kg" },
-          { item: "1868", nome: "PAO DE QUEIJO LANCHE ALVORADA KG - 1" },
-          { item: "2570", nome: "PAO DE QUEIJO RECH. C/FRANGO ALVORADA KG - 1" },
-          { item: "1978", nome: "PAO DE QUEIJO TRAD ALVORADA CONG 800G - 800g" },
-          { item: "1959", nome: "PAO DE QUEIJO TRAD. ALVORADA CONG 400G - 400g" },
-          { item: "1864", nome: "PAO DE QUEIJO TRADICIONAL ALVORADA KG - 1" },
-          { item: "1923", nome: "QUIBE DE CARNE C/ REQUEIJAO MINI KG - 1" },
-          { item: "1875", nome: "QUIBE DE CARNE MINI KG - 1" },
-          { item: "5338", nome: "QUIBE DE CARNE MINI ALVORADA CONG - 1KG - 1kg" },
-          { item: "8803", nome: "QUIBE DE CARNE MINI BDJ CONG - 300g" }
-        ]
-      },
-      "PAES_LEVAIN": {
-        nome: "14.77.467 - PÃES DE LEVAIN",
-        produtos: [
-          { item: "5378", nome: "BAGUETE ITALIANA UN - 350g" },
-          { item: "7733", nome: "BAGUETE LEVAIN CALABRESA KG - 1" },
-          { item: "2004", nome: "BAGUETE LEVAIN CALABRESA UN - 200g" },
-          { item: "7746", nome: "BAGUETE LEVAIN GERGELIM UN - 200g" },
-          { item: "7735", nome: "BAGUETE LEVAIN TRADICIONAL UN - 200g" },
-          { item: "3976", nome: "CIABATTA C/AZEITONA KG - 1" },
-          { item: "2032", nome: "CIABATTA C/AZEITONA UN - 200g" },
-          { item: "3968", nome: "CIABATTA C/CALABRESA UN - 200g" },
-          { item: "3966", nome: "CIABATTA C/TOMATE SECO KG - 1" },
-          { item: "2034", nome: "CIABATTA C/TOMATE SECO UN - 200g" },
-          { item: "2917", nome: "CROISSANT ALVORADA UN - 60g" },
-          { item: "2383", nome: "CROISSANT DE FRANGO UN - 100g" },
-          { item: "2900", nome: "CROISSANT PRESUNTO E QUEIJO ALVORADA UN - 120g" },
-          { item: "3531", nome: "PAO DE GRAOS LEVAIN UN CD - 200g" },
-          { item: "6980", nome: "PAO ITALIANO LEVAIN UN CD - 200g" },
-          { item: "4231", nome: "PAO LEVAIN AÇAFRAO UN - 200g" },
-          { item: "3978", nome: "PAO LEVAIN BRAGA UN - 200g" },
-          { item: "1936", nome: "PAO LEVAIN CACAU C/ LARANJA UN - 200g" },
-          { item: "2532", nome: "PAO LEVAIN CIABATTA C/2 CONG. ALVORADA - 200g" },
-          { item: "3970", nome: "PAO LEVAIN CUPIAC UN - 200g" },
-          { item: "2061", nome: "PAO LEVAIN FOCACCIA CONG. KG - 1" },
-          { item: "2535", nome: "PAO LEVAIN FOCACCIA CONG.UN - 200g" },
-          { item: "2499", nome: "PAO LEVAIN ITALIANO BOLA C/2 CONG.UN - 200g" },
-          { item: "3980", nome: "PAO LEVAIN ITALIANO KG - 1" },
-          { item: "2059", nome: "PAO LEVAIN ITALIANO UN - 200g" },
-          { item: "3977", nome: "PAO LEVAIN MINEIROCA KG - 1" },
-          { item: "2060", nome: "PAO LEVAIN MINEIROCA UN - 200g" },
-          { item: "2581", nome: "PAO LEVAIN MINI BAGUETE C/2UN CONG - 200g" },
-          { item: "2080", nome: "PAO LEVAIN NOZES C/MEL KG - 1" },
-          { item: "4219", nome: "PAO LEVAIN VINHO C/UVA PASSAS UN - 200g" },
-          { item: "3969", nome: "PÃO LEVAIN CAMPANHA UN - 200g" },
-          { item: "2524", nome: "PÃO LEVAIN NOZES C/ MEL UN - 200g" }
-        ]
-      },
-      "ROTISERIA_SALGADOS": {
-        nome: "14.77.543 - ROTISERIA / SALGADOS",
-        produtos: [
-          { item: "2691", nome: "ASSADO DE SALSICHA ALVORADA UN - 100g" },
-          { item: "4562", nome: "CIGARRETE UN CD - 130g" },
-          { item: "1902", nome: "COXINHA DE FRANGO GRANDE UN - 100g" },
-          { item: "8607", nome: "DADINHO DE TAPIOCA KG - 1" },
-          { item: "2515", nome: "DOGUINHO C.D. ALVORADA KG - 1" },
-          { item: "2394", nome: "EMPADA DE CARNE SECA UN - 100g" },
-          { item: "1886", nome: "EMPADA DE FRANGO UN - 100g" },
-          { item: "2393", nome: "EMPADA DE PALMITO UN - 100g" },
-          { item: "4819", nome: "ESFIHA ABERTA 4 QUEIJOS UN - 200g" },
-          { item: "4818", nome: "ESFIHA ABERTA DE CARNE UN - 200g" },
-          { item: "2629", nome: "ESFIHA ABERTA DE FRANGO C/REQUEIJAO UN - 200g" },
-          { item: "2599", nome: "ESFIHA FECHADA DE CARNE UN - 100g" },
-          { item: "2624", nome: "ESFIHA FECHADA DE FRANGO C/REQUEIJAO UN - 100g" },
-          { item: "5352", nome: "MINI EMPADA DE FRANGO ALVORADA C/6 UN - 280g" },
-          { item: "2198", nome: "MINI EMPADINHA ALVORADA KG - 1" },
-          { item: "5369", nome: "MISTO PRESUNTO E QUEIJO UN - 200g" },
-          { item: "2678", nome: "PASTEL ASSADO DE FRANGO UN - 1un" },
-          { item: "8406", nome: "PASTEL DE MILHO CARNE KG - 1" },
-          { item: "8408", nome: "PASTEL DE MILHO PIZZA KG - 1" },
-          { item: "8407", nome: "PASTEL DE MILHO QUEIJO KG - 1" },
-          { item: "2496", nome: "QUIBE DE CARNE GRANDE UN - 100g" },
-          { item: "5291", nome: "TORTA DE FRANGO C/CATUPIRY KG - 1" }
-        ]
-      }
-    };
+    // Renderizar o Painel de Pré-Pesagem
+    function renderizarPainel() {
+      const container = document.getElementById("gridDias");
+      if (!container) return;
 
-    let categoriaAtual = 'PAES_ROSCAS';
-    let unsubMetas = null;
-    let unsubLojas = null;
+      container.innerHTML = "";
 
-    // Alternar entre as Abas Principais
-    window.mudarAba = function(aba, e) {
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('ativo'));
-      document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('ativo'));
-      
-      document.getElementById(`tab-${aba}`).classList.add('ativo');
-      if(e && e.target) e.target.classList.add('ativo');
-    };
+      programacaoSemanal.forEach((diaData) => {
+        const card = document.createElement("div");
+        card.className = "card-dia";
 
-    // --- CHECKLIST DE PEDIDOS CONFIRMADOS NO ERP (NUVEM x EMAIL) ---
-    function carregarChecklistERP() {
-      const containerNuvem = document.getElementById('containerChecklistNuvem');
-      const containerEmail = document.getElementById('containerChecklistEmail');
-      
-      onValue(ref(db, 'checklist_pedidos_erp'), (snapshot) => {
-        const dados = snapshot.val() || {};
-        const dadosNuvem = dados.nuvem || {};
-        const dadosEmail = dados.email || {};
+        const linhasHtml = diaData.itens
+          .map(
+            (item) => `
+          <tr>
+            <td class="col-qtd">${item.qtd}</td>
+            <td class="col-item">${item.nome}</td>
+          </tr>
+        `
+          )
+          .join("");
 
-        containerNuvem.innerHTML = '';
-        containerEmail.innerHTML = '';
-
-        let confirmadosCount = 0;
-        const totalItens = LISTA_LOJAS_ERP.length * 2; // 21 NUVEM + 21 EMAIL = 42
-
-        LISTA_LOJAS_ERP.forEach(loja => {
-          // 1. Renderizar NUVEM
-          const confNuvem = !!dadosNuvem[loja.id];
-          if (confNuvem) confirmadosCount++;
-
-          const divNuvem = document.createElement('div');
-          divNuvem.className = `checklist-card ${confNuvem ? 'confirmado' : ''}`;
-          divNuvem.innerHTML = `
-            <div class="checklist-info">
-              <span class="checklist-loja">${loja.nome}</span>
-              <span class="checklist-rua">RUA 53 - SEPARAÇÃO: EMBALAGEM</span>
-            </div>
-            <input type="checkbox" class="checkbox-custom" ${confNuvem ? 'checked' : ''} onchange="alternarChecklistLoja('nuvem', '${loja.id}', this.checked)">
-          `;
-          containerNuvem.appendChild(divNuvem);
-
-          // 2. Renderizar EMAIL
-          const confEmail = !!dadosEmail[loja.id];
-          if (confEmail) confirmadosCount++;
-
-          const divEmail = document.createElement('div');
-          divEmail.className = `checklist-card ${confEmail ? 'confirmado' : ''}`;
-          divEmail.innerHTML = `
-            <div class="checklist-info">
-              <span class="checklist-loja">${loja.nome}</span>
-              <span class="checklist-rua">RUA 53 - SEPARAÇÃO: EMBALAGEM</span>
-            </div>
-            <input type="checkbox" class="checkbox-custom" ${confEmail ? 'checked' : ''} onchange="alternarChecklistLoja('email', '${loja.id}', this.checked)">
-          `;
-          containerEmail.appendChild(divEmail);
-        });
-
-        document.getElementById('lblChecklistConfirmados').innerText = `${confirmadosCount} / ${totalItens}`;
-        document.getElementById('lblChecklistPendentes').innerText = totalItens - confirmadosCount;
-      });
-    }
-
-    window.alternarChecklistLoja = async function(tipo, lojaId, status) {
-      try {
-        await set(ref(db, `checklist_pedidos_erp/${tipo}/${lojaId}`), status);
-      } catch (err) {
-        alert('Erro ao atualizar status: ' + err.message);
-      }
-    };
-
-    window.limparChecklistERP = async function() {
-      if (confirm("Tem certeza de que deseja desmarcar todas as lojas das colunas NUVEM e EMAIL de uma só vez?")) {
-        try {
-          await set(ref(db, 'checklist_pedidos_erp'), { nuvem: {}, email: {} });
-        } catch (err) {
-          alert('Erro ao limpar checklist: ' + err.message);
-        }
-      }
-    };
-
-    // Renderizar Botões de Categorias
-    function renderizarCategorias() {
-      const container = document.getElementById('containerCategorias');
-      container.innerHTML = '';
-      Object.keys(CATEGORIAS_DADOS).forEach(catKey => {
-        const btn = document.createElement('button');
-        btn.className = `btn-cat ${catKey === categoriaAtual ? 'ativo' : ''}`;
-        btn.innerText = CATEGORIAS_DADOS[catKey].nome;
-        btn.onclick = () => {
-          categoriaAtual = catKey;
-          document.querySelectorAll('.btn-cat').forEach(b => b.classList.remove('ativo'));
-          btn.classList.add('ativo');
-          document.getElementById('tituloCategoria').innerText = CATEGORIAS_DADOS[catKey].nome;
-          carregarDadosPainelRealtime();
-        };
-        container.appendChild(btn);
-      });
-    }
-
-    // Painel em Tempo Real (Aba Progresso)
-    function carregarDadosPainelRealtime() {
-      if (unsubMetas) unsubMetas();
-      if (unsubLojas) unsubLojas();
-
-      const tbody = document.getElementById('tbodyProgresso');
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Carregando dados...</td></tr>';
-
-      let metasCache = {};
-      let lancamentosCache = {};
-
-      const atualizarTabela = () => {
-        const prods = CATEGORIAS_DADOS[categoriaAtual].produtos;
-        tbody.innerHTML = '';
-
-        let totalMetaCat = 0;
-        let totalProduzidoCat = 0;
-
-        prods.forEach((prod, pIdx) => {
-          const meta = metasCache[pIdx] || 0;
-          let produzido = 0;
-
-          const dias = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
-          dias.forEach(d => {
-            if (lancamentosCache[d] && lancamentosCache[d][`PROD_${pIdx}`]) {
-              for (let i = 1; i <= 21; i++) {
-                const numLoja = String(i).padStart(2, '0');
-                produzido += Number(lancamentosCache[d][`PROD_${pIdx}`][`LOJA_${numLoja}`]) || 0;
-              }
-            }
-          });
-
-          const falta = Math.max(0, meta - produzido);
-          const porc = meta > 0 ? Math.min(100, Math.round((produzido / meta) * 100)) : 0;
-          const concluido = meta > 0 && produzido >= meta;
-
-          totalMetaCat += meta;
-          totalProduzidoCat += produzido;
-
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td><strong>${prod.item}</strong></td>
-            <td><strong>${prod.nome}</strong></td>
-            <td style="text-align: center;"><strong>${meta}</strong></td>
-            <td style="text-align: center; color: #16a34a; font-weight: bold;">${produzido}</td>
-            <td style="text-align: center; color: #d97706; font-weight: bold;">${falta}</td>
-            <td>
-              <div class="progress-bar-container">
-                <div class="progress-bar-fill ${concluido ? 'concluido' : ''}" style="width: ${porc}%;"></div>
-              </div>
-              <div style="font-size: 10px; text-align: right; margin-top: 2px; font-weight: bold;">${porc}%</div>
-            </td>
-            <td style="text-align: center;">
-              <span class="status-badge ${concluido ? 'concluido' : 'pendente'}">
-                ${concluido ? '✓ CONCLUÍDO' : '⏳ EM PRODUÇÃO'}
-              </span>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        });
-
-        const faltaCat = Math.max(0, totalMetaCat - totalProduzidoCat);
-        document.getElementById('lblTotalPedidoSemana').innerText = `${totalMetaCat.toLocaleString('pt-BR')} un`;
-        document.getElementById('lblTotalProduzido').innerText = `${totalProduzidoCat.toLocaleString('pt-BR')} un`;
-        document.getElementById('lblTotalFalta').innerText = `${faltaCat.toLocaleString('pt-BR')} un`;
-      };
-
-      unsubMetas = onValue(ref(db, `expedicao_metas_semana/${categoriaAtual}`), (snapshot) => {
-        metasCache = snapshot.val() || {};
-        atualizarTabela();
-      });
-
-      unsubLojas = onValue(ref(db, `expedicao_lojas/${categoriaAtual}`), (snapshot) => {
-        lancamentosCache = snapshot.val() || {};
-        atualizarTabela();
-      });
-    }
-
-    // --- ABA DE EXPEDIÇÃO EM LISTA ---
-    function inicializarAbaExpedicao() {
-      const selCat = document.getElementById('selExpCategoria');
-      
-      selCat.innerHTML = '';
-      Object.keys(CATEGORIAS_DADOS).forEach(catKey => {
-        const opt = document.createElement('option');
-        opt.value = catKey;
-        opt.textContent = CATEGORIAS_DADOS[catKey].nome;
-        selCat.appendChild(opt);
-      });
-
-      selCat.onchange = () => carregarListaExpedicao();
-      document.getElementById('selExpDia').onchange = () => carregarListaExpedicao();
-
-      carregarListaExpedicao();
-    }
-
-    async function carregarListaExpedicao() {
-      const catKey = document.getElementById('selExpCategoria').value;
-      const dia = document.getElementById('selExpDia').value;
-      const container = document.getElementById('containerListaProdutosExpedicao');
-
-      container.innerHTML = '<p style="text-align:center; color:#64748b;">Carregando produtos...</p>';
-
-      const snapshot = await get(ref(db, `expedicao_lojas/${catKey}/${dia}`));
-      const dadosSalvos = snapshot.val() || {};
-
-      const produtos = CATEGORIAS_DADOS[catKey].produtos;
-      container.innerHTML = '';
-
-      produtos.forEach((prod, pIdx) => {
-        const prodDados = dadosSalvos[`PROD_${pIdx}`] || {};
-        
-        let estaAtivo = false;
-        for (let i = 1; i <= 21; i++) {
-          const numLoja = String(i).padStart(2, '0');
-          if (prodDados[`LOJA_${numLoja}`] > 0) {
-            estaAtivo = true;
-            break;
-          }
-        }
-
-        const divCard = document.createElement('div');
-        divCard.className = `card-produto-item ${estaAtivo ? 'selecionado' : ''}`;
-        divCard.id = `cardProd_${pIdx}`;
-
-        let htmlLojas = '';
-        for (let i = 1; i <= 21; i++) {
-          const numLoja = String(i).padStart(2, '0');
-          const valorSalvo = prodDados[`LOJA_${numLoja}`] || '';
-
-          htmlLojas += `
-            <div class="box-loja">
-              <label>LOJA ${numLoja}</label>
-              <input type="number" step="0.1" min="0" 
-                     id="input_${pIdx}_${numLoja}" 
-                     class="input-loja-p_${pIdx}" 
-                     value="${valorSalvo}" 
-                     placeholder="0"
-                     ${!estaAtivo ? 'disabled' : ''}>
-            </div>
-          `;
-        }
-
-        divCard.innerHTML = `
-          <div class="header-prod-check" onclick="alternarSelecaoProduto(${pIdx})">
-            <input type="checkbox" id="chkProd_${pIdx}" ${estaAtivo ? 'checked' : ''} onclick="event.stopPropagation(); alternarSelecaoProduto(${pIdx})">
-            <span class="prod-titulo">${prod.item} - ${prod.nome}</span>
-          </div>
-          <div class="grid-lojas-expedicao" id="gridLojas_${pIdx}">
-            ${htmlLojas}
-          </div>
+        card.innerHTML = `
+          <div class="card-dia-header">${diaData.dia}</div>
+          <table class="tabela-itens">
+            <tbody>
+              ${linhasHtml}
+            </tbody>
+          </table>
         `;
 
-        container.appendChild(divCard);
+        container.appendChild(card);
       });
     }
 
-    window.alternarSelecaoProduto = function(pIdx) {
-      const chk = document.getElementById(`chkProd_${pIdx}`);
-      const card = document.getElementById(`cardProd_${pIdx}`);
-      const inputs = document.querySelectorAll(`.input-loja-p_${pIdx}`);
+    // Função global para alternar abas
+    window.alternarAba = function(nomeAba, elementoBotao) {
+      // Esconder todas as abas
+      const abas = document.querySelectorAll('.aba-conteudo');
+      abas.forEach(aba => aba.classList.remove('ativa'));
 
-      if (event.target.tagName !== 'INPUT' || event.target.type !== 'checkbox') {
-        chk.checked = !chk.checked;
+      // Desativar botões
+      const botoes = document.querySelectorAll('.btn-aba');
+      botoes.forEach(btn => btn.classList.remove('ativo'));
+
+      // Mostrar aba selecionada
+      const abaAlvo = document.getElementById(`aba-${nomeAba}`);
+      if (abaAlvo) {
+        abaAlvo.classList.add('ativa');
       }
 
-      if (chk.checked) {
-        card.classList.add('selecionado');
-        inputs.forEach(inp => inp.removeAttribute('disabled'));
-      } else {
-        card.classList.remove('selecionado');
-        inputs.forEach(inp => {
-          inp.setAttribute('disabled', 'true');
-          inp.value = '';
-        });
-      }
-    };
-
-    window.salvarTodaExpedicao = async function() {
-      const catKey = document.getElementById('selExpCategoria').value;
-      const dia = document.getElementById('selExpDia').value;
-      const produtos = CATEGORIAS_DADOS[catKey].produtos;
-
-      const payloadAtualizacao = {};
-
-      produtos.forEach((prod, pIdx) => {
-        const chk = document.getElementById(`chkProd_${pIdx}`);
-        const dadosLoja = {};
-
-        if (chk && chk.checked) {
-          for (let i = 1; i <= 21; i++) {
-            const numLoja = String(i).padStart(2, '0');
-            const input = document.getElementById(`input_${pIdx}_${numLoja}`);
-            const val = parseFloat(input.value) || 0;
-            dadosLoja[`LOJA_${numLoja}`] = val;
-          }
-        } else {
-          for (let i = 1; i <= 21; i++) {
-            const numLoja = String(i).padStart(2, '0');
-            dadosLoja[`LOJA_${numLoja}`] = 0;
-          }
-        }
-
-        payloadAtualizacao[`PROD_${pIdx}`] = dadosLoja;
-      });
-
-      try {
-        await set(ref(db, `expedicao_lojas/${catKey}/${dia}`), payloadAtualizacao);
-        alert('Lançamentos salvos com sucesso!');
-      } catch (err) {
-        alert('Erro ao salvar no banco de dados: ' + err.message);
+      // Ativar botão clicado
+      if (elementoBotao) {
+        elementoBotao.classList.add('ativo');
       }
     };
 
-    // --- LEITURA DIRETA DO ARQUIVO .XLSX ---
-    window.atualizarNomeArquivo = function(input) {
-      const lbl = document.getElementById('lblNomeArquivo');
-      if (input.files && input.files[0]) {
-        lbl.innerText = `📄 Arquivo selecionado: ${input.files[0].name}`;
-      } else {
-        lbl.innerText = `📄 Clique aqui para escolher o arquivo da Planilha (.xlsx)`;
-      }
-    };
-
-    window.processarArquivoExcel = function() {
-      const input = document.getElementById('inputArquivoExcel');
-      const divStatus = document.getElementById('msgStatusImportacao');
-
-      if (!input.files || !input.files[0]) {
-        divStatus.style.color = '#dc2626';
-        divStatus.innerText = '❌ Por favor, selecione um arquivo de planilha .xlsx primeiro.';
-        return;
-      }
-
-      divStatus.style.color = '#0284c7';
-      divStatus.innerText = '⏳ Lendo planilha e atualizando o sistema...';
-
-      const file = input.files[0];
-      const reader = new FileReader();
-
-      reader.onload = async function(e) {
-        try {
-          const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array' });
-
-          let totalIdentificados = 0;
-          const metasPorCategoria = {};
-
-          workbook.SheetNames.forEach(sheetName => {
-            const worksheet = workbook.Sheets[sheetName];
-            const jsonLinhas = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-            jsonLinhas.forEach(linha => {
-              if (!linha || linha.length < 2) return;
-
-              let codigoItem = null;
-              for (let i = 0; i < Math.min(5, linha.length); i++) {
-                const celula = String(linha[i] || '').trim();
-                if (/^\d{3,6}$/.test(celula)) {
-                  codigoItem = celula;
-                  break;
-                }
-              }
-
-              if (!codigoItem) return;
-
-              Object.keys(CATEGORIAS_DADOS).forEach(catKey => {
-                const prods = CATEGORIAS_DADOS[catKey].produtos;
-                const indexProd = prods.findIndex(p => p.item === codigoItem);
-
-                if (indexProd !== -1) {
-                  totalIdentificados++;
-
-                  let totalMeta = 0;
-                  for (let col = linha.length - 1; col >= 0; col--) {
-                    const val = parseFloat(linha[col]);
-                    if (!isNaN(val) && val > 0) {
-                      totalMeta = val;
-                      break;
-                    }
-                  }
-
-                  if (!metasPorCategoria[catKey]) {
-                    metasPorCategoria[catKey] = {};
-                  }
-                  metasPorCategoria[catKey][indexProd] = totalMeta;
-                }
-              });
-            });
-          });
-
-          if (totalIdentificados === 0) {
-            divStatus.style.color = '#dc2626';
-            divStatus.innerText = '⚠️ Nenhum item correspondente aos códigos cadastrados foi encontrado na planilha.';
-            return;
-          }
-
-          const promises = Object.keys(metasPorCategoria).map(catKey => {
-            return set(ref(db, `expedicao_metas_semana/${catKey}`), metasPorCategoria[catKey]);
-          });
-
-          await Promise.all(promises);
-
-          divStatus.style.color = '#16a34a';
-          divStatus.innerText = `✅ Sucesso! ${totalIdentificados} produtos identificados e atualizados no banco de dados.`;
-        } catch (err) {
-          divStatus.style.color = '#dc2626';
-          divStatus.innerText = '❌ Erro ao ler a planilha: ' + err.message;
-        }
-      };
-
-      reader.readAsArrayBuffer(file);
-    };
-
-    // Inicialização do Sistema
-    renderizarCategorias();
-    carregarDadosPainelRealtime();
-    carregarChecklistERP();
-    inicializarAbaExpedicao();
+    // Inicialização ao carregar a página
+    document.addEventListener("DOMContentLoaded", () => {
+      renderizarPainel();
+    });
   </script>
 </body>
 </html>
