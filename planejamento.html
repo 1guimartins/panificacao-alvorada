@@ -3,185 +3,242 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Planejamento Semanal</title>
+  <title>Panificação Alvorada - Planejamento</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    body { background-color: #dce3eb; padding: 0; }
+
+    /* Cabeçalho Verde (Igual ao seu sistema) */
+    .top-bar {
+      background-color: #0d6232;
+      color: white;
+      padding: 12px 20px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    body {
-      background-color: #f4f6f9;
-      padding: 20px;
+    /* Navegação por Abas */
+    .nav-tabs {
+      background-color: #dce3eb;
+      padding: 10px 20px 0 20px;
+      display: flex;
+      gap: 10px;
     }
 
-    header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    h1 {
+    .tab-btn {
+      background: white;
+      border: 1px solid #ccc;
+      padding: 8px 16px;
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: bold;
       color: #333;
-      margin-bottom: 8px;
+      text-decoration: none;
     }
 
-    .subtitle {
-      color: #666;
-      font-size: 0.95rem;
+    .tab-btn.active {
+      background: #0d6232;
+      color: white;
+      border-color: #0d6232;
     }
 
-    /* Grid com 5 colunas para Segunda a Sexta */
+    /* Conteúdo Principal */
+    .container { padding: 20px; }
+
     .planner-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 15px;
-      max-width: 1400px;
-      margin: 0 auto;
+      gap: 12px;
     }
 
     .day-column {
       background: #ffffff;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      border-radius: 6px;
+      border: 1px solid #ccc;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
-      border: 1px solid #e1e4e8;
+      min-height: 500px;
     }
 
     .day-header {
-      background-color: #2c3e50;
+      background-color: #1e293b;
       color: white;
-      padding: 15px;
+      padding: 10px;
       text-align: center;
     }
 
-    .day-name {
-      font-size: 1.1rem;
-      font-weight: bold;
-      text-transform: uppercase;
-    }
+    .day-name { font-weight: bold; text-transform: uppercase; font-size: 0.95rem; }
+    .day-date { font-size: 0.85rem; color: #cbd5e1; outline: none; margin-top: 3px; }
 
-    .day-date {
-      font-size: 0.85rem;
-      margin-top: 4px;
-      opacity: 0.85;
-      outline: none;
-    }
-
-    /* Conteúdo editável do dia */
     .day-content {
-      padding: 15px;
+      padding: 12px;
       flex-grow: 1;
-      min-height: 400px;
       outline: none;
-      line-height: 1.6;
-      color: #444;
-      font-size: 0.95rem;
+      line-height: 1.5;
+      font-size: 0.9rem;
+      color: #333;
     }
 
-    .day-content:focus, .day-date:focus {
-      background-color: #fafbfc;
+    .day-content:focus, .day-date:focus { background-color: #f1f5f9; }
+
+    /* Modal de Login */
+    .login-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: flex; justify-content: center; align-items: center;
+      z-index: 1000;
     }
 
-    /* Dica visual ao passar o mouse */
-    .day-content:hover {
-      background-color: #f8f9fa;
+    .login-card {
+      background: white; padding: 30px; border-radius: 8px;
+      width: 320px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
 
-    @media (max-width: 900px) {
-      .planner-grid {
-        grid-template-columns: 1fr;
-      }
+    .login-card h2 { margin-bottom: 15px; color: #0d6232; font-size: 1.3rem; }
+    .login-card input {
+      width: 100%; padding: 10px; margin-bottom: 12px;
+      border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;
     }
+
+    .login-card button {
+      width: 100%; padding: 10px; background: #0d6232;
+      color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;
+    }
+
+    .login-card button:hover { background: #094723; }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>📅 Meu Planejamento Semanal</h1>
-    <p class="subtitle">Clique em qualquer lugar das colunas para digitar, editar ou adicionar suas tarefas.</p>
-  </header>
+  <div id="loginModal" class="login-overlay">
+    <div class="login-card">
+      <h2>Acesso ao Planejamento</h2>
+      <input type="text" id="userInput" placeholder="Usuário (Ex: admin)">
+      <input type="password" id="passInput" placeholder="Senha (Ex: 1234)">
+      <button onclick="fazerLogin()">Entrar</button>
+    </div>
+  </div>
 
-  <main class="planner-grid">
-    <div class="day-column">
-      <div class="day-header">
-        <div class="day-name">Segunda-feira</div>
-        <div class="day-date" contenteditable="true" id="date-seg">--/--/----</div>
+  <div class="top-bar">
+    🥐 Panificação Alvorada - Gestão Integrada
+  </div>
+
+  <div class="nav-tabs">
+    <a href="admin.html" class="tab-btn">⚙️ Painel Admin / ERP</a>
+    <a href="planejamento.html" class="tab-btn active">📅 Planejamento Semanal</a>
+  </div>
+
+  <div class="container">
+    <div class="planner-grid">
+      <div class="day-column">
+        <div class="day-header">
+          <div class="day-name">Segunda-feira</div>
+          <div class="day-date" contenteditable="true" id="date-0">--/--/----</div>
+        </div>
+        <div class="day-content" contenteditable="true" id="content-0" oninput="salvarDados()"></div>
       </div>
-      <div class="day-content" contenteditable="true" placeholder="Digite aqui...">
-        • Tarefa 1<br>
-        • Reunião às 10h<br>
+
+      <div class="day-column">
+        <div class="day-header">
+          <div class="day-name">Terça-feira</div>
+          <div class="day-date" contenteditable="true" id="date-1">--/--/----</div>
+        </div>
+        <div class="day-content" contenteditable="true" id="content-1" oninput="salvarDados()"></div>
+      </div>
+
+      <div class="day-column">
+        <div class="day-header">
+          <div class="day-name">Quarta-feira</div>
+          <div class="day-date" contenteditable="true" id="date-2">--/--/----</div>
+        </div>
+        <div class="day-content" contenteditable="true" id="content-2" oninput="salvarDados()"></div>
+      </div>
+
+      <div class="day-column">
+        <div class="day-header">
+          <div class="day-name">Quinta-feira</div>
+          <div class="day-date" contenteditable="true" id="date-3">--/--/----</div>
+        </div>
+        <div class="day-content" contenteditable="true" id="content-3" oninput="salvarDados()"></div>
+      </div>
+
+      <div class="day-column">
+        <div class="day-header">
+          <div class="day-name">Sexta-feira</div>
+          <div class="day-date" contenteditable="true" id="date-4">--/--/----</div>
+        </div>
+        <div class="day-content" contenteditable="true" id="content-4" oninput="salvarDados()"></div>
       </div>
     </div>
-
-    <div class="day-column">
-      <div class="day-header">
-        <div class="day-name">Terça-feira</div>
-        <div class="day-date" contenteditable="true" id="date-ter">--/--/----</div>
-      </div>
-      <div class="day-content" contenteditable="true" placeholder="Digite aqui...">
-      </div>
-    </div>
-
-    <div class="day-column">
-      <div class="day-header">
-        <div class="day-name">Quarta-feira</div>
-        <div class="day-date" contenteditable="true" id="date-qua">--/--/----</div>
-      </div>
-      <div class="day-content" contenteditable="true" placeholder="Digite aqui...">
-      </div>
-    </div>
-
-    <div class="day-column">
-      <div class="day-header">
-        <div class="day-name">Quinta-feira</div>
-        <div class="day-date" contenteditable="true" id="date-qui">--/--/----</div>
-      </div>
-      <div class="day-content" contenteditable="true" placeholder="Digite aqui...">
-      </div>
-    </div>
-
-    <div class="day-column">
-      <div class="day-header">
-        <div class="day-name">Sexta-feira</div>
-        <div class="day-date" contenteditable="true" id="date-sex">--/--/----</div>
-      </div>
-      <div class="day-content" contenteditable="true" placeholder="Digite aqui...">
-      </div>
-    </div>
-  </main>
+  </div>
 
   <script>
-    // Função para preencher automaticamente as datas da semana atual
-    function preencherDatasDaSemana() {
-      const hoje = new Date();
-      const diaDaSemana = hoje.getDay(); // 0 = Domingo, 1 = Segunda, ...
-      
-      // Calcula a data de segunda-feira da semana atual
-      const distanciaParaSegunda = diaDaSemana === 0 ? -6 : 1 - diaDaSemana;
-      const segunda = new Date(hoje);
-      segunda.setDate(hoje.getDate() + distanciaParaSegunda);
+    // Configuração de Login simples (você pode alterar o usuário e senha aqui)
+    function fazerLogin() {
+      const user = document.getElementById('userInput').value;
+      const pass = document.getElementById('passInput').value;
 
-      const ids = ['date-seg', 'date-ter', 'date-qua', 'date-qui', 'date-sex'];
-
-      ids.forEach((id, index) => {
-        const dataDia = new Date(segunda);
-        dataDia.setDate(segunda.getDate() + index);
-
-        const diaFormatado = String(dataDia.getDate()).padStart(2, '0');
-        const mesFormatado = String(dataDia.getMonth() + 1).padStart(2, '0');
-        const anoFormatado = dataDia.getFullYear();
-
-        document.getElementById(id).innerText = `${diaFormatado}/${mesFormatado}/${anoFormatado}`;
-      });
+      if (user === 'admin' && pass === '1234') {
+        document.getElementById('loginModal').classList.add('hidden');
+        sessionStorage.setItem('logado', 'true');
+      } else {
+        alert('Usuário ou senha incorretos!');
+      }
     }
 
-    // Executa ao carregar a página
-    window.onload = preencherDatasDaSemana;
-  </script>
+    // Mantém o usuário logado durante a sessão
+    if (sessionStorage.getItem('logado') === 'true') {
+      document.getElementById('loginModal').classList.add('hidden');
+    }
 
+    // Preenche as datas da semana atual
+    function preencherDatas() {
+      const hoje = new Date();
+      const diaSemana = hoje.getDay();
+      const distSegunda = diaSemana === 0 ? -6 : 1 - diaSemana;
+      
+      const segunda = new Date(hoje);
+      segunda.setDate(hoje.getDate() + distSegunda);
+
+      for (let i = 0; i < 5; i++) {
+        const dia = new Date(segunda);
+        dia.setDate(segunda.getDate() + i);
+        
+        const formatado = String(dia.getDate()).padStart(2, '0') + '/' + 
+                          String(dia.getMonth() + 1).padStart(2, '0') + '/' + 
+                          dia.getFullYear();
+        
+        const elDate = document.getElementById(`date-${i}`);
+        if (!localStorage.getItem(`date-${i}`)) {
+          elDate.innerText = formatado;
+        } else {
+          elDate.innerText = localStorage.getItem(`date-${i}`);
+        }
+
+        // Carrega texto salvo
+        const elContent = document.getElementById(`content-${i}`);
+        if (localStorage.getItem(`content-${i}`)) {
+          elContent.innerHTML = localStorage.getItem(`content-${i}`);
+        }
+      }
+    }
+
+    // Salva o conteúdo digitado automaticamente no navegador
+    function salvarDados() {
+      for (let i = 0; i < 5; i++) {
+        const dateText = document.getElementById(`date-${i}`).innerText;
+        const contentText = document.getElementById(`content-${i}`).innerHTML;
+        localStorage.setItem(`date-${i}`, dateText);
+        localStorage.setItem(`content-${i}`, contentText);
+      }
+    }
+
+    window.onload = preencherDatas;
+  </script>
 </body>
 </html>
